@@ -1,0 +1,26 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Requests</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+            const activeRequestsElement = document.getElementById('active-requests');
+
+            socket.on('activeRequests', (activeRequests) => {
+                activeRequestsElement.innerText = activeRequests;
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Solicitudes activas: <span id="active-requests">0</span></h1>
+</body>
+
+</html>
