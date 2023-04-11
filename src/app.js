@@ -46,6 +46,7 @@ io.on("connection", (socket) => {
     io.emit("activeUsers", activeUsers);
     //eliminar usuario de la lista  de usuarios conectados
     datosDavid = datosDavid.filter((item) => item.id !== socket.id);
+    io.emit("todosDatosDavid", datosDavid);
   });
 });
 
