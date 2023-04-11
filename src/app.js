@@ -36,6 +36,8 @@ io.on("connection", (socket) => {
     console.log(data);
     data.id = socket.id;
     datosDavid.push(data);
+
+    console.log("enviando datos de david");
     io.emit("todosDatosDavid", datosDavid);
   });
 
