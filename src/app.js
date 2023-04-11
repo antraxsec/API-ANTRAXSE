@@ -24,62 +24,28 @@ app.use("/api", items);
 
 // Contador de usuarios activos
 let activeUsers = 0;
-let datosUsuario = [];
-
+let datosDavid = [];
 // Manejar conexiones y desconexiones de Socket.IO
 io.on("connection", (socket) => {
   activeUsers++;
 
-  // Obtener información sobre el navegador y dispositivo del cliente
-  const userAgent = socket.handshake.headers["user-agent"];
-  const agent = useragent.parse(userAgent);
-  const browser = agent.toAgent(); // Nombre y versión del navegador
-  const os = agent.os.toString(); // Sistema operativo
-  const deviceType = agent.device.toString(); // Dispositivo (podría ser "Other" si no se puede determinar)
-
-  // Obtener la dirección IP del cliente y buscar su ubicación (país)
-  const clientIp =
-    socket.handshake.headers["x-forwarded-for"] || socket.handshake.address;
-  const geo = geoip.lookup(clientIp);
-  const country = geo ? geo.country : "Desconocido";
-  ///datos para el traking
-  console.log(
-    `Cliente conectado: Navegador - ${browser}, Sistema operativo - ${os}, Dispositivo - ${deviceType}, País - ${country}`
-  );
-  datosUsuario.push({
-    navegador: browser,
-    sistema: os,
-    dispositivo: deviceType,
-    pais: country,
-    id: socket.id,
-  });
-
-  const conteo = datosUsuario.reduce(
-    (acumulador, valorActual) => {
-      acumulador.navegadores[valorActual.navegador] =
-        (acumulador.navegadores[valorActual.navegador] || 0) + 1;
-      acumulador.sistemas[valorActual.sistema] =
-        (acumulador.sistemas[valorActual.sistema] || 0) + 1;
-      acumulador.dispositivos[valorActual.dispositivo] =
-        (acumulador.dispositivos[valorActual.dispositivo] || 0) + 1;
-      acumulador.paises[valorActual.pais] =
-        (acumulador.paises[valorActual.pais] || 0) + 1;
-      return acumulador;
-    },
-    { navegadores: {}, sistemas: {}, dispositivos: {}, paises: {} }
-  );
-
-  console.log(conteo);
-
-  io.emit("datosUsuario", conteo);
-
   io.emit("activeUsers", activeUsers);
   io.emit("idUsuario", socket.id);
+  //resivir datos de david
+  socket.on("datosDavid", (data) => {
+    console.log(data);
+    data.id = socket.id;
+    datosDavid.push(data);
+    io.emit("todosDatosDavid", datosDavid);
+  });
+
+  console.log(datosDavid);
+
   socket.on("disconnect", () => {
     activeUsers--;
     io.emit("activeUsers", activeUsers);
     //eliminar usuario de la lista  de usuarios conectados
-    datosUsuario = datosUsuario.filter((item) => item.id !== socket.id);
+    datosDavid = datosDavid.filter((item) => item.id !== socket.id);
   });
 });
 
