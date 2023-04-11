@@ -41,7 +41,7 @@ io.on("connection", (socket) => {
     io.emit("todosDatosDavid", datosDavid);
   });
 
-  //console.log(datosDavid);
+  //console.log(datosDavid);dos
 
   socket.on("disconnect", () => {
     activeUsers--;
