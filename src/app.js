@@ -36,12 +36,11 @@ io.on("connection", (socket) => {
     console.log(data);
     data.id = socket.id;
     datosDavid.push(data);
-
     console.log("enviando datos de david");
     io.emit("todosDatosDavid", datosDavid);
   });
 
-  //console.log(datosDavid);dos
+  console.log(datosDavid);
 
   socket.on("disconnect", () => {
     activeUsers--;
