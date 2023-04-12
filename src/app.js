@@ -48,7 +48,6 @@ io.on("connection", (socket) => {
         user: msg.user,
         text: msg.text,
       });
-
       // Enviar mensaje de confirmación al emisor
       socket.emit("private message", {
         fromSelf: true,
@@ -79,7 +78,7 @@ io.on("connection", (socket) => {
     datosDavid = datosDavid.filter((item) => item.id !== socket.id);
     //console.log(datosDavid);
 
-    console.log("usuario desconectado");
+    //console.log("usuario desconectado");
     io.emit("todosDatosDavid", datosDavid);
 
     users.delete(socket.id);
