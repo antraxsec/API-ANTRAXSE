@@ -25,20 +25,37 @@ app.use("/api", items);
 // Contador de usuarios activos
 let activeUsers = 0;
 let datosDavid = [];
-const users = new Set(); // Almacenar los usuarios conectados
+const users = new Map();
 // Manejar conexiones y desconexiones de Socket.IO
 io.on("connection", (socket) => {
   activeUsers++;
   /////////////////////////////////////////////////
-  //chat con todo los usuario conectados
   socket.on("user connected", (username) => {
     socket.username = username;
-    users.add(username);
-    io.emit("update users", Array.from(users));
+    users.set(socket.id, { id: socket.id, name: username }); // Almacenar la información del usuario con su socket.id
+    io.emit("update users", Array.from(users.values()));
   });
 
   socket.on("chat message", (msg) => {
     io.emit("chat message", msg);
+  });
+
+  socket.on("private message", (msg) => {
+    const recipientSocket = io.sockets.sockets.get(msg.recipient);
+    if (recipientSocket) {
+      // Enviar mensaje al destinatario
+      recipientSocket.emit("private message", {
+        user: msg.user,
+        text: msg.text,
+      });
+
+      // Enviar mensaje de confirmación al emisor
+      socket.emit("private message", {
+        fromSelf: true,
+        recipientName: recipientSocket.username,
+        text: msg.text,
+      });
+    }
   });
   //////////////////////////////////////////////
   //saver cuantos usuarios estan conectados
@@ -65,8 +82,8 @@ io.on("connection", (socket) => {
     console.log("usuario desconectado");
     io.emit("todosDatosDavid", datosDavid);
 
-    users.delete(socket.username);
-    io.emit("update users", Array.from(users));
+    users.delete(socket.id);
+    io.emit("update users", Array.from(users.values()));
   });
 });
 
