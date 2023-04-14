@@ -21,6 +21,10 @@ app.use(express.json());
 app.use(requestCounterMiddleware(io)); // Agrega el middleware para ver cuantos consultan la api en tiempo real
 app.use(indexRouter);
 app.use("/api", items);
+app.post("/wasapi", (req, res) => {
+  console.log(req);
+  res.json(req);
+});
 
 // Contador de usuarios activos
 let activeUsers = 0;
@@ -32,6 +36,7 @@ io.on("connection", (socket) => {
   /////////////////////////////////////////////////
   socket.on("user connected", (username) => {
     socket.username = username;
+    console.log(username);
     users.set(socket.id, { id: socket.id, name: username }); // Almacenar la información del usuario con su socket.id
     io.emit("update users", Array.from(users.values()));
   });
