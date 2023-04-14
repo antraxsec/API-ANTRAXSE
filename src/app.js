@@ -21,9 +21,10 @@ app.use(express.json());
 app.use(requestCounterMiddleware(io)); // Agrega el middleware para ver cuantos consultan la api en tiempo real
 app.use(indexRouter);
 app.use("/api", items);
-app.post("/wasapi", (req, res) => {
-  console.log(req);
-  res.json(req);
+app.post("/webhook", (req, res) => {
+  const data = req.body;
+  console.log(data);
+  res.sendStatus(200); // Responde al webhook con un estado HTTP 200 OK
 });
 
 // Contador de usuarios activos
