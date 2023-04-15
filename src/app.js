@@ -78,11 +78,10 @@ io.on("connection", (socket) => {
     io.emit("todosDatosDavid", datosDavid);
   });
   socket.on("tracking", (data) => {
-    objeto.tracking = data;
-    datosDavid.push(objeto);
+    objeto.push(data);
 
     //console.log("enviando datos de david");
-    io.emit("dataTracking", datosDavid);
+    io.emit("dataTracking", objeto);
   });
 
   socket.on("disconnect", () => {
