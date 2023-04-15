@@ -72,12 +72,17 @@ io.on("connection", (socket) => {
   socket.on("datosDavid", (data) => {
     //console.log(data);
     data.id = socket.id;
-    datosDavid.push(id:data.id);
-    
-    objeto.tracking = data;
-    datosDavid.push(objeto);
+    datosDavid.push(data);
+
     //console.log("enviando datos de david");
     io.emit("todosDatosDavid", datosDavid);
+  });
+  socket.on("tracking", (data) => {
+    objeto.tracking = data;
+    datosDavid.push(objeto);
+
+    //console.log("enviando datos de david");
+    io.emit("dataTracking", datosDavid);
   });
 
   socket.on("disconnect", () => {
