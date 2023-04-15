@@ -30,6 +30,7 @@ app.post("/webhook", (req, res) => {
 // Contador de usuarios activos
 let activeUsers = 0;
 let datosDavid = [];
+let objeto = {};
 const users = new Map();
 // Manejar conexiones y desconexiones de Socket.IO
 io.on("connection", (socket) => {
@@ -71,8 +72,8 @@ io.on("connection", (socket) => {
   socket.on("datosDavid", (data) => {
     //console.log(data);
     data.id = socket.id;
-    let objeto = {}
-        objeto.tracking = data;
+    
+    objeto.tracking = data;
     datosDavid.push(objeto.tracking);
     //console.log("enviando datos de david");
     io.emit("todosDatosDavid", datosDavid);
