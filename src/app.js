@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
     data.id = socket.id;
     
     objeto.tracking = data;
-    datosDavid.push(objeto.tracking);
+    datosDavid.push(objeto);
     //console.log("enviando datos de david");
     io.emit("todosDatosDavid", datosDavid);
   });
