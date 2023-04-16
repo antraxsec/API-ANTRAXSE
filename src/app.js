@@ -53,12 +53,12 @@ io.on("connection", (socket) => {
 		const idsesion    = data.id_sesion;
 
 		const existeSesion = dataTracking.some((item) => item.id_sesion === idsesion);
-		// if (!existeSesion) {
+		if (!existeSesion) {
 			dataTracking.push(data);
-		// }
-		// else{
-		// 	console.log('Esta sesion ya existe, continua');
-		// }
+		}
+		else{
+			console.log('Esta sesion ya existe, continua');
+		}
 
 		if (pais !== null) {
 			console.log("El país es:: ".pais);
@@ -84,7 +84,3 @@ io.on("connection", (socket) => {
 app.use(express.static("public"));
 
 export default server;
-
-
-/// donde esta el servidor
-///https://railway.app/project/2a24385c-f6d0-46e2-a79e-ce4460940421/service/4719a159-1bd3-433e-87bd-d5b5bd538b91?id=e38a0adf-18f8-45a7-a0f9-c9a75d0cf90d
