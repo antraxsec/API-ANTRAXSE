@@ -23,62 +23,48 @@ app.use("/api", items);
 
 let dataTracking = [];
 let dataUsuarios = [];
-let usuariosActivos = 0;
-const usuarios = new Map();
 
-io.on("connection", (socket) => {
+io.on('connection', (socket) => {
+	console.log('Petición LIVE al servidor:', socket.id);
+
+	socket.on('userTracer', (data) => {
+
+		socket.id = data.id_sesion + '_' + socket.id;
+
+		// let existeSesion = dataUsuarios.some((item) => item.id === socket.id);
+		// if (existeSesion) {
+		// 	console.log('Esta sesion ya existe, continua');
+		// }
+		// else{
+			let usuario = {};
+				usuario.id = socket.id;
+				dataUsuarios.push(usuario);
+				console.log('Usuarios actualizados:', dataUsuarios);
+
+				data.id_socket = socket.id;
+				dataTracking.push(data);
+		// }
+
+		io.emit('usuarioId', socket.id); 
+		io.emit('usuariosConectados', dataUsuarios, dataUsuarios.length); 
+		io.emit('serverTracer', dataTracking)
+
+	});
 	
-	usuariosActivos++;
-	console.log("que tal metal");
+	socket.on('disconnect', () => {
+	  	console.log('Petición LIVE finalizada:', socket.id);
+		dataUsuarios = dataUsuarios.filter(item => item.id !== socket.id);
 
-	io.emit("idUsuario", socket.id);
-	io.emit("usuariosActivos", usuariosActivos);
+		io.emit('usuariosConectados', dataUsuarios, dataUsuarios.length); 
+		console.log('Usuarios actualizados:', dataUsuarios);
 
-	let usuario = {};
-		usuario.id = socket.id;
-		dataUsuarios.push(usuario);
-
-	// socket.on("user connected", (username) => {
-	// 	socket.username = username;
-	// 	console.log('Este es nombre de usuairo:: ', username);
-	// 	usuarios.set(socket.id, { id: socket.id, name: username });
-	// 	io.emit("update users", Array.from(usuarios.values()));
-	// });
-
-	socket.on("userTracer", (data) => {
-		console.log(data);
-
-		const dispositivo = data.dispositivo_cookie;
-		const pais 	      = data.pais_trackingsesion;
-		const idsesion    = data.id_sesion;
-
-		const existeSesion = dataTracking.some((item) => item.id_sesion === idsesion);
-		if (!existeSesion) {
-			dataTracking.push(data);
-		}
-		else{
-			console.log('Esta sesion ya existe, continua');
-		}
-
-		if (pais !== null) {
-			console.log("El país es:: ".pais);
-		} else {
-			console.log("No llego datos de geolocalización");
-		}
-
-		io.emit("serverTracer", dataTracking, dataUsuarios);
+		dataTracking = dataTracking.filter(item => item.id_socket !== socket.id);
+		// console.log('------------------------1');
+		// console.log(dataTracking)
+		// console.log('------------------------2');
+		io.emit('serverTracer', dataTracking)
 	});
 
-	socket.on("disconnect", () => {
-		usuariosActivos--;
-		io.emit("usuariosActivos", usuariosActivos);
-		// //eliminar usuario de la lista  de usuarios conectados
-		dataUsuarios = dataUsuarios.filter((item) => item.id !== socket.id);
-		console.log(dataUsuarios);
-
-		usuarios.delete(socket.id);
-		io.emit("update users", Array.from(usuarios.values()));
-	  });
 });
 
 app.use(express.static("public"));
