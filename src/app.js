@@ -19,7 +19,7 @@ app.use(indexRouter);
 app.use("/api", items);
 app.post("/webhook", (req, res) => {
   //resive el webhook de stripe
-  console.log(req);
+  console.log(req.body);
 });
 
 let dataTracking = [];
