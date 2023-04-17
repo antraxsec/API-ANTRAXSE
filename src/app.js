@@ -5,11 +5,8 @@ import items from "./routes/item.routes.js";
 import indexRouter from "./routes/index.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import useragent from "useragent";
-import geoip from "geoip-lite";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
 
-import { PORT } from "./config.js";
 
 const app = express();
 const server = createServer(app);
@@ -20,6 +17,10 @@ app.use(express.json());
 app.use(requestCounterMiddleware(io));
 app.use(indexRouter);
 app.use("/api", items);
+app.post("/webhook", (req, res) => {
+  //resive el webhook de stripe
+  console.log(req);
+});
 
 let dataTracking = [];
 let dataUsuarios = [];
