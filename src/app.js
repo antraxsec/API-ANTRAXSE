@@ -22,7 +22,7 @@ app.post("/webhook", (req, res) => {
   console.log(req.body);
 });
 
-//nuevo
+//nuevo dos
 //app.post("/webhookwhatsapp", (req, res) => {
   //resive el webhook de stripe watsapi
   //console.log(req.body);
