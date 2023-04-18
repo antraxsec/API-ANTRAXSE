@@ -18,9 +18,34 @@ app.use(requestCounterMiddleware(io));
 app.use(indexRouter);
 app.use("/api", items);
 app.post("/webhook", (req, res) => {
-  //resive el webhook de stripe
+  //resive el webhook de stripe watsapi
   console.log(req.body);
 });
+
+//app.post("/webhookwhatsapp", (req, res) => {
+  //resive el webhook de stripe watsapi
+  //console.log(req.body);
+//});
+
+app.get("/webhookwhatsapp", function (req, res) {
+  if (
+    req.query["hub.mode"] == "subscribe" &&
+    req.query["hub.verify_token"] == "david"
+  ) {
+    res.send(req.query["hub.challenge"]);
+  } else {
+    res.sendStatus(400);
+  }
+});
+
+app.post("/webhookwhatsapp", function (request, response) {
+  console.log("Incoming webhook: " + JSON.stringify(request.body));
+  response.sendStatus(200);
+});
+
+
+
+
 
 let dataTracking = [];
 let dataUsuarios = [];
