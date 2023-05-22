@@ -6,7 +6,7 @@ import { pool } from "../db.js";
 export const postwp = async (req, res) => {
 
     console.log(req.body);
-//nuevo
+//nuevo dos nuevos
  let datas = {
    messaging_product: "whatsapp",
    to: "59168249790",
