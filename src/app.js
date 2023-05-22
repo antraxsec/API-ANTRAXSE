@@ -2,6 +2,7 @@
 import express from "express";
 import cors from "cors";
 import items from "./routes/item.routes.js";
+import whatsapps from "./routes/whatsapp.routes.js";
 import indexRouter from "./routes/index.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -17,12 +18,13 @@ app.use(express.json());
 app.use(requestCounterMiddleware(io));
 app.use(indexRouter);
 app.use("/api", items);
+
 app.post("/webhook", (req, res) => {
   //resive el webhook de stripe watsapi
   console.log(req.body);
 });
 
-
+///api de whatsapp
 app.get("/webhookwhatsapp", function (req, res) {
   if (
     req.query["hub.mode"] == "subscribe" &&
@@ -33,11 +35,11 @@ app.get("/webhookwhatsapp", function (req, res) {
     res.sendStatus(400);
   }
 });
-
 app.post("/webhookwhatsapp", function (request, response) {
   console.log("Incoming webhook: " + JSON.stringify(request.body));
   response.sendStatus(200);
 });
+app.use("/whatsapp", whatsapps);
 
 
 let dataTracking = [];
