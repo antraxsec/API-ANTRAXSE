@@ -37,7 +37,7 @@ app.get("/webhookwhatsapp", function (req, res) {
 });
 app.post("/webhookwhatsapp", function (request, response) {
 	console.log("Incoming webhook: " + JSON.stringify(request.body));
-	console.log(request.body.object)
+	console.log(request.body.entry.changes)
 
 
 	response.sendStatus(200);
