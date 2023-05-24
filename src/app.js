@@ -20,24 +20,28 @@ app.use(indexRouter);
 app.use("/api", items);
 
 app.post("/webhook", (req, res) => {
-  //resive el webhook de stripe watsapi
-  console.log(req.body);
+	//resive el webhook de stripe watsapi
+	console.log(req.body);
 });
 
 ///api de whatsapp
 app.get("/webhookwhatsapp", function (req, res) {
-  if (
-    req.query["hub.mode"] == "subscribe" &&
-    req.query["hub.verify_token"] == "david"
-  ) {
-    res.send(req.query["hub.challenge"]);
-  } else {
-    res.sendStatus(400);
-  }
+	if (
+		req.query["hub.mode"] == "subscribe" &&
+		req.query["hub.verify_token"] == "david"
+	) {
+		res.send(req.query["hub.challenge"]);
+	} else {
+		res.sendStatus(400);
+	}
 });
 app.post("/webhookwhatsapp", function (request, response) {
-  console.log("Incoming webhook: " + JSON.stringify(request.body));
-  response.sendStatus(200);
+	console.log("Incoming webhook: " + JSON.stringify(request.body));
+	console.log(request.body.message)
+	console.log(request.body.message.isText)
+	console.log(request.body.from)
+
+	response.sendStatus(200);
 });
 app.use("/whatsapp", whatsapps);
 
@@ -57,26 +61,26 @@ io.on('connection', (socket) => {
 		// 	console.log('Esta sesion ya existe, continua');
 		// }
 		// else{
-			let usuario = {};
-				usuario.id = socket.id;
-				dataUsuarios.push(usuario);
-				console.log('Usuarios actualizados:', dataUsuarios);
+		let usuario = {};
+		usuario.id = socket.id;
+		dataUsuarios.push(usuario);
+		console.log('Usuarios actualizados:', dataUsuarios);
 
-				data.id_socket = socket.id;
-				dataTracking.push(data);
+		data.id_socket = socket.id;
+		dataTracking.push(data);
 		// }
 
-		io.emit('usuarioId', socket.id); 
-		io.emit('usuariosConectados', dataUsuarios, dataUsuarios.length); 
+		io.emit('usuarioId', socket.id);
+		io.emit('usuariosConectados', dataUsuarios, dataUsuarios.length);
 		io.emit('serverTracer', dataTracking)
 
 	});
-	
+
 	socket.on('disconnect', () => {
-	  	console.log('Petición LIVE finalizada:', socket.id);
+		console.log('Petición LIVE finalizada:', socket.id);
 		dataUsuarios = dataUsuarios.filter(item => item.id !== socket.id);
 
-		io.emit('usuariosConectados', dataUsuarios, dataUsuarios.length); 
+		io.emit('usuariosConectados', dataUsuarios, dataUsuarios.length);
 		console.log('Usuarios actualizados:', dataUsuarios);
 
 		dataTracking = dataTracking.filter(item => item.id_socket !== socket.id);
