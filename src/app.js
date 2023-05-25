@@ -1,5 +1,6 @@
 // server.js
 import express from "express";
+import axios from 'axios';
 import cors from "cors";
 import items from "./routes/item.routes.js";
 import whatsapps from "./routes/whatsapp.routes.js";
@@ -59,9 +60,9 @@ app.post("/webhookwhatsapp", function (request, response) {
 app.use("/whatsapp", whatsapps);
 /////funciones para el bot
 
+
+
 function sendMessage(to, textBody) {
-
-
 	var message = {
 		"messaging_product": 'whatsapp',
 		"recipient_type": 'individual',
@@ -76,21 +77,20 @@ function sendMessage(to, textBody) {
 	var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
 	var token = WHATSAPP_API_KEY
 
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
-	xhr.setRequestHeader("Content-Type", "application/json");
-	xhr.setRequestHeader("Authorization", "Bearer " + token);
-	xhr.onreadystatechange = function () {
-		if (xhr.readyState === 4 && xhr.status === 200) {
-			console.log(xhr.status)
-			console.log(xhr.readyState)
-			console.log("Mensaje enviado con éxito");
-		} else {
-			console.log("Error al enviar el mensaje");
+	axios.post(url, message, {
+		headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bearer ${token}`
 		}
-	};
-	xhr.send(JSON.stringify(message));
+	})
+		.then(response => {
+			console.log("Mensaje enviado con éxito");
+		})
+		.catch(error => {
+			console.log("Error al enviar el mensaje: ", error);
+		});
 }
+
 
 //////end funciones para bot
 
