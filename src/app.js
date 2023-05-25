@@ -39,24 +39,32 @@ app.get("/webhookwhatsapp", function (req, res) {
 app.post("/webhookwhatsapp", function (request, response) {
 	console.log("Incoming webhook: " + JSON.stringify(request.body));
 
-	console.log(request.body.entry[0].changes[0].value.contacts)///contacto que te envia mensaje
-	console.log(request.body.entry[0].changes[0].value.messages)///datos del mensaje
-	console.log(request.body.entry[0].changes[0].value.messages[0].type)//tipo de mensaje 
-	console.log(request.body.entry[0].changes[0].value.messages[0].from)//numero de contacto
-	console.log(request.body.entry[0].changes[0].value.messages[0].text.body)//mensaje
+	if (request.body.entry &&
+		request.body.entry[0] &&
+		request.body.entry[0].changes &&
+		request.body.entry[0].changes[0] &&
+		request.body.entry[0].changes[0].value &&
+		request.body.entry[0].changes[0].value.messages &&
+		request.body.entry[0].changes[0].value.messages[0]) {
 
-	// Verificar el tipo de mensaje, si es de texto y contiene contenido.
-	if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
-		// Enviar el mensaje de respuesta
-		if (request.body.entry[0].changes[0].value.messages[0].text.body === 'dos')
-			sendMessage(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
+		console.log(request.body.entry[0].changes[0].value.contacts);///contacto que te envia mensaje
+		console.log(request.body.entry[0].changes[0].value.messages);///datos del mensaje
+		console.log(request.body.entry[0].changes[0].value.messages[0].type); //tipo de mensaje 
+		console.log(request.body.entry[0].changes[0].value.messages[0].from); //numero de contacto
+		console.log(request.body.entry[0].changes[0].value.messages[0].text.body); //mensaje
+
+		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
+		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
+			// Enviar el mensaje de respuesta
+			if (request.body.entry[0].changes[0].value.messages[0].text.body === 'dos') {
+				sendMessage(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
+			}
+		}
 	}
-
-
-
 
 	response.sendStatus(200);
 });
+
 app.use("/whatsapp", whatsapps);
 /////funciones para el bot
 
