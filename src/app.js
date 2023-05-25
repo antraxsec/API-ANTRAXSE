@@ -58,24 +58,38 @@ app.post("/webhookwhatsapp", function (request, response) {
 });
 app.use("/whatsapp", whatsapps);
 /////funciones para el bot
-function sendMessage(to, message) {
-	let options = {
-		method: 'POST',
-		url: 'https://graph.facebook.com/v16.0/119254337784335/messages',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + WHATSAPP_API_KEY
-		},
-		body: JSON.stringify({
-			to: to,
-			message: message
-		})
+
+function sendMessage(to, textBody) {
+
+
+	var message = {
+		"messaging_product": 'whatsapp',
+		"recipient_type": 'individual',
+		"to": to,
+		"type": "text",
+		"text": {
+			"preview_url": false,
+			"body": textBody
+		}
 	};
 
-	request(options, function (error, response, body) {
-		if (error) throw new Error(error);
-		console.log(body);
-	});
+	var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
+	var token = WHATSAPP_API_KEY
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-Type", "application/json");
+	xhr.setRequestHeader("Authorization", "Bearer " + token);
+	xhr.onreadystatechange = function () {
+		if (xhr.readyState === 4 && xhr.status === 200) {
+			console.log(xhr.status)
+			console.log(xhr.readyState)
+			console.log("Mensaje enviado con éxito");
+		} else {
+			console.log("Error al enviar el mensaje");
+		}
+	};
+	xhr.send(JSON.stringify(message));
 }
 
 //////end funciones para bot
