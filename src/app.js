@@ -7,7 +7,7 @@ import indexRouter from "./routes/index.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
-
+import { WHATSAPP_API_KEY } from "./config.js";
 
 const app = express();
 const server = createServer(app);
@@ -44,10 +44,41 @@ app.post("/webhookwhatsapp", function (request, response) {
 	console.log(request.body.entry[0].changes[0].value.messages[0].from)//numero de contacto
 	console.log(request.body.entry[0].changes[0].value.messages[0].text.body)//mensaje
 
+	// Verificar el tipo de mensaje, si es de texto y contiene contenido.
+	if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
+		// Enviar el mensaje de respuesta
+		if (request.body.entry[0].changes[0].value.messages[0].text.body === 'dos')
+			sendMessage(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
+	}
+
+
+
+
 	response.sendStatus(200);
 });
 app.use("/whatsapp", whatsapps);
+/////funciones para el bot
+function sendMessage(to, message) {
+	let options = {
+		method: 'POST',
+		url: 'https://graph.facebook.com/v16.0/119254337784335/messages',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + WHATSAPP_API_KEY
+		},
+		body: JSON.stringify({
+			to: to,
+			message: message
+		})
+	};
 
+	request(options, function (error, response, body) {
+		if (error) throw new Error(error);
+		console.log(body);
+	});
+}
+
+//////end funciones para bot
 
 let dataTracking = [];
 let dataUsuarios = [];
