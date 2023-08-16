@@ -53,7 +53,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 		console.log("tipo de mensaje:", request.body.entry[0].changes[0].value.messages[0].type); //tipo de mensaje 
 		console.log("numero de contacto:", request.body.entry[0].changes[0].value.messages[0].from); //numero de contacto
 		console.log("numero celular:", request.body.entry[0].changes[0].value.messages[0].text.body); //mensaje
-
+		console.log(WHATSAPP_API_KEY)
 		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
 			// Enviar el mensaje de respuesta
