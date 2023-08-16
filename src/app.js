@@ -59,6 +59,7 @@ app.post("/webhookwhatsapp", async function (request, response) {
 		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
 			// Enviar el mensaje de respuesta
+			await mensajeFacebook("59168249790", mensaje);
 			if (mensaje === 'Dos') {
 
 				const dia = obtenerDiaActual();
