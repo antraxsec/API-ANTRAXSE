@@ -36,7 +36,7 @@ app.get("/webhookwhatsapp", function (req, res) {
 		res.sendStatus(400);
 	}
 });
-app.post("/webhookwhatsapp", function (request, response) {
+app.post("/webhookwhatsapp", async function (request, response) {
 	console.log("Incoming webhook: " + JSON.stringify(request.body));
 	console.log("entro normal de los nuevos ")
 
@@ -61,9 +61,9 @@ app.post("/webhookwhatsapp", function (request, response) {
 			// Enviar el mensaje de respuesta
 			if (mensaje === 'Dos') {
 				const dia = obtenerDiaActual();
-				mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
-				mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);
-				mensajeFacebook(numero, `Te dejo algunos modelos de nuestros productos más demandados. Si deseas ver los precios actualizados, simplemente haz clic en el enlace proporcionado.`);
+				await mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
+				await mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);
+				await mensajeFacebook(numero, `Te dejo algunos modelos de nuestros productos más demandados. Si deseas ver los precios actualizados, simplemente haz clic en el enlace proporcionado.`);
 				//producto 1
 				const productoTexto1 = [
 					`*Código SKU:* 100279`,
@@ -76,7 +76,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 					`*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`,
 					`-----------------------------------`,
 				].join('\n');
-				productoFacebook(numero, "100279", productoTexto1, "Equipo de ventas Multilaptops")
+				await productoFacebook(numero, "100279", productoTexto1, "Equipo de ventas Multilaptops")
 				//producto 2
 				const productoTexto2 = [
 					`*Código SKU:* 100352`,
@@ -90,7 +90,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 					`-----------------------------------`,
 					`Compra durante esta campaña y Samsung Bolivia te regala un *SSD NVMe de 1TB*.`,
 				].join('\n');
-				productoFacebook(numero, "100352", productoTexto2, "Equipo de ventas Multilaptops")
+				await productoFacebook(numero, "100352", productoTexto2, "Equipo de ventas Multilaptops")
 				//producto 3
 				const productoTexto3 = [
 					`*Código SKU:* 100353`,
@@ -104,7 +104,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 					`-----------------------------------`,
 					`Compra durante esta campaña y Samsung Bolivia te regala un *SSD NVMe de 1TB*.`,
 				].join('\n');
-				productoFacebook(numero, "100353", productoTexto3, "Equipo de ventas Multilaptops")
+				await productoFacebook(numero, "100353", productoTexto3, "Equipo de ventas Multilaptops")
 				//producto 4
 				const productoTexto4 = [
 					`Lo mejor de ASUS, ahora disponible para entrega inmediata.`,
@@ -119,7 +119,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 					`*(Bs. 19890) Ver precio actualizado 👉* https://multilaptops.net/producto/100345`,
 					`-----------------------------------`,
 				].join('\n');
-				productoFacebook(numero, "100345", productoTexto4, "Equipo de ventas Multilaptops")
+				await productoFacebook(numero, "100345", productoTexto4, "Equipo de ventas Multilaptops")
 				//producto 5
 				const productoTexto5 = [
 					`Lo esencial en productos HP disponibles para entrega inmediata.`,
@@ -134,10 +134,10 @@ app.post("/webhookwhatsapp", function (request, response) {
 					`*(Bs. 2400) Ver precio actualizado 👉* https://multilaptops.net/producto/100376`,
 					`-----------------------------------`,
 				].join('\n');
-				productoFacebook(numero, "100376", productoTexto5, "Equipo de ventas Multilaptops")
+				await productoFacebook(numero, "100376", productoTexto5, "Equipo de ventas Multilaptops")
 				//letras
-				mensajeFacebook(numero, `Si te interesa uno de nuestros productos, necesitas más información o estás listo para comprar, estoy aquí para ayudarte. Puedo agendarte una llamada, y un asesor de ventas se pondrá en contacto contigo para facilitar todo el proceso.`);
-				mensajeFacebook(numero, `Nos esforzamos por hacer tu experiencia de compra lo más sencilla y cómoda posible. Como empresa moderna y líder en innovación tecnológica, revisa todos nuestros productos en multilaptops.net. ¡No dudes en contactarnos con cualquier pregunta!`);
+				await mensajeFacebook(numero, `Si te interesa uno de nuestros productos, necesitas más información o estás listo para comprar, estoy aquí para ayudarte. Puedo agendarte una llamada, y un asesor de ventas se pondrá en contacto contigo para facilitar todo el proceso.`);
+				await mensajeFacebook(numero, `Nos esforzamos por hacer tu experiencia de compra lo más sencilla y cómoda posible. Como empresa moderna y líder en innovación tecnológica, revisa todos nuestros productos en multilaptops.net. ¡No dudes en contactarnos con cualquier pregunta!`);
 
 			}
 
