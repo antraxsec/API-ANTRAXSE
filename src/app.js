@@ -74,12 +74,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 				productoFacebook(numero, "100354", uno, unofooter)
 			}
 			if (mensaje === 'Pro') {
-				productoFacebook(numero, "100354", `*Código SKU:* 100279
-*Procesador:* Intel Core i3 a 4,1Ghz de 11a. Gen.
-*Memoria RAM:* 8GB a 2666 Mhz
-*Almacenamiento:* SSD NVME 256 GB
-*Pantalla:* 15,6" LED FULLHD(1920 x 1080)
-*Gráficos:* UHD Intel Core`, `*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`)
+				productoFacebook(numero, "100354", "boy_text", "footer_text")
 			}
 			////fecha
 			async function obtenerDiaActual() {
