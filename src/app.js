@@ -60,6 +60,7 @@ app.post("/webhookwhatsapp", async function (request, response) {
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
 			// Enviar el mensaje de respuesta
 			if (mensaje === 'Dos') {
+
 				const dia = obtenerDiaActual();
 				await mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
 				await mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);

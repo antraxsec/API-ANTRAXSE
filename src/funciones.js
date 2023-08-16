@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { WHATSAPP_API_KEY } from "./config.js";
 
-export function productoFacebook(to, id_catalogo, boy_text, footer_text) {
+export async function productoFacebook(to, id_catalogo, boy_text, footer_text) {
     var message = {
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
@@ -40,7 +40,7 @@ export function productoFacebook(to, id_catalogo, boy_text, footer_text) {
 }
 
 
-export function mensajeFacebook(to, textBody) {
+export async function mensajeFacebook(to, textBody) {
     var message = {
         "messaging_product": 'whatsapp',
         "recipient_type": 'individual',
