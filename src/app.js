@@ -56,10 +56,8 @@ app.post("/webhookwhatsapp", function (request, response) {
 		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
 			// Enviar el mensaje de respuesta
-			console.log(request.body.entry[0].changes[0].value.messages[0].type)
-
 			if (request.body.entry[0].changes[0].value.messages[0].text.body === 'dos') {
-				mensajeFacebook(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático super.");
+				mensajeFacebook(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
 			}
 		}
 	}
