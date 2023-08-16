@@ -64,6 +64,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 				mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
 				mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);
 				mensajeFacebook(numero, `Te dejo algunos modelos de nuestros productos más demandados. Si deseas ver los precios actualizados, simplemente haz clic en el enlace proporcionado.`);
+				//producto 1
 				const productoTexto1 = [
 					`*Código SKU:* 100279`,
 					`*Procesador:* Intel Core i3 a 4,1Ghz de 11a. Gen.`,
@@ -75,16 +76,71 @@ app.post("/webhookwhatsapp", function (request, response) {
 					`*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`,
 					`-----------------------------------`,
 				].join('\n');
-				productoFacebook(numero, "100279", productoTexto1, "footer_text")
+				productoFacebook(numero, "100279", productoTexto1, "Equipo de ventas Multilaptops")
+				//producto 2
+				const productoTexto2 = [
+					`*Código SKU:* 100352`,
+					`*Procesador:* Intel Core i5 a 4,6Ghz  de 13a. Gen.`,
+					`*Memoria RAM:* 8GB a 4267 Mhz`,
+					`*Almacenamiento:* SSD NVME 512 GB`,
+					`*Pantalla:* 15,6" LED FULLHD IPS (1920 x 1080)`,
+					`*Gráficos:* Intel® Iris® Xᵉ Graphics`,
+					`-----------------------------------`,
+					`*(Bs. 5350) Ver precio actualizado 👉* https://multilaptops.net/producto/100352`,
+					`-----------------------------------`,
+					`Compra durante esta campaña y Samsung Bolivia te regala un *SSD NVMe de 1TB*.`,
+				].join('\n');
+				productoFacebook(numero, "100352", productoTexto2, "Equipo de ventas Multilaptops")
+				//producto 3
+				const productoTexto3 = [
+					`*Código SKU:* 100353`,
+					`*Procesador:* Intel Core i7 a 5Ghz de 13a. Gen.`,
+					`*Memoria RAM:* 8GB a 4267 Mhz`,
+					`*Almacenamiento:* SSD NVME 512 GB`,
+					`*Pantalla:* 15,6 FULLHD AMOLED Touchscreen Convertible`,
+					`*Gráficos:* Intel® Iris® Xᵉ Graphics`,
+					`-----------------------------------`,
+					`*(Bs. 9400) Ver precio actualizado 👉* https://multilaptops.net/producto/100353`,
+					`-----------------------------------`,
+					`Compra durante esta campaña y Samsung Bolivia te regala un *SSD NVMe de 1TB*.`,
+				].join('\n');
+				productoFacebook(numero, "100353", productoTexto3, "Equipo de ventas Multilaptops")
+				//producto 4
+				const productoTexto4 = [
+					`Lo mejor de ASUS, ahora disponible para entrega inmediata.`,
+					``,
+					`*Código SKU:* 100345`,
+					`*Procesador:* Intel Core i9-13980HX a 5,6Ghz de 13a Gen. con 24 núcleos físicos`,
+					`*Memoria RAM:* 16GB a 4800 Mhz DDR5`,
+					`*Almacenamiento:* SSD 1TB PCIe® 4.0 NVMe™ M.2`,
+					`*Pantalla:* 16" LED IPS FHD (1920x1200), actualización de 165Hz`,
+					`*Gráficos:* NVIDIA® GeForce RTX™ 4070 (8GB de GDDR6)`,
+					`-----------------------------------`,
+					`*(Bs. 19890) Ver precio actualizado 👉* https://multilaptops.net/producto/100345`,
+					`-----------------------------------`,
+				].join('\n');
+				productoFacebook(numero, "100345", productoTexto4, "Equipo de ventas Multilaptops")
+				//producto 5
+				const productoTexto5 = [
+					`Lo esencial en productos HP disponibles para entrega inmediata.`,
+					``,
+					`*Código SKU:* 100376`,
+					`*Procesador:* Intel Celeron N4500 a 2,8Ghz de 11a Gen.`,
+					`*Memoria RAM:* 8GB a 2933 Mhz`,
+					`*Almacenamiento:* SSD NVME 256 GB`,
+					`*Pantalla:* 15,6 LED HD`,
+					`*Gráficos:* Intel® UHD Graphics 600`,
+					`-----------------------------------`,
+					`*(Bs. 2400) Ver precio actualizado 👉* https://multilaptops.net/producto/100376`,
+					`-----------------------------------`,
+				].join('\n');
+				productoFacebook(numero, "100376", productoTexto5, "Equipo de ventas Multilaptops")
+				//letras
+				mensajeFacebook(numero, `Si te interesa uno de nuestros productos, necesitas más información o estás listo para comprar, estoy aquí para ayudarte. Puedo agendarte una llamada, y un asesor de ventas se pondrá en contacto contigo para facilitar todo el proceso.`);
+				mensajeFacebook(numero, `Nos esforzamos por hacer tu experiencia de compra lo más sencilla y cómoda posible. Como empresa moderna y líder en innovación tecnológica, revisa todos nuestros productos en multilaptops.net. ¡No dudes en contactarnos con cualquier pregunta!`);
+
 			}
-			if (mensaje === 'Pro') {
-				productoFacebook(numero, "100279", `*Código SKU:* 100279
-*Procesador:* Intel Core i3 a 4,1Ghz de 11a. Gen.
-*Memoria RAM:* 8GB a 2666 Mhz
-*Almacenamiento:* SSD NVME 256 GB
-*Pantalla:* 15,6" LED FULLHD (1920 x 1080)`
-					`*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`)
-			}
+
 			////fecha
 			async function obtenerDiaActual() {
 
