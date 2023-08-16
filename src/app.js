@@ -59,12 +59,12 @@ app.post("/webhookwhatsapp", function (request, response) {
 		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
 			// Enviar el mensaje de respuesta
-			if (mensaje === 'dos') {
+			if (mensaje === 'Dos') {
 				const dia = obtenerDiaActual();
 				mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
 				mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);
 				mensajeFacebook(numero, `Te dejo algunos modelos de nuestros productos más demandados. Si deseas ver los precios actualizados, simplemente haz clic en el enlace proporcionado.`);
-
+				productoFacebook(numero, "100354", "boy_text", "footer_text")
 			}
 			if (mensaje === 'Pro') {
 				productoFacebook(numero, "100354", "boy_text", "footer_text")
