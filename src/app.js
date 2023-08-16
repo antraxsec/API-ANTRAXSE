@@ -71,7 +71,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 					*Pantalla:* 15,6" LED FULLHD (1920 x 1080)
 					*Gráficos:* UHD Intel Core`
 				let unofooter = `*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`
-				productoFacebook(numero, "100279", uno, unofooter)
+				productoFacebook(numero, "100354", uno, unofooter)
 			}
 			if (mensaje === 'Pro') {
 				productoFacebook(numero, "100354", "boy_text", "footer_text")
