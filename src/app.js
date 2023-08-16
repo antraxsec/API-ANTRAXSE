@@ -9,7 +9,6 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
 import { WHATSAPP_API_KEY } from "./config.js";
-import { mensajeFacebook } from "./funciones.js"
 
 const app = express();
 const server = createServer(app);
@@ -53,15 +52,15 @@ app.post("/webhookwhatsapp", function (request, response) {
 		console.log("datos del mensaje:", request.body.entry[0].changes[0].value.messages);///datos del mensaje
 		console.log("tipo de mensaje:", request.body.entry[0].changes[0].value.messages[0].type); //tipo de mensaje 
 		console.log("numero de contacto:", request.body.entry[0].changes[0].value.messages[0].from); //numero de contacto
-		console.log("mensaje:", request.body.entry[0].changes[0].value.messages[0].text.body); //mensaje
+		console.log("numero celular:", request.body.entry[0].changes[0].value.messages[0].text.body); //mensaje
 
 		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
-
-		// Enviar el mensaje de respuesta
-		if (request.body.entry[0].changes[0].value.messages[0].text.body === 'dos') {
-			mensajeFacebook(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
+		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
+			// Enviar el mensaje de respuesta
+			if (request.body.entry[0].changes[0].value.messages[0].text.body === 'dos') {
+				mensajeFacebook(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
+			}
 		}
-
 	}
 
 	response.sendStatus(200);
