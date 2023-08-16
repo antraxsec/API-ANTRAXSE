@@ -68,7 +68,7 @@ function handleIncomingMessage(message) {
 }
 
 async function sendProductDetails(numero) {
-	const dia = obtenerDiaActual();
+	const dia = await obtenerDiaActual();
 
 	await mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
 	await mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);
@@ -102,9 +102,6 @@ async function sendProductDetails(numero) {
 		const productText = createProductText(product);
 		await productoFacebook(numero, product.code, productText, "Equipo de ventas Multilaptops");
 	}
-
-	await mensajeFacebook(numero, `Si te interesa uno ...`);
-  	await mensajeFacebook(numero, `Nos esforzamos por ...`);
 
 	await mensajeFacebook(numero, `Si te interesa uno de nuestros productos, necesitas más información o estás listo para comprar, estoy aquí para ayudarte. Puedo agendarte una llamada, y un asesor de ventas se pondrá en contacto contigo para facilitar todo el proceso.`);
 	await mensajeFacebook(numero, `Nos esforzamos por hacer tu experiencia de compra lo más sencilla y cómoda posible. Como empresa moderna y líder en innovación tecnológica, revisa todos nuestros productos en multilaptops.net. ¡No dudes en contactarnos con cualquier pregunta!`);
