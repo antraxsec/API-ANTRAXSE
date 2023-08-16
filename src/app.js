@@ -60,10 +60,39 @@ app.post("/webhookwhatsapp", function (request, response) {
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
 			// Enviar el mensaje de respuesta
 			if (mensaje === 'dos') {
-				mensajeFacebook(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
+				const dia = obtenerDiaActual();
+				mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
+				mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);
+				mensajeFacebook(numero, `Te dejo algunos modelos de nuestros productos más demandados. Si deseas ver los precios actualizados, simplemente haz clic en el enlace proporcionado.`);
+				let uno = `*Código SKU:* 100279
+				*Procesador:* Intel Core i3 a 4,1Ghz de 11a. Gen.
+					*Memoria RAM:* 8GB a 2666 Mhz
+					*Almacenamiento:* SSD NVME 256 GB
+					*Pantalla:* 15,6" LED FULLHD (1920 x 1080)
+					*Gráficos:* UHD Intel Core`
+				let unofooter = `*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`
+				productoFacebook(numero, "100279", uno, unofooter)
 			}
 			if (mensaje === 'Pro') {
 				productoFacebook(numero, "100354", "boy_text", "footer_text")
+			}
+			////fecha
+			async function obtenerDiaActual() {
+
+				const fecha = new Date();
+				const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+				const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+				const diaLiteral = dias[fecha.getDay()];
+				const diaNumero = fecha.getDate().toString();
+				const mesLiteral = meses[fecha.getMonth()]; // Obtener el nombre del mes
+
+				// Concatenar el día y mes en el formato deseado
+				const fechaActual = `${diaLiteral} ${diaNumero} de ${mesLiteral}`;
+
+				console.log('Fecha actual:', fechaActual); // Ejemplo: "Fecha actual: Miércoles 09 de agosto"
+
+				return fechaActual;
 			}
 		}
 	}
