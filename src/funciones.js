@@ -1,3 +1,7 @@
+
+
+import { WHATSAPP_API_KEY } from "./config"
+
 /*************************___FACEBOOK___************************ */
 export function mensajeFacebook(to, textBody) {
     var message = {
