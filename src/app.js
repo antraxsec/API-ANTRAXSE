@@ -48,11 +48,11 @@ app.post("/webhookwhatsapp", function (request, response) {
 		request.body.entry[0].changes[0].value.messages &&
 		request.body.entry[0].changes[0].value.messages[0]) {
 
-		console.log(request.body.entry[0].changes[0].value.contacts);///contacto que te envia mensaje
-		console.log(request.body.entry[0].changes[0].value.messages);///datos del mensaje
-		console.log(request.body.entry[0].changes[0].value.messages[0].type); //tipo de mensaje 
-		console.log(request.body.entry[0].changes[0].value.messages[0].from); //numero de contacto
-		console.log(request.body.entry[0].changes[0].value.messages[0].text.body); //mensaje
+		console.log("numero celular:", request.body.entry[0].changes[0].value.contacts);///contacto que te envia mensaje
+		console.log("datos del mensaje:", request.body.entry[0].changes[0].value.messages);///datos del mensaje
+		console.log("tipo de mensaje:", request.body.entry[0].changes[0].value.messages[0].type); //tipo de mensaje 
+		console.log("numero de contacto:", request.body.entry[0].changes[0].value.messages[0].from); //numero de contacto
+		console.log("mensaje:", request.body.entry[0].changes[0].value.messages[0].text.body); //mensaje
 
 		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
