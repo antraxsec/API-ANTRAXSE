@@ -36,143 +36,114 @@ app.get("/webhookwhatsapp", function (req, res) {
 		res.sendStatus(400);
 	}
 });
+
 app.post("/webhookwhatsapp", async function (request, response) {
 	console.log("Incoming webhook: " + JSON.stringify(request.body));
 	console.log("entro normal de los nuevos ")
 
-	if (request.body.entry &&
-		request.body.entry[0] &&
-		request.body.entry[0].changes &&
-		request.body.entry[0].changes[0] &&
-		request.body.entry[0].changes[0].value &&
-		request.body.entry[0].changes[0].value.messages &&
-		request.body.entry[0].changes[0].value.messages[0]) {
+	const { entry } = request.body;
+	const { changes } = entry?.[0] || {};
+	const { value } = changes?.[0] || {};
+	const { messages } = value || {};
+	const message = messages?.[0];
 
-		console.log("numero celular:", request.body.entry[0].changes[0].value.contacts);///contacto que te envia mensaje
-		console.log("datos del mensaje:", request.body.entry[0].changes[0].value.messages);///datos del mensaje
-		console.log("tipo de mensaje:", request.body.entry[0].changes[0].value.messages[0].type); //tipo de mensaje 
-		console.log("numero de contacto:", request.body.entry[0].changes[0].value.messages[0].from); //numero de contacto
-		console.log("numero celular:", request.body.entry[0].changes[0].value.messages[0].text.body); //mensaje
-		console.log(WHATSAPP_API_KEY)
-		let numero = request.body.entry[0].changes[0].value.messages[0].from//numero contacto
-		let mensaje = request.body.entry[0].changes[0].value.messages[0].text.body//mensaje enviado
-		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
-		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
-			// Enviar el mensaje de respuesta
-			await mensajeFacebook("59168249790", mensaje);
-			if (mensaje === 'Dos') {
-
-				const dia = obtenerDiaActual();
-				await mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
-				await mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);
-				await mensajeFacebook(numero, `Te dejo algunos modelos de nuestros productos más demandados. Si deseas ver los precios actualizados, simplemente haz clic en el enlace proporcionado.`);
-				//producto 1
-				const productoTexto1 = [
-					`*Código SKU:* 100279`,
-					`*Procesador:* Intel Core i3 a 4,1Ghz de 11a. Gen.`,
-					`*Memoria RAM:* 8GB a 2666 Mhz`,
-					`*Almacenamiento:* SSD NVME 256 GB`,
-					`*Pantalla:* 15,6" LED FULLHD (1920 x 1080)`,
-					`*Gráficos:* UHD Intel Core`,
-					`-----------------------------------`,
-					`*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`,
-					`-----------------------------------`,
-				].join('\n');
-				await productoFacebook(numero, "100279", productoTexto1, "Equipo de ventas Multilaptops.")
-				//producto 2
-				const productoTexto2 = [
-					`*Código SKU:* 100352`,
-					`*Procesador:* Intel Core i5 a 4,6Ghz  de 13a. Gen.`,
-					`*Memoria RAM:* 8GB a 4267 Mhz`,
-					`*Almacenamiento:* SSD NVME 512 GB`,
-					`*Pantalla:* 15,6" LED FULLHD IPS (1920 x 1080)`,
-					`*Gráficos:* Intel® Iris® Xᵉ Graphics`,
-					`-----------------------------------`,
-					`*(Bs. 5350) Ver precio actualizado 👉* https://multilaptops.net/producto/100352`,
-					`-----------------------------------`,
-					`Compra durante esta campaña y Samsung Bolivia te regala un *SSD NVMe de 1TB*.`,
-				].join('\n');
-				await productoFacebook(numero, "100352", productoTexto2, "Equipo de ventas Multilaptops")
-				//producto 3
-				const productoTexto3 = [
-					`*Código SKU:* 100353`,
-					`*Procesador:* Intel Core i7 a 5Ghz de 13a. Gen.`,
-					`*Memoria RAM:* 8GB a 4267 Mhz`,
-					`*Almacenamiento:* SSD NVME 512 GB`,
-					`*Pantalla:* 15,6 FULLHD AMOLED Touchscreen Convertible`,
-					`*Gráficos:* Intel® Iris® Xᵉ Graphics`,
-					`-----------------------------------`,
-					`*(Bs. 9400) Ver precio actualizado 👉* https://multilaptops.net/producto/100353`,
-					`-----------------------------------`,
-					`Compra durante esta campaña y Samsung Bolivia te regala un *SSD NVMe de 1TB*.`,
-				].join('\n');
-				await productoFacebook(numero, "100353", productoTexto3, "Equipo de ventas Multilaptops")
-				//producto 4
-				const productoTexto4 = [
-					`Lo mejor de ASUS, ahora disponible para entrega inmediata.`,
-					``,
-					`*Código SKU:* 100345`,
-					`*Procesador:* Intel Core i9-13980HX a 5,6Ghz de 13a Gen. con 24 núcleos físicos`,
-					`*Memoria RAM:* 16GB a 4800 Mhz DDR5`,
-					`*Almacenamiento:* SSD 1TB PCIe® 4.0 NVMe™ M.2`,
-					`*Pantalla:* 16" LED IPS FHD (1920x1200), actualización de 165Hz`,
-					`*Gráficos:* NVIDIA® GeForce RTX™ 4070 (8GB de GDDR6)`,
-					`-----------------------------------`,
-					`*(Bs. 19890) Ver precio actualizado 👉* https://multilaptops.net/producto/100345`,
-					`-----------------------------------`,
-				].join('\n');
-				await productoFacebook(numero, "100345", productoTexto4, "Equipo de ventas Multilaptops")
-				//producto 5
-				const productoTexto5 = [
-					`Lo esencial en productos HP disponibles para entrega inmediata.`,
-					``,
-					`*Código SKU:* 100376`,
-					`*Procesador:* Intel Celeron N4500 a 2,8Ghz de 11a Gen.`,
-					`*Memoria RAM:* 8GB a 2933 Mhz`,
-					`*Almacenamiento:* SSD NVME 256 GB`,
-					`*Pantalla:* 15,6 LED HD`,
-					`*Gráficos:* Intel® UHD Graphics 600`,
-					`-----------------------------------`,
-					`*(Bs. 2400) Ver precio actualizado 👉* https://multilaptops.net/producto/100376`,
-					`-----------------------------------`,
-				].join('\n');
-				await productoFacebook(numero, "100376", productoTexto5, "Equipo de ventas Multilaptops")
-				//letras
-				await mensajeFacebook(numero, `Si te interesa uno de nuestros productos, necesitas más información o estás listo para comprar, estoy aquí para ayudarte. Puedo agendarte una llamada, y un asesor de ventas se pondrá en contacto contigo para facilitar todo el proceso.`);
-				await mensajeFacebook(numero, `Nos esforzamos por hacer tu experiencia de compra lo más sencilla y cómoda posible. Como empresa moderna y líder en innovación tecnológica, revisa todos nuestros productos en multilaptops.net. ¡No dudes en contactarnos con cualquier pregunta!`);
-
-			}
-
-
-			////fecha
-			async function obtenerDiaActual() {
-
-				const fecha = new Date();
-				const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-				const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-
-				const diaLiteral = dias[fecha.getDay()];
-				const diaNumero = fecha.getDate().toString();
-				const mesLiteral = meses[fecha.getMonth()]; // Obtener el nombre del mes
-
-				// Concatenar el día y mes en el formato deseado
-				const fechaActual = `${diaLiteral} ${diaNumero} de ${mesLiteral}`;
-
-				console.log('Fecha actual:', fechaActual); // Ejemplo: "Fecha actual: Miércoles 09 de agosto"
-
-				return fechaActual;
-			}
-		}
+	if (message) {
+		handleIncomingMessage(message);
 	}
 
 	response.sendStatus(200);
 });
 
+function handleIncomingMessage(message) {
+	const numero = message.from;
+	const textoMensaje = message.text.body;
+
+	if (message.type === 'text') {
+		// mensajeFacebook("59168249790", textoMensaje);
+
+		if (textoMensaje === 'Dos') {
+		sendProductDetails(numero);
+		}
+	}
+}
+
+async function sendProductDetails(numero) {
+	const dia = obtenerDiaActual();
+
+	await mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
+	await mensajeFacebook(numero, `Si realizas tu compra, pedido o reserva hoy, ${dia}, puedes retirarlo en nuestra tienda física desde las 11:00 a 19:00 o solicitar el envío a donde estés.`);
+	await mensajeFacebook(numero, `Te dejo algunos modelos de nuestros productos más demandados. Si deseas ver los precios actualizados, simplemente haz clic en el enlace proporcionado.`);
+
+	const products = [
+		{
+			code: 		"100353",
+			processor: 	"Intel Core i7 a 5Ghz de 13a. Gen.",
+			ram: 		"8GB a 4267 Mhz",
+			storage: 	"SSD NVME 512 GB",
+			screen: 	"15,6 FULLHD AMOLED Touchscreen Convertible",
+			graphics: 	"Intel® Iris® Xᵉ Graphics",
+			priceUrl: 	"https://multilaptops.net/producto/100353",
+			price: 		"Bs. 3300"
+		  },
+		{
+			code: 		"100345",
+			processor: 	"Intel Core i9-13980HX a 5,6Ghz de 13a Gen. con 24 núcleos físicos",
+			ram: 		"16GB a 4800 Mhz DDR5",
+			storage: 	"SSD 1TB PCIe® 4.0 NVMe™ M.2",
+			screen: 	"16\" LED IPS FHD (1920x1200), actualización de 165Hz",
+			graphics: 	"NVIDIA® GeForce RTX™ 4070 (8GB de GDDR6)",
+			priceUrl: 	"https://multilaptops.net/producto/100345",
+			price: 		"Bs. 19890"
+		},
+		// ... Agrega más productos aquí ...
+	];
+
+	for (const product of products) {
+		const productText = createProductText(product);
+		await productoFacebook(numero, product.code, productText, "Equipo de ventas Multilaptops");
+	}
+
+	await mensajeFacebook(numero, `Si te interesa uno ...`);
+  	await mensajeFacebook(numero, `Nos esforzamos por ...`);
+
+	await mensajeFacebook(numero, `Si te interesa uno de nuestros productos, necesitas más información o estás listo para comprar, estoy aquí para ayudarte. Puedo agendarte una llamada, y un asesor de ventas se pondrá en contacto contigo para facilitar todo el proceso.`);
+	await mensajeFacebook(numero, `Nos esforzamos por hacer tu experiencia de compra lo más sencilla y cómoda posible. Como empresa moderna y líder en innovación tecnológica, revisa todos nuestros productos en multilaptops.net. ¡No dudes en contactarnos con cualquier pregunta!`);
+}
+
+function createProductText(product) {
+	return [
+	  `*Código SKU:* ${product.code}`,
+	  `*Procesador:* ${product.processor}`,
+	  `*Memoria RAM:* ${product.ram}`,
+	  `*Almacenamiento:* ${product.storage}`,
+	  `*Pantalla:* ${product.screen}`,
+	  `*Gráficos:* ${product.graphics}`,
+	  `-----------------------------------`,
+	  `*(${product.price}) Ver precio actualizado 👉* ${product.priceUrl}`,
+	  `-----------------------------------`,
+	].join('\n');
+}
+
+async function obtenerDiaActual() {
+
+	const fecha = new Date();
+	const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+	const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+	const diaLiteral = dias[fecha.getDay()];
+	const diaNumero = fecha.getDate().toString();
+	const mesLiteral = meses[fecha.getMonth()]; // Obtener el nombre del mes
+
+	// Concatenar el día y mes en el formato deseado
+	const fechaActual = `${diaLiteral} ${diaNumero} de ${mesLiteral}`;
+
+	console.log('Fecha actual:', fechaActual); // Ejemplo: "Fecha actual: Miércoles 09 de agosto"
+
+	return fechaActual;
+}
+
 app.use("/whatsapp", whatsapps);
 /////funciones para el bot
-
-
-
 
 
 //////end funciones para bot
@@ -227,3 +198,6 @@ app.use(express.static("public"));
 
 export default server;
 // Hola mundo
+// git add .
+// git commit -m "16/08/23 : 16:20"
+// git push origin master
