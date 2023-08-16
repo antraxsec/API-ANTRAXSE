@@ -56,8 +56,10 @@ app.post("/webhookwhatsapp", function (request, response) {
 		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
 			// Enviar el mensaje de respuesta
+			console.log(request.body.entry[0].changes[0].value.messages[0].type)
+
 			if (request.body.entry[0].changes[0].value.messages[0].text.body === 'dos') {
-				sendMessage(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
+				mensajeFacebook(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático super.");
 			}
 		}
 	}
@@ -70,34 +72,6 @@ app.use("/whatsapp", whatsapps);
 
 
 
-function sendMessage(to, textBody) {
-	var message = {
-		"messaging_product": 'whatsapp',
-		"recipient_type": 'individual',
-		"to": to,
-		"type": "text",
-		"text": {
-			"preview_url": false,
-			"body": textBody
-		}
-	};
-
-	var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
-	var token = WHATSAPP_API_KEY
-
-	axios.post(url, message, {
-		headers: {
-			"Content-Type": "application/json",
-			"Authorization": `Bearer ${token}`
-		}
-	})
-		.then(response => {
-			console.log("Mensaje enviado con éxito");
-		})
-		.catch(error => {
-			console.log("Error al enviar el mensaje: ", error);
-		});
-}
 
 
 //////end funciones para bot
