@@ -9,7 +9,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
 import { WHATSAPP_API_KEY } from "./config.js";
-
+import { mensajeFacebook } from './funciones.js'
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
