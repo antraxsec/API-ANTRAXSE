@@ -38,6 +38,7 @@ app.get("/webhookwhatsapp", function (req, res) {
 });
 app.post("/webhookwhatsapp", function (request, response) {
 	console.log("Incoming webhook: " + JSON.stringify(request.body));
+	console.log("entro normal de los nuevos ")
 
 	if (request.body.entry &&
 		request.body.entry[0] &&
