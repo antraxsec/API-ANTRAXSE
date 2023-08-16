@@ -75,7 +75,7 @@ app.post("/webhookwhatsapp", function (request, response) {
 					`*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`,
 					`-----------------------------------`,
 				].join('\n');
-				productoFacebook(numero, "100354", productoTexto1, "footer_text")
+				productoFacebook(numero, "100279", productoTexto1, "footer_text")
 			}
 			if (mensaje === 'Pro') {
 				productoFacebook(numero, "100279", `*Código SKU:* 100279
