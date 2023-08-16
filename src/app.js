@@ -54,11 +54,16 @@ app.post("/webhookwhatsapp", function (request, response) {
 		console.log("numero de contacto:", request.body.entry[0].changes[0].value.messages[0].from); //numero de contacto
 		console.log("numero celular:", request.body.entry[0].changes[0].value.messages[0].text.body); //mensaje
 		console.log(WHATSAPP_API_KEY)
+		let numero = request.body.entry[0].changes[0].value.messages[0].from//numero contacto
+		let mensaje = request.body.entry[0].changes[0].value.messages[0].text.body//mensaje enviado
 		// Verificar el tipo de mensaje, si es de texto y contiene contenido.
 		if (request.body.entry[0].changes[0].value.messages[0].type === 'text') {
 			// Enviar el mensaje de respuesta
-			if (request.body.entry[0].changes[0].value.messages[0].text.body === 'dos') {
+			if (mensaje === 'dos') {
 				mensajeFacebook(request.body.entry[0].changes[0].value.messages[0].from, "¡Hola! Este es un mensaje automático.");
+			}
+			if (mensaje === 'Pro') {
+				productoFacebook(numero, "100354", "boy_text", "footer_text")
 			}
 		}
 	}

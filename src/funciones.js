@@ -1,6 +1,45 @@
 /*************************___FACEBOOK___************************ */
 import axios from 'axios';
 import { WHATSAPP_API_KEY } from "./config.js";
+
+export function productoFacebook(to, id_catalogo, boy_text, footer_text) {
+    var message = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": to,
+        "type": "interactive",
+        "interactive": {
+            "type": "product",
+            "body": {
+                "text": boy_text
+            },
+            "footer": {
+                "text": footer_text
+            },
+            "action": {
+                "catalog_id": "1418912658860290",
+                "product_retailer_id": id_catalogo
+            }
+        }
+    }
+    var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
+    var token = WHATSAPP_API_KEY
+
+    axios.post(url, message, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+        .then(response => {
+            console.log("Mensaje enviado con éxito");
+        })
+        .catch(error => {
+            console.log("Error al enviar el mensaje: ", error);
+        });
+}
+
+
 export function mensajeFacebook(to, textBody) {
     var message = {
         "messaging_product": 'whatsapp',
