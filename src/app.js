@@ -78,7 +78,7 @@ app.post("/webhookwhatsapp", async function (request, response) {
 					`*(Bs. 3300) Ver precio actualizado 👉* https://multilaptops.net/producto/100279`,
 					`-----------------------------------`,
 				].join('\n');
-				await productoFacebook(numero, "100279", productoTexto1, "Equipo de ventas Multilaptops")
+				await productoFacebook(numero, "100279", productoTexto1, "Equipo de ventas Multilaptops.")
 				//producto 2
 				const productoTexto2 = [
 					`*Código SKU:* 100352`,
@@ -142,6 +142,7 @@ app.post("/webhookwhatsapp", async function (request, response) {
 				await mensajeFacebook(numero, `Nos esforzamos por hacer tu experiencia de compra lo más sencilla y cómoda posible. Como empresa moderna y líder en innovación tecnológica, revisa todos nuestros productos en multilaptops.net. ¡No dudes en contactarnos con cualquier pregunta!`);
 
 			}
+
 
 			////fecha
 			async function obtenerDiaActual() {
