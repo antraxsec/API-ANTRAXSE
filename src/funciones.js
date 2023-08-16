@@ -14,9 +14,9 @@ export function mensajeFacebook(to, textBody) {
             "body": textBody
         }
     };
-
+    console.log(WHATSAPP_API_KEY)
     var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
-    var token = WHATSAPP_API_KEY
+    var token = "EABYkQq2clo4BAG4qw8KYVw0WTnLdfdZBZB01Sr4tPqjUxWMZA29LlbZBbnWlFCuutjSoon9cbcV8jZBwkLtZCjuM0QoLoVLsjhPDpmPSjfcYXGamOQKSCO2uu7kECCW6RYdw44OlPvzXwGywldfyHQ4sWUQ3yxXytDZAzap5ZBe7KjZBUZAsnJSZCHyj3rcZBLtMsCfMmHwUNr1pIQZDZD"
 
     axios.post(url, message, {
         headers: {
