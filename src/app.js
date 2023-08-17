@@ -9,7 +9,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
 import { WHATSAPP_API_KEY } from "./config.js";
-import { mensajeFacebook, productoFacebook } from './funciones.js'
+import { mensajeFacebook, productoFacebook, ubicacionFacebook } from './funciones.js'
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -101,91 +101,91 @@ app.post("/webhookwhatsapp", async function (request, response) {
 // }
 
 async function handleIncomingMessage(chatId, message) {
-    const currentState = chatStates.get(chatId) || "initial";
+	const currentState = chatStates.get(chatId) || "initial";
 
 	const numero = message.from;
 	const messageText = message.text.body.toLowerCase();
 
 	const mensajeInicial = ["¡Hola! Estoy interesado en la Samsung Galaxy Book3"];
-	
+
 	// await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptopsxxx " + currentState + messageText);
-    
+
 	switch (currentState) {
-        case "initial":
-            if (messageText === "hola mundo") {
-                await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
-                // chatStates.set(numero, "welcomed");
-            }
+		case "initial":
+			if (messageText === "hola mundo") {
+				await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
+				// chatStates.set(numero, "welcomed");
+			}
 			else if (mensajeInicial.some(phrase => messageText.indexOf(phrase.toLowerCase()) !== -1)) {
-                await promocionFlow(numero);
-            }
+				await promocionFlow(numero);
+			}
 			else if (messageText === "admin") {
-                await adminFlow(numero);
-                chatStates.set(chatId, "admin");
-            }
-            break;
-        case "admin":
+				await adminFlow(numero);
+				chatStates.set(chatId, "admin");
+			}
+			break;
+		case "admin":
 			switch (messageText) {
-                case "1":
-                    mensajeFacebook(numero, `Ingresa el número [Promo] ⬇`);
-                    chatStates.set(chatId, "reenviarPromocion");
-                break;
-                case "2":
-                break;
-                case "3":
-                    mensajeFacebook(numero, `Ingresa el número [Ubica]⬇`);
-                    chatStates.set(chatId, "reenviarUbicacion");
-                break;
-                case "4":
-                    mensajeFacebook(numero, `Ingresa el número [ProcesoCompra]⬇`);
-                    chatStates.set(chatId, "reenviarProcesoCompra");
-                break;
-                case "5":
-                    mensajeFacebook(numero, `Ingresa el número [FormaPago]⬇`);
-                    chatStates.set(chatId, "reenviarFormasPago");
-                break;
-                case "9":
-                    mensajeFacebook(numero, `Saliendo`);
-                    chatStates.set(chatId, "initial");
-                break;
-                default:
-                    await adminFlow();
-                    chatStates.set(chatId, "admin");
-            }
-        break;
+				case "1":
+					mensajeFacebook(numero, `Ingresa el número [Promo] ⬇`);
+					chatStates.set(chatId, "reenviarPromocion");
+					break;
+				case "2":
+					break;
+				case "3":
+					mensajeFacebook(numero, `Ingresa el número [Ubica]⬇`);
+					chatStates.set(chatId, "reenviarUbicacion");
+					break;
+				case "4":
+					mensajeFacebook(numero, `Ingresa el número [ProcesoCompra]⬇`);
+					chatStates.set(chatId, "reenviarProcesoCompra");
+					break;
+				case "5":
+					mensajeFacebook(numero, `Ingresa el número [FormaPago]⬇`);
+					chatStates.set(chatId, "reenviarFormasPago");
+					break;
+				case "9":
+					mensajeFacebook(numero, `Saliendo`);
+					chatStates.set(chatId, "initial");
+					break;
+				default:
+					await adminFlow();
+					chatStates.set(chatId, "admin");
+			}
+			break;
 		// case "reenviarPromocion":
-        //     if (validarNumerocelular(message.body)) {
-        //         await promocionFlow(message.body, true);
-        //         chatStates.set(chatId, "reenviarPromocion");
-        //     }
-        //     else if (message.body === "1") {
-        //         chatStates.set(chatId, "admin");
-        //     }
-        //     else{
-        //         client.sendMessage(message.from, [
-        //             `Ingresa un número de celular válido.`,
-        //             ` 1️⃣ Salir.`,
-        //         ].join('\n'));
-        //         chatStates.set(chatId, "reenviarPromocion");
-        //     }
-        // break;
+		//     if (validarNumerocelular(message.body)) {
+		//         await promocionFlow(message.body, true);
+		//         chatStates.set(chatId, "reenviarPromocion");
+		//     }
+		//     else if (message.body === "1") {
+		//         chatStates.set(chatId, "admin");
+		//     }
+		//     else{
+		//         client.sendMessage(message.from, [
+		//             `Ingresa un número de celular válido.`,
+		//             ` 1️⃣ Salir.`,
+		//         ].join('\n'));
+		//         chatStates.set(chatId, "reenviarPromocion");
+		//     }
+		// break;
 		case "reenviarUbicacion":
-            if (validarNumerocelular(message.text.body)) {
-                await reenviarUbicacion(message.text.body, true);
-                chatStates.set(chatId, "reenviarUbicacion");
-            }
-            else if (message.text.body === "1") {
-                chatStates.set(chatId, "admin");
-            }
-            else{
-                mensajeFacebook(numero, [
-                    `Ingresa un número de celular válido.`,
-                    ` 1️⃣ Salir.`,
-                ].join('\n'));
-                chatStates.set(chatId, "reenviarUbicacion");
-            }
-        break; 
-    }
+			if (validarNumerocelular(message.text.body)) {
+				await reenviarUbicacion(message.text.body, true);
+				chatStates.set(chatId, "reenviarUbicacion");
+			}
+			else if (message.text.body === "1") {
+				chatStates.set(chatId, "admin");
+			}
+			else {
+				mensajeFacebook(numero, [
+					`Ingresa un número de celular válido.`,
+					` 1️⃣ Salir.`,
+				].join('\n'));
+				chatStates.set(chatId, "reenviarUbicacion");
+			}
+			break;
+	}
 }
 
 async function promocionFlow(numero) {
@@ -197,24 +197,24 @@ async function promocionFlow(numero) {
 
 	const products = [
 		{
-			code: 		"100353",
-			processor: 	"Intel Core i7 a 5Ghz de 13a. Gen.",
-			ram: 		"8GB a 4267 Mhz",
-			storage: 	"SSD NVME 512 GB",
-			screen: 	"15,6 FULLHD AMOLED Touchscreen Convertible",
-			graphics: 	"Intel® Iris® Xᵉ Graphics",
-			priceUrl: 	"https://multilaptops.net/producto/100353",
-			price: 		"Bs. 3300"
-		  },
+			code: "100353",
+			processor: "Intel Core i7 a 5Ghz de 13a. Gen.",
+			ram: "8GB a 4267 Mhz",
+			storage: "SSD NVME 512 GB",
+			screen: "15,6 FULLHD AMOLED Touchscreen Convertible",
+			graphics: "Intel® Iris® Xᵉ Graphics",
+			priceUrl: "https://multilaptops.net/producto/100353",
+			price: "Bs. 3300"
+		},
 		{
-			code: 		"100345",
-			processor: 	"Intel Core i9-13980HX a 5,6Ghz de 13a Gen. con 24 núcleos físicos",
-			ram: 		"16GB a 4800 Mhz DDR5",
-			storage: 	"SSD 1TB PCIe® 4.0 NVMe™ M.2",
-			screen: 	"16\" LED IPS FHD (1920x1200), actualización de 165Hz",
-			graphics: 	"NVIDIA® GeForce RTX™ 4070 (8GB de GDDR6)",
-			priceUrl: 	"https://multilaptops.net/producto/100345",
-			price: 		"Bs. 19890"
+			code: "100345",
+			processor: "Intel Core i9-13980HX a 5,6Ghz de 13a Gen. con 24 núcleos físicos",
+			ram: "16GB a 4800 Mhz DDR5",
+			storage: "SSD 1TB PCIe® 4.0 NVMe™ M.2",
+			screen: "16\" LED IPS FHD (1920x1200), actualización de 165Hz",
+			graphics: "NVIDIA® GeForce RTX™ 4070 (8GB de GDDR6)",
+			priceUrl: "https://multilaptops.net/producto/100345",
+			price: "Bs. 19890"
 		},
 		// ... Agrega más productos aquí ...
 	];
@@ -230,15 +230,15 @@ async function promocionFlow(numero) {
 
 function createProductText(product) {
 	return [
-	  `*Código SKU:* ${product.code}`,
-	  `*Procesador:* ${product.processor}`,
-	  `*Memoria RAM:* ${product.ram}`,
-	  `*Almacenamiento:* ${product.storage}`,
-	  `*Pantalla:* ${product.screen}`,
-	  `*Gráficos:* ${product.graphics}`,
-	  `-----------------------------------`,
-	  `*(${product.price}) Ver precio actualizado 👉* ${product.priceUrl}`,
-	  `-----------------------------------`,
+		`*Código SKU:* ${product.code}`,
+		`*Procesador:* ${product.processor}`,
+		`*Memoria RAM:* ${product.ram}`,
+		`*Almacenamiento:* ${product.storage}`,
+		`*Pantalla:* ${product.screen}`,
+		`*Gráficos:* ${product.graphics}`,
+		`-----------------------------------`,
+		`*(${product.price}) Ver precio actualizado 👉* ${product.priceUrl}`,
+		`-----------------------------------`,
 	].join('\n');
 }
 
@@ -252,26 +252,29 @@ async function adminFlow(numero) {
 		` 4️⃣ Enviar Proceso de compra ➜`,
 		` 5️⃣ Formas de pago ➜`,
 		` 8️⃣ ChatGPT 🤖`,
-		 `9️⃣ Salir`,
+		`9️⃣ Salir`,
 	].join('\n'));
 }
 
 async function reenviarUbicacion(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
+
+
 	// const imagen = await MessageMedia.fromUrl(
 	// 	"https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus2.webp"
 	// );
-	// const texto = [
-	// 	`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
-	// 	``,
-	// 	`▸ Atendemos con cita previa de lunes a sábado.`,
-	// 	`▸ Durante feriados y días festivos, solo atendemos compras previamente confirmadas.`,
-	// 	``,
-	// 	`Encuentra nuestra ubicación aquí: https://goo.gl/maps/g3gX5UsfrCkL2r7g8`,
-	// 	``,
-	// 	`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
-	// ].join('\n');
+	const texto = [
+		`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
+		``,
+		`▸ Atendemos con cita previa de lunes a sábado.`,
+		`▸ Durante feriados y días festivos, solo atendemos compras previamente confirmadas.`,
+		``,
+		`Encuentra nuestra ubicación aquí: https://goo.gl/maps/g3gX5UsfrCkL2r7g8`,
+		``,
+		`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
+	].join('\n');
+	await ubicacionFacebook("59175258005", "-16.5047299", "-68.1550654", 'Multilaptops', texto)
 	// await client.sendMessage(contact, imagen, { caption: texto });
 	mensajeFacebook(contact, `Esta es nuestr aubucaicaoin::: jeje`);
 }
