@@ -154,21 +154,21 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "reenviarPromocion":
-		    if (validarNumerocelular(message.text.body)) {
-		        await promocionFlow(message.text.body, true);
-		        chatStates.set(chatId, "reenviarPromocion");
-		    }
-		    else if (message.text.body === "1") {
-		        chatStates.set(chatId, "admin");
-		    }
-		    else{
-		        client.sendMessage(numero, [
-		            `Ingresa un número de celular válido.`,
-		            ` 1️⃣ Salir.`,
-		        ].join('\n'));
-		        chatStates.set(chatId, "reenviarPromocion");
-		    }
-		break;
+			if (validarNumerocelular(message.text.body)) {
+				await promocionFlow(message.text.body, true);
+				chatStates.set(chatId, "reenviarPromocion");
+			}
+			else if (message.text.body === "1") {
+				chatStates.set(chatId, "admin");
+			}
+			else {
+				client.sendMessage(numero, [
+					`Ingresa un número de celular válido.`,
+					` 1️⃣ Salir.`,
+				].join('\n'));
+				chatStates.set(chatId, "reenviarPromocion");
+			}
+			break;
 		case "reenviarUbicacion":
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarUbicacion(message.text.body, true);
@@ -186,40 +186,40 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "reenviarProcesoCompra":
-            if (validarNumerocelular(message.text.body)) {
-                await reenviarProcesoCompra(message.text.body, true);
-                chatStates.set(chatId, "reenviarProcesoCompra");
-            }
-            else if (message.body === "1") {
-                chatStates.set(chatId, "admin");
-            }
-            else{
-                client.sendMessage(numero, [
-                    `Ingresa un número de celular válido.`,
-                    ` 1️⃣ Salir.`,
-                ].join('\n'));
-                chatStates.set(chatId, "reenviarProcesoCompra");
-            }
-            break;
+			if (validarNumerocelular(message.text.body)) {
+				await reenviarProcesoCompra(message.text.body, true);
+				chatStates.set(chatId, "reenviarProcesoCompra");
+			}
+			else if (message.body === "1") {
+				chatStates.set(chatId, "admin");
+			}
+			else {
+				client.sendMessage(numero, [
+					`Ingresa un número de celular válido.`,
+					` 1️⃣ Salir.`,
+				].join('\n'));
+				chatStates.set(chatId, "reenviarProcesoCompra");
+			}
+			break;
 		case "reenviarFormasPago":
-            if (validarNumerocelular(message.text.body)) {
-                await reenviarFormasPago(message.text.body, true);
-                chatStates.set(chatId, "reenviarFormasPago");
-            }
-            else if (message.text.body === "1") {
-                chatStates.set(chatId, "admin");
-            }
-            else{
-                client.sendMessage(numero, [
-                    `Ingresa un número de celular válido.`,
-                    ` 1️⃣ Salir.`,
-                ].join('\n'));
-                chatStates.set(chatId, "reenviarFormasPago");
-            }
-            break;
-        
-        default:
-            await promocionFlow(message.from)
+			if (validarNumerocelular(message.text.body)) {
+				await reenviarFormasPago(message.text.body, true);
+				chatStates.set(chatId, "reenviarFormasPago");
+			}
+			else if (message.text.body === "1") {
+				chatStates.set(chatId, "admin");
+			}
+			else {
+				client.sendMessage(numero, [
+					`Ingresa un número de celular válido.`,
+					` 1️⃣ Salir.`,
+				].join('\n'));
+				chatStates.set(chatId, "reenviarFormasPago");
+			}
+			break;
+
+		default:
+			await promocionFlow(message.from)
 	}
 }
 
@@ -291,8 +291,9 @@ async function adminFlow(numero) {
 	].join('\n'));
 }
 
-async function enviarImagen() {
-
+async function reenviarFormasPago() {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+	imgFacebook(contact, 'hola como estas david', "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
 }
 
 async function reenviarUbicacion(contactId, isReflow = false) {
