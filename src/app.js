@@ -305,7 +305,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/1.webp";
 	const texto1 = [
 		`▸ Elige el producto que deseas comprar`,
-		`▸ Envíanos el código SKU del producto elegido`,
+		`▸ Envíanos el código SKU del producto elegido `,
 	].join('\n');
 	await imgFacebook(contact, texto1, imagen1)
 
