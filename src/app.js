@@ -167,7 +167,7 @@ async function handleIncomingMessage(chatId, message) {
 				].join('\n'));
 				chatStates.set(chatId, "reenviarProcesoCompra");
 			}
-			else if (message.body === "1") {
+			else if (message.text.body === "1") {
 				chatStates.set(chatId, "admin");
 				await adminFlow(numero);
 			}
@@ -182,6 +182,10 @@ async function handleIncomingMessage(chatId, message) {
 		case "reenviarFormasPago":
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarFormasPago(message.text.body, true);
+				mensajeFacebook(numero, [
+					`Forma-Pago fue enviada, ahora estas en este nivel.`,
+					`Ingresa el número [Proceso]⬇`,
+				].join('\n'));
 				chatStates.set(chatId, "reenviarFormasPago");
 			}
 			else if (message.text.body === "1") {
@@ -191,14 +195,14 @@ async function handleIncomingMessage(chatId, message) {
 			else {
 				client.sendMessage(numero, [
 					`Ingresa un número de celular válido.`,
-					` 1️⃣ Salir. 2 `,
+					` 1️⃣ Salir.`,
 				].join('\n'));
 				chatStates.set(chatId, "reenviarFormasPago");
 			}
 			break;
 
 		default:
-			await promocionFlow(message.from)
+			await promocionFlow(message.text.body, true);
 	}
 }
 
@@ -291,7 +295,7 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 		`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
 	].join('\n');
 
-	await imgFacebook(contact, texto, imagen)
+	imgFacebook(contact, texto, imagen)
 }
 
 async function reenviarProcesoCompra(contactId, isReflow = false) {
