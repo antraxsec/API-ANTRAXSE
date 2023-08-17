@@ -276,12 +276,15 @@ async function adminFlow(numero) {
 
 async function reenviarFormasPago(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
-	imgFacebook(contact, 'hola como estas david', "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
+	imgFacebook(contact, `hola como estas david
+
+	asdasdas
+	`, "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
 
 }
 
 async function reenviarUbicacion(contactId, isReflow = false) {
-	const contact = isReflow ? `591${contactId}` : contactId;
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
 	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus2.webp";
 	const texto = [
