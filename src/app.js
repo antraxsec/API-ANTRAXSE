@@ -274,23 +274,10 @@ async function adminFlow(numero) {
 	].join('\n'));
 }
 
-async function reenviarFormasPago(contactId, isReflow = false) {
-	const contact = isReflow ? `591${contactId}@c.us` : contactId;
-	// imgFacebook(contact, `hola como estas david
-
-	// asdasdas
-	// `, "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
-	
-	imgFacebook(contact, `hola como estas david
-
-	asdasdas
-	`, "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/1.jpg")
-}
-
 async function reenviarUbicacion(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus2.webp";
+	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus3.jpg";
 	const texto = [
 		`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
 		``,
@@ -315,14 +302,14 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 		`Nuestra tienda en línea multi.bz está abierta 24/7 🕒, permitiéndote explorar, realizar tus pedidos, compras y reservas a cualquier hora y desde cualquier lugar. 📦🛍️`,
 	].join('\n'));
 
-	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/1.webp";
+	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/1.jpg";
 	const texto1 = [
 		`▸ Elige el producto que deseas comprar`,
 		`▸ Envíanos el código SKU del producto elegido `,
 	].join('\n');
 	await imgFacebook(contact, texto1, imagen1)
 
-	const imagen2 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/2.webp";
+	const imagen2 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/2.jpg";
 	const texto2 = [
 		`Comprueba la disponibilidad del producto:`,
 		``,
@@ -333,13 +320,13 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	].join('\n');
 	await imgFacebook(contact, texto2, imagen2)
 
-	const imagen3 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/3.webp";
+	const imagen3 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/3.jpg";
 	const texto3 = [
 		`Rellena el formulario con tus datos personales: nombre completo, número de identificación y número de celular. 📝`,
 	].join('\n');
 	await imgFacebook(contact, texto3, imagen3)
 
-	const imagen4 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/4.2.webp";
+	const imagen4 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/4.2.jpg";
 	const texto4 = [
 		`Selecciona tu método de entrega preferido:`,
 		``,
@@ -347,7 +334,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	].join('\n');
 	await imgFacebook(contact, texto4, imagen4)
 
-	const imagen42 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/4.3.webp";
+	const imagen42 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/4.3.jpg";
 	const texto42 = [
 		`Selecciona tu método de entrega preferido:`,
 		``,
@@ -356,7 +343,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	].join('\n');
 	await imgFacebook(contact, texto42, imagen42)
 
-	const imagen5 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/5.webp";
+	const imagen5 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/5.jpg";
 	const texto5 = [
 		`Selecciona tu método de pago: 🏧`,
 		``,
@@ -367,13 +354,59 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	].join('\n');
 	await imgFacebook(contact, texto5, imagen5)
 
-	const imagen6 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/6.webp";
+	const imagen6 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/6.jpg";
 	const texto6 = [
 		`¡Listo! Al finalizar tu compra, generaremos la orden de entrega con los datos proporcionados. `,
 		``,
 		`Un asesor de ventas se pondrá en contacto contigo para coordinar la entrega. 📦🤝`,
 	].join('\n');
 	await imgFacebook(contact, texto6, imagen6)
+}
+
+async function reenviarFormasPago(contactId, isReflow = false) {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+
+	await mensajeFacebook(contact, `*¿Como pagar en Multilaptops?* 🛒💻`);
+	await mensajeFacebook(contact, [
+		`Puedes realizar el pago de tus compras con 💳 diferentes medios y combinarlos en caso de que lo requieras 🛍️ `,
+	].join('\n'));
+
+	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/1.jpg");
+	const texto1 = [
+		``,
+		`*Transferencia bancaria:*`,
+		`▸ Seleccionando este medio de pago se desplegará toda la información con las cuentas habilitadas.`,
+		`▸ Una vez realizado la transferencia, debe subir el comprobante de pago.`,
+	].join('\n');
+	await imgFacebook(contact, texto1, imagen1);
+
+	const imagen2 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/2.jpg";
+	const texto2 = [
+		``,
+		`*Tarjeta de débito/crédito:* `,
+		`▸ Para realizar el pago mediante este medio debe tener habilitado su tarjeta para compras por internet y configurar los parámetros de importe máximo en la aplicación de su banco.`,
+		`▸ Utilizar este método de pago aplica un cargo adicional del 2% sobre el valor total.`,
+	].join('\n');
+	await imgFacebook(contact, texto2, imagen2);
+
+	const imagen3 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/3.jpg";
+	const texto3 = [
+		``,
+		`*QR:* `,
+		`▸ Paga con QR de forma fácil y rápida`,
+	].join('\n');
+	await imgFacebook(contact, texto3, imagen3);
+
+	const imagen4 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/4.jpg"
+	const texto4 = [
+		``,
+		`*Efectivo:*`,
+		`▸ Los pagos en efectivo se realizan de forma presencial al momento de entrega del pedido en su domicilio o del retiro en tienda de acuerdo a lo programado.`,
+		`▸  Puede pagar en las siguientes monedas: dólares americanos USD, moneda nacional Bolivianos BOB.`,
+	].join('\n');
+	await imgFacebook(contact, imagen4, texto4);
+
+	await mensajeFacebook(contact, `Si tienes cualquier consulta, ¡estamos a tu disposición para ayudarte!`);
 }
 
 async function obtenerDiaActual() {
