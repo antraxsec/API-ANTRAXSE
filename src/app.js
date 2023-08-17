@@ -39,23 +39,6 @@ app.get("/webhookwhatsapp", function (req, res) {
 	}
 });
 
-// app.post("/webhookwhatsapp", async function (request, response) {
-// 	console.log("Incoming webhook: " + JSON.stringify(request.body));
-// 	console.log("entro normal de los nuevos ")
-
-// 	const { entry } = request.body;
-// 	const { changes } = entry?.[0] || {};
-// 	const { value } = changes?.[0] || {};
-// 	const { messages } = value || {};
-// 	const message = messages?.[0];
-
-// 	if (message) {
-// 		handleIncomingMessage(message);
-// 	}
-
-// 	response.sendStatus(200);
-// });
-
 app.post("/webhookwhatsapp", async function (request, response) {
 	console.log("Incoming webhook: " + JSON.stringify(request.body));
 
@@ -82,23 +65,6 @@ app.post("/webhookwhatsapp", async function (request, response) {
 
 	response.sendStatus(200);
 });
-
-
-// function handleIncomingMessage(message) {
-// 	const numero = message.from;
-// 	const textoMensaje = message.text.body.toLowerCase();
-
-// 	const mensajeInicial = ["¡Hola! Estoy interesado en la Samsung Galaxy Book3"];
-//     const mensajeGracias = ["Gracias"];
-
-// 	if (message.type === 'text') {
-// 		// mensajeFacebook("59168249790", textoMensaje);
-
-// 		if (textoMensaje === 'Dos') {
-// 			sendProductDetails(numero);
-// 		}
-// 	}
-// }
 
 async function handleIncomingMessage(chatId, message) {
 	const currentState = chatStates.get(chatId) || "initial";
@@ -174,10 +140,12 @@ async function handleIncomingMessage(chatId, message) {
 		case "reenviarUbicacion":
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarUbicacion(message.text.body, true);
+				mensajeFacebook(numero, `La ubicación fue enviada, ahora estas en el nivel de ubicación.`);
 				chatStates.set(chatId, "reenviarUbicacion");
 			}
 			else if (message.text.body === "1") {
 				chatStates.set(chatId, "admin");
+				await adminFlow(numero);
 			}
 			else {
 				mensajeFacebook(numero, [
