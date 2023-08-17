@@ -160,6 +160,8 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			else if (message.text.body === "1") {
 				chatStates.set(chatId, "admin");
+				//chatStates.set(chatId, "initial");
+				await adminFlow(numero);
 			}
 			else {
 				client.sendMessage(numero, [
