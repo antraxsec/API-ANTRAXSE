@@ -140,7 +140,10 @@ async function handleIncomingMessage(chatId, message) {
 		case "reenviarUbicacion":
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarUbicacion(message.text.body, true);
-				mensajeFacebook(numero, `La ubicación fue enviada, ahora estas en el nivel de ubicación.`);
+				mensajeFacebook(numero, [
+					`La ubicación fue enviada, ahora estas en el nivel de ubicación.`,
+					`Ingresa el número [Ubica]⬇`,
+				].join('\n'));
 				chatStates.set(chatId, "reenviarUbicacion");
 			}
 			else if (message.text.body === "1") {
@@ -158,6 +161,10 @@ async function handleIncomingMessage(chatId, message) {
 		case "reenviarProcesoCompra":
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarProcesoCompra(message.text.body, true);
+				mensajeFacebook(numero, [
+					`Proceso-compra fue enviada, ahora estas en este nivel.`,
+					`Ingresa el número [Proceso]⬇`,
+				].join('\n'));
 				chatStates.set(chatId, "reenviarProcesoCompra");
 			}
 			else if (message.body === "1") {
@@ -265,16 +272,12 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 	imgFacebook(contact, 'hola como estas david', "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
 
-
-
 }
 
 async function reenviarUbicacion(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-
-
-	const imagen = "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg";
+	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus2.webp";
 	const texto = [
 		`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
 		``,
@@ -286,8 +289,78 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 		`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
 	].join('\n');
 
-	imgFacebook(contact, texto, imagen)
-	mensajeFacebook(contact, `Esta es nuestr aubucaicaoin::: jeje`);
+	await imgFacebook(contact, texto, imagen)
+}
+
+async function reenviarProcesoCompra(contactId, isReflow = false) {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+
+	await mensajeFacebook(contact, `*¿Como comprar en Multilaptops?* 🛒💻`);
+	await mensajeFacebook(contact, [
+		`Comprar en Multilaptops es fácil, cómodo y rápido: olvídate de los bloqueos, marchas y tráfico. `,
+		``,
+		`Nuestra tienda en línea multi.bz está abierta 24/7 🕒, permitiéndote explorar, realizar tus pedidos, compras y reservas a cualquier hora y desde cualquier lugar. 📦🛍️`,
+	].join('\n'));
+
+	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/1.webp";
+	const texto1 = [
+		`▸ Elige el producto que deseas comprar`,
+		`▸ Envíanos el código SKU del producto elegido`,
+	].join('\n');
+	await imgFacebook(contact, texto1, imagen1)
+
+	const imagen2 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/2.webp";
+	const texto2 = [
+		`Comprueba la disponibilidad del producto:`,
+		``,
+		`✅ Disponible`,
+		`🔜 Preorden`,
+		`💻 Exclusivo online`,
+		`🚚 En tránsito`,
+	].join('\n');
+	await imgFacebook(contact, texto2, imagen2)
+
+	const imagen3 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/3.webp";
+	const texto3 = [
+		`Rellena el formulario con tus datos personales: nombre completo, número de identificación y número de celular. 📝`,
+	].join('\n');
+	await imgFacebook(contact, texto3, imagen3)
+
+	const imagen4 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/4.2.webp";
+	const texto4 = [
+		`Selecciona tu método de entrega preferido:`,
+		``,
+		`✈️ *Envío nacional*: Si te encuentras en otro departamento o ciudad, elige esta opción y te lo enviaremos.`,
+	].join('\n');
+	await imgFacebook(contact, texto4, imagen4)
+
+	const imagen42 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/4.3.webp";
+	const texto42 = [
+		`Selecciona tu método de entrega preferido:`,
+		``,
+		`🚚 *Entrega a domicilio*: Si estás en la ciudad La Paz, indícanos tu dirección y ubicación.`,
+		`🏬 *Retiro en tienda*: Agenda fecha y hora para recoger tus productos en nuestra tienda física.`,
+	].join('\n');
+	await imgFacebook(contact, texto42, imagen42)
+
+	const imagen5 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/5.webp";
+	const texto5 = [
+		`Selecciona tu método de pago: 🏧`,
+		``,
+		`💰 Pago contra entrega (Solo Retiro en tienda)`,
+		`📲 Pago con QR`,
+		`🏦 Pago con transferencia`,
+		`💳 Pago con tarjeta`,
+	].join('\n');
+	await imgFacebook(contact, texto5, imagen5)
+
+	const imagen6 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/6.webp";
+	const texto6 = [
+		`¡Listo! Al finalizar tu compra, generaremos la orden de entrega con los datos proporcionados. `,
+		``,
+		`Un asesor de ventas se pondrá en contacto contigo para coordinar la entrega. 📦🤝`,
+	].join('\n');
+	await imgFacebook(contact, texto6, imagen6)
 }
 
 async function obtenerDiaActual() {
