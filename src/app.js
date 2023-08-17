@@ -256,6 +256,10 @@ async function adminFlow(numero) {
 	].join('\n'));
 }
 
+async function enviarImagen() {
+
+}
+
 async function reenviarUbicacion(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
