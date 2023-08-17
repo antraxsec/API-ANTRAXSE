@@ -284,7 +284,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 	imgFacebook(contact, `hola como estas david
 
 	asdasdas
-	`, "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/1.webp")
+	`, "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/1.jpg")
 }
 
 async function reenviarUbicacion(contactId, isReflow = false) {
