@@ -67,7 +67,7 @@ export async function mensajeFacebook(to, textBody) {
     });
 }
 
-export async function imgFacebook(to, textBody, imgurl) {
+export async function imgFacebookxxx(to, textBody, imgurl) {
     var message = {
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
@@ -94,6 +94,35 @@ export async function imgFacebook(to, textBody, imgurl) {
         .catch(error => {
             console.log("Error al enviar el mensaje: ", error);
         });
+}
+
+export async function imgFacebook(to, textBody, imgurl) {
+    var message = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": to,
+        "type": "image",
+        "image": {
+            "link": imgurl,
+            "caption": textBody
+        }
+    };
+
+    var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
+    var token = WHATSAPP_API_KEY
+
+    return axios.post(url, message, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        console.log("Mensaje enviado con éxito");
+    })
+    .catch(error => {
+        console.log("Error al enviar el mensaje: ", error);
+    });
 }
 
 export function ubicacionFacebook(to, longitude, latitude, name, address) {
