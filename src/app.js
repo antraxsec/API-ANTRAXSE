@@ -191,7 +191,7 @@ async function handleIncomingMessage(chatId, message) {
 			else {
 				client.sendMessage(numero, [
 					`Ingresa un número de celular válido.`,
-					` 1️⃣ Salir.`,
+					` 1️⃣ Salir. 2 `,
 				].join('\n'));
 				chatStates.set(chatId, "reenviarFormasPago");
 			}
