@@ -66,14 +66,18 @@ app.post("/webhookwhatsapp", async function (request, response) {
 	const messageDetails = messages?.[0];
 	const message = messages?.[0];
 
+	// if (message) {
+	// 	const chatId = messageDetails?.chat?.id;
+	// 	const messageText = messageDetails?.message?.text;
+	// 	if (chatId && message) {
+	// 		await handleIncomingMessage(chatId, message);
+	// 	} else {
+	// 		console.log("Falta información en el mensaje entrante");
+	// 	}
+	// }
 	if (message) {
 		const chatId = messageDetails?.chat?.id;
-		const messageText = messageDetails?.message?.text;
-		if (chatId && message) {
-			await handleIncomingMessage(chatId, message);
-		} else {
-			console.log("Falta información en el mensaje entrante");
-		}
+		handleIncomingMessage(chatId, message);
 	}
 
 	response.sendStatus(200);
