@@ -110,7 +110,7 @@ async function handleIncomingMessage(chatId, message) {
     
 	switch (currentState) {
         case "initial":
-            if (messageText === "Hola mundo") {
+            if (textoMensaje === "Hola mundo") {
                 await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
                 // chatStates.set(numero, "welcomed");
             }
