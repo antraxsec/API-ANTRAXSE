@@ -153,22 +153,22 @@ async function handleIncomingMessage(chatId, message) {
 					chatStates.set(chatId, "admin");
 			}
 			break;
-		// case "reenviarPromocion":
-		//     if (validarNumerocelular(message.body)) {
-		//         await promocionFlow(message.body, true);
-		//         chatStates.set(chatId, "reenviarPromocion");
-		//     }
-		//     else if (message.body === "1") {
-		//         chatStates.set(chatId, "admin");
-		//     }
-		//     else{
-		//         client.sendMessage(message.from, [
-		//             `Ingresa un número de celular válido.`,
-		//             ` 1️⃣ Salir.`,
-		//         ].join('\n'));
-		//         chatStates.set(chatId, "reenviarPromocion");
-		//     }
-		// break;
+		case "reenviarPromocion":
+		    if (validarNumerocelular(message.text.body)) {
+		        await promocionFlow(message.text.body, true);
+		        chatStates.set(chatId, "reenviarPromocion");
+		    }
+		    else if (message.text.body === "1") {
+		        chatStates.set(chatId, "admin");
+		    }
+		    else{
+		        client.sendMessage(numero, [
+		            `Ingresa un número de celular válido.`,
+		            ` 1️⃣ Salir.`,
+		        ].join('\n'));
+		        chatStates.set(chatId, "reenviarPromocion");
+		    }
+		break;
 		case "reenviarUbicacion":
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarUbicacion(message.text.body, true);
@@ -185,6 +185,41 @@ async function handleIncomingMessage(chatId, message) {
 				chatStates.set(chatId, "reenviarUbicacion");
 			}
 			break;
+		case "reenviarProcesoCompra":
+            if (validarNumerocelular(message.text.body)) {
+                await reenviarProcesoCompra(message.text.body, true);
+                chatStates.set(chatId, "reenviarProcesoCompra");
+            }
+            else if (message.body === "1") {
+                chatStates.set(chatId, "admin");
+            }
+            else{
+                client.sendMessage(numero, [
+                    `Ingresa un número de celular válido.`,
+                    ` 1️⃣ Salir.`,
+                ].join('\n'));
+                chatStates.set(chatId, "reenviarProcesoCompra");
+            }
+            break;
+		case "reenviarFormasPago":
+            if (validarNumerocelular(message.text.body)) {
+                await reenviarFormasPago(message.text.body, true);
+                chatStates.set(chatId, "reenviarFormasPago");
+            }
+            else if (message.text.body === "1") {
+                chatStates.set(chatId, "admin");
+            }
+            else{
+                client.sendMessage(numero, [
+                    `Ingresa un número de celular válido.`,
+                    ` 1️⃣ Salir.`,
+                ].join('\n'));
+                chatStates.set(chatId, "reenviarFormasPago");
+            }
+            break;
+        
+        default:
+            await promocionFlow(message.from)
 	}
 }
 
@@ -368,4 +403,5 @@ export default server;
 // git add .
 // git commit -m "16/08/23 : 16:20"
 // git push origin master
+//HOMA MUNDO CRUEL
 // pedrogit 
