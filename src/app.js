@@ -9,7 +9,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
 import { WHATSAPP_API_KEY } from "./config.js";
-import { mensajeFacebook, productoFacebook, ubicacionFacebook } from './funciones.js'
+import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook } from './funciones.js'
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -294,6 +294,9 @@ async function adminFlow(numero) {
 async function reenviarFormasPago() {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 	imgFacebook(contact, 'hola como estas david', "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
+
+
+
 }
 
 async function reenviarUbicacion(contactId, isReflow = false) {
