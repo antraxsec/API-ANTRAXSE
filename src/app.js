@@ -98,19 +98,23 @@ app.post("/webhookwhatsapp", async function (request, response) {
 async function handleIncomingMessage(chatId, messageText) {
     const currentState = chatStates.get(chatId) || "initial";
 
-    switch (currentState) {
-        case "initial":
-            if (messageText === "Hola mundo") {
-                await mensajeFacebook(chatId, "¡Hola! 🤗 Bienvenido a Multilaptops");
-                chatStates.set(chatId, "welcomed");
-            }
-            break;
-        case "welcomed":
-            // Aquí puedes manejar los mensajes después de la bienvenida.
-            // Por ejemplo, puedes enviar productos o responder a consultas.
-            break;
-        // Agrega más casos según sea necesario.
-    }
+	const numero = message.from;
+	const textoMensaje = message.text.body.toLowerCase();
+
+	await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
+    // switch (currentState) {
+    //     case "initial":
+    //         if (messageText === "Hola mundo") {
+    //             await mensajeFacebook(chatId, "¡Hola! 🤗 Bienvenido a Multilaptops");
+    //             chatStates.set(chatId, "welcomed");
+    //         }
+    //         break;
+    //     case "welcomed":
+    //         // Aquí puedes manejar los mensajes después de la bienvenida.
+    //         // Por ejemplo, puedes enviar productos o responder a consultas.
+    //         break;
+    //     // Agrega más casos según sea necesario.
+    // }
 }
 
 async function sendProductDetails(numero) {
