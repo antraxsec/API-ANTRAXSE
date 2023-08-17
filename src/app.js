@@ -281,7 +281,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 }
 
 async function reenviarUbicacion(contactId, isReflow = false) {
-	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+	const contact = isReflow ? `591${contactId}` : contactId;
 
 	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus2.webp";
 	const texto = [
@@ -295,7 +295,7 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 		`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
 	].join('\n');
 
-	imgFacebook(contact, texto, imagen)
+	await imgFacebook(contact, texto, imagen)
 }
 
 async function reenviarProcesoCompra(contactId, isReflow = false) {
