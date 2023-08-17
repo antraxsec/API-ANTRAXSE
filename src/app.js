@@ -276,11 +276,15 @@ async function adminFlow(numero) {
 
 async function reenviarFormasPago(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+	// imgFacebook(contact, `hola como estas david
+
+	// asdasdas
+	// `, "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
+	
 	imgFacebook(contact, `hola como estas david
 
 	asdasdas
-	`, "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
-
+	`, "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/1.webp")
 }
 
 async function reenviarUbicacion(contactId, isReflow = false) {
