@@ -30,12 +30,12 @@ export async function productoFacebook(to, id_catalogo, boy_text, footer_text) {
             "Authorization": `Bearer ${token}`
         }
     })
-    .then(response => {
-        console.log("Mensaje enviado con éxito");
-    })
-    .catch(error => {
-        console.log("Error al enviar el mensaje: ", error);
-    });
+        .then(response => {
+            console.log("Mensaje enviado con éxito");
+        })
+        .catch(error => {
+            console.log("Error al enviar el mensaje: ", error);
+        });
 }
 
 export async function mensajeFacebook(to, textBody) {
@@ -59,22 +59,23 @@ export async function mensajeFacebook(to, textBody) {
             "Authorization": `Bearer ${token}`
         }
     })
-    .then(response => {
-        console.log("Mensaje enviado con éxito");
-    })
-    .catch(error => {
-        console.log("Error al enviar el mensaje: ", error);
-    });
+        .then(response => {
+            console.log("Mensaje enviado con éxito");
+        })
+        .catch(error => {
+            console.log("Error al enviar el mensaje: ", error);
+        });
 }
 
-export function imgFacebook(to, textBody, url) {
+export function imgFacebook(to, textBody, imgurl) {
     var message = {
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
         "to": to,
         "type": "image",
         "image": {
-            "link": url
+            "link": imgurl,
+            "caption": textBody
         }
     };
 
