@@ -106,7 +106,7 @@ async function handleIncomingMessage(chatId, message) {
 	const numero = message.from;
 	const textoMensaje = message.text.body.toLowerCase();
 	
-	await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptopsxxx " + currentState);
+	await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptopsxxx " + currentState + textoMensaje);
     
 	switch (currentState) {
         case "initial":
