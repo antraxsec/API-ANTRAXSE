@@ -170,11 +170,11 @@ async function handleIncomingMessage(chatId, message) {
         //     }
         // break;
 		case "reenviarUbicacion":
-            if (validarNumerocelular(message.body)) {
-                await reenviarUbicacion(message.body, true);
+            if (validarNumerocelular(message.text.body)) {
+                await reenviarUbicacion(message.text.body, true);
                 chatStates.set(chatId, "reenviarUbicacion");
             }
-            else if (message.body === "1") {
+            else if (message.text.body === "1") {
                 chatStates.set(chatId, "admin");
             }
             else{
