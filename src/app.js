@@ -96,7 +96,7 @@ app.post("/webhookwhatsapp", async function (request, response) {
 // 	}
 // }
 
-async function handleIncomingMessage(chatId, messageText) {
+async function handleIncomingMessage(chatId, message) {
     const currentState = chatStates.get(chatId) || "initial";
 
 	const numero = message.from;
