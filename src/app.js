@@ -366,8 +366,8 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 async function reenviarFormasPago(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	await mensajeFacebook(contact, `*¿Como pagar en Multilaptops?* 🛒💻`);
 	await mensajeFacebook(contact, [
+		`*¿Como pagar en Multilaptops?* 🛒💻`,
 		`Puedes realizar el pago de tus compras con 💳 diferentes medios y combinarlos en caso de que lo requieras 🛍️ `,
 	].join('\n'));
 
@@ -402,7 +402,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 		``,
 		`*Efectivo:*`,
 		`▸ Los pagos en efectivo se realizan de forma presencial al momento de entrega del pedido en su domicilio o del retiro en tienda de acuerdo a lo programado.`,
-		`▸  Puede pagar en las siguientes monedas: dólares americanos USD, moneda nacional Bolivianos BOB.`,
+		`▸ Puede pagar en las siguientes monedas: dólares americanos USD, moneda nacional Bolivianos BOB.`,
 	].join('\n');
 	await imgFacebook(contact, imagen4, texto4);
 
