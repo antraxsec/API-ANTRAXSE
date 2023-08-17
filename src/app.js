@@ -66,8 +66,8 @@ app.post("/webhookwhatsapp", async function (request, response) {
 	const messageDetails = messages?.[0];
 
 	if (messageDetails) {
-		const chatId = messageDetails.from; // Asegúrate de que 'from' es el campo correcto para el chatId.
-		const messageText = messageDetails.body?.text; // Asegúrate de que esta es la forma correcta de acceder al texto del mensaje.
+		const chatId = messageDetails?.chat?.id;
+		const messageText = messageDetails?.message?.text;
 		if (chatId && messageText) {
 			await handleIncomingMessage(chatId, messageText);
 		} else {
