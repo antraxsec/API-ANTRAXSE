@@ -128,31 +128,63 @@ async function handleIncomingMessage(chatId, message) {
 			switch (messageText) {
                 case "1":
                     mensajeFacebook(numero, `Ingresa el número [Promo] ⬇`);
-                    // chatStates.set(chatId, "reenviarPromocion");
+                    chatStates.set(chatId, "reenviarPromocion");
                 break;
-                // case "2":
-                // break;
-                // case "3":
-                //     client.sendMessage(message.from, `Ingresa el número [Ubica]⬇`);
-                //     chatStates.set(chatId, "reenviarUbicacion");
-                // break;
-                // case "4":
-                //     client.sendMessage(message.from, `Ingresa el número [ProcesoCompra]⬇`);
-                //     chatStates.set(chatId, "reenviarProcesoCompra");
-                // break;
-                // case "5":
-                //     client.sendMessage(message.from, `Ingresa el número [FormaPago]⬇`);
-                //     chatStates.set(chatId, "reenviarFormasPago");
-                // break;
-                // case "9":
-                //     client.sendMessage(message.from, `Saliendo`);
-                //     chatStates.set(chatId, "initial");
-                // break;
+                case "2":
+                break;
+                case "3":
+                    mensajeFacebook(numero, `Ingresa el número [Ubica]⬇`);
+                    chatStates.set(chatId, "reenviarUbicacion");
+                break;
+                case "4":
+                    mensajeFacebook(numero, `Ingresa el número [ProcesoCompra]⬇`);
+                    chatStates.set(chatId, "reenviarProcesoCompra");
+                break;
+                case "5":
+                    mensajeFacebook(numero, `Ingresa el número [FormaPago]⬇`);
+                    chatStates.set(chatId, "reenviarFormasPago");
+                break;
+                case "9":
+                    mensajeFacebook(numero, `Saliendo`);
+                    chatStates.set(chatId, "initial");
+                break;
                 default:
                     await adminFlow();
                     chatStates.set(chatId, "admin");
             }
-            break;
+        break;
+		// case "reenviarPromocion":
+        //     if (validarNumerocelular(message.body)) {
+        //         await promocionFlow(message.body, true);
+        //         chatStates.set(chatId, "reenviarPromocion");
+        //     }
+        //     else if (message.body === "1") {
+        //         chatStates.set(chatId, "admin");
+        //     }
+        //     else{
+        //         client.sendMessage(message.from, [
+        //             `Ingresa un número de celular válido.`,
+        //             ` 1️⃣ Salir.`,
+        //         ].join('\n'));
+        //         chatStates.set(chatId, "reenviarPromocion");
+        //     }
+        // break;
+		case "reenviarUbicacion":
+            if (validarNumerocelular(message.body)) {
+                await reenviarUbicacion(message.body, true);
+                chatStates.set(chatId, "reenviarUbicacion");
+            }
+            else if (message.body === "1") {
+                chatStates.set(chatId, "admin");
+            }
+            else{
+                mensajeFacebook(numero, [
+                    `Ingresa un número de celular válido.`,
+                    ` 1️⃣ Salir.`,
+                ].join('\n'));
+                chatStates.set(chatId, "reenviarUbicacion");
+            }
+        break; 
     }
 }
 
@@ -224,6 +256,26 @@ async function adminFlow(numero) {
 	].join('\n'));
 }
 
+async function reenviarUbicacion(contactId, isReflow = false) {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+
+	// const imagen = await MessageMedia.fromUrl(
+	// 	"https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus2.webp"
+	// );
+	// const texto = [
+	// 	`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
+	// 	``,
+	// 	`▸ Atendemos con cita previa de lunes a sábado.`,
+	// 	`▸ Durante feriados y días festivos, solo atendemos compras previamente confirmadas.`,
+	// 	``,
+	// 	`Encuentra nuestra ubicación aquí: https://goo.gl/maps/g3gX5UsfrCkL2r7g8`,
+	// 	``,
+	// 	`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
+	// ].join('\n');
+	// await client.sendMessage(contact, imagen, { caption: texto });
+	mensajeFacebook(contact, `Esta es nuestr aubucaicaoin::: jeje`);
+}
+
 async function obtenerDiaActual() {
 
 	const fecha = new Date();
@@ -240,6 +292,13 @@ async function obtenerDiaActual() {
 	console.log('Fecha actual:', fechaActual); // Ejemplo: "Fecha actual: Miércoles 09 de agosto"
 
 	return fechaActual;
+}
+
+function validarNumerocelular(numero) {
+	// Convertir a string para asegurarnos de tener exactamente 11 caracteres
+	numero = numero.toString();
+	// Verificar que tenga 11 caracteres y devolver true o false en consecuencia
+	return numero.length === 8;
 }
 
 app.use("/whatsapp", whatsapps);
