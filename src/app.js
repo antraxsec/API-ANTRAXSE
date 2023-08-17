@@ -106,17 +106,15 @@ async function handleIncomingMessage(chatId, message) {
 	const numero = message.from;
 	const textoMensaje = message.text.body.toLowerCase();
 
-	await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
     switch (currentState) {
         case "initial":
             if (messageText === "Hola mundo") {
-                await mensajeFacebook(chatId, "¡Hola! 🤗 Bienvenido a Multilaptops");
-                chatStates.set(chatId, "welcomed");
+                await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
+                // chatStates.set(numero, "welcomed");
             }
             break;
-        case "welcomed":
-            // Aquí puedes manejar los mensajes después de la bienvenida.
-            // Por ejemplo, puedes enviar productos o responder a consultas.
+        case "admin":
+			await mensajeFacebook(numero, "Modo admin");
             break;
         // Agrega más casos según sea necesario.
     }
