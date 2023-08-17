@@ -371,7 +371,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 		`Puedes realizar el pago de tus compras con 💳 diferentes medios y combinarlos en caso de que lo requieras 🛍️ `,
 	].join('\n'));
 
-	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/1.jpg");
+	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/1.jpg";
 	const texto1 = [
 		``,
 		`*Transferencia bancaria:*`,
