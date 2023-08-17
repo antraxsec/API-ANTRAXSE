@@ -39,78 +39,37 @@ app.get("/webhookwhatsapp", function (req, res) {
 	}
 });
 
-// app.post("/webhookwhatsapp", async function (request, response) {
-// 	console.log("Incoming webhook: " + JSON.stringify(request.body));
-// 	console.log("entro normal de los nuevos ")
-
-// 	const { entry } = request.body;
-// 	const { changes } = entry?.[0] || {};
-// 	const { value } = changes?.[0] || {};
-// 	const { messages } = value || {};
-// 	const message = messages?.[0];
-
-// 	if (message) {
-// 		handleIncomingMessage(message);
-// 	}
-
-// 	response.sendStatus(200);
-// });
-
 app.post("/webhookwhatsapp", async function (request, response) {
 	console.log("Incoming webhook: " + JSON.stringify(request.body));
+	console.log("entro normal de los nuevos ")
 
 	const { entry } = request.body;
 	const { changes } = entry?.[0] || {};
 	const { value } = changes?.[0] || {};
 	const { messages } = value || {};
-	const messageDetails = messages?.[0];
+	const message = messages?.[0];
 
-	if (messageDetails) {
-		const chatId = messageDetails.from; // Asegúrate de que 'from' es el campo correcto para el chatId.
-		const messageText = messageDetails.body?.text; // Asegúrate de que esta es la forma correcta de acceder al texto del mensaje.
-		if (chatId && messageText) {
-			await handleIncomingMessage(chatId, messageText);
-		} else {
-			console.log("Falta información en el mensaje entrante");
-		}
+	if (message) {
+		handleIncomingMessage(message);
 	}
 
 	response.sendStatus(200);
 });
 
+function handleIncomingMessage(message) {
+	const numero = message.from;
+	const textoMensaje = message.text.body.toLowerCase();
 
-// function handleIncomingMessage(message) {
-// 	const numero = message.from;
-// 	const textoMensaje = message.text.body.toLowerCase();
+	const mensajeInicial = ["¡Hola! Estoy interesado en la Samsung Galaxy Book3"];
+    const mensajeGracias = ["Gracias"];
 
-// 	const mensajeInicial = ["¡Hola! Estoy interesado en la Samsung Galaxy Book3"];
-//     const mensajeGracias = ["Gracias"];
+	if (message.type === 'text') {
+		// mensajeFacebook("59168249790", textoMensaje);
 
-// 	if (message.type === 'text') {
-// 		// mensajeFacebook("59168249790", textoMensaje);
-
-// 		if (textoMensaje === 'Dos') {
-// 			sendProductDetails(numero);
-// 		}
-// 	}
-// }
-
-async function handleIncomingMessage(chatId, messageText) {
-    const currentState = chatStates.get(chatId) || "initial";
-
-    switch (currentState) {
-        case "initial":
-            if (messageText === "Hola mundo") {
-                await mensajeFacebook(chatId, "¡Hola! 🤗 Bienvenido a Multilaptops");
-                chatStates.set(chatId, "welcomed");
-            }
-            break;
-        case "welcomed":
-            // Aquí puedes manejar los mensajes después de la bienvenida.
-            // Por ejemplo, puedes enviar productos o responder a consultas.
-            break;
-        // Agrega más casos según sea necesario.
-    }
+		if (textoMensaje === 'Dos') {
+			sendProductDetails(numero);
+		}
+	}
 }
 
 async function sendProductDetails(numero) {
