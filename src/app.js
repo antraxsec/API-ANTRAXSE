@@ -104,15 +104,21 @@ async function handleIncomingMessage(chatId, message) {
     const currentState = chatStates.get(chatId) || "initial";
 
 	const numero = message.from;
-	const textoMensaje = message.text.body.toLowerCase();
+	const messageText = message.text.body.toLowerCase();
+
+	const mensajeInicial = ["¡Hola! Estoy interesado en la Samsung Galaxy Book3"];
 	
-	await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptopsxxx " + currentState + textoMensaje);
+	// await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptopsxxx " + currentState + messageText);
     
 	switch (currentState) {
         case "initial":
-            if (textoMensaje === "hola mundo") {
+            if (messageText === "hola mundo") {
                 await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
                 // chatStates.set(numero, "welcomed");
+            }
+			else if (mensajeInicial.some(phrase => messageText.indexOf(phrase.toLowerCase()) !== -1)) {
+                await sendProductDetails(numero);
+
             }
             break;
         case "admin":
