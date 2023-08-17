@@ -64,12 +64,13 @@ app.post("/webhookwhatsapp", async function (request, response) {
 	const { value } = changes?.[0] || {};
 	const { messages } = value || {};
 	const messageDetails = messages?.[0];
+	const message = messages?.[0];
 
-	if (messageDetails) {
+	if (message) {
 		const chatId = messageDetails?.chat?.id;
 		const messageText = messageDetails?.message?.text;
 		if (chatId && messageText) {
-			await handleIncomingMessage(chatId, messageText);
+			await handleIncomingMessage(chatId, message);
 		} else {
 			console.log("Falta información en el mensaje entrante");
 		}
