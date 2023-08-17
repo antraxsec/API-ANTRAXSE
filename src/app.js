@@ -274,22 +274,19 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 
 
 
-	// const imagen = await MessageMedia.fromUrl(
-	// 	"https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus2.webp"
-	// );
-	// const texto = [
-	// 	`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
-	// 	``,
-	// 	`▸ Atendemos con cita previa de lunes a sábado.`,
-	// 	`▸ Durante feriados y días festivos, solo atendemos compras previamente confirmadas.`,
-	// 	``,
-	// 	`Encuentra nuestra ubicación aquí: https://goo.gl/maps/g3gX5UsfrCkL2r7g8`,
-	// 	``,
-	// 	`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
-	// ].join('\n');
-	//-16.49477961297699, -68.1472742096505
-	await ubicacionFacebook(contact, "-16.49477961297699", "-68.1472742096505", 'Multilaptops', 'Uyustus 990, La Paz')
-	// await client.sendMessage(contact, imagen, { caption: texto });
+	const imagen = "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg";
+	const texto = [
+		`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
+		``,
+		`▸ Atendemos con cita previa de lunes a sábado.`,
+		`▸ Durante feriados y días festivos, solo atendemos compras previamente confirmadas.`,
+		``,
+		`Encuentra nuestra ubicación aquí: https://goo.gl/maps/g3gX5UsfrCkL2r7g8`,
+		``,
+		`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
+	].join('\n');
+
+	imgFacebook(contact, texto, imagen)
 	mensajeFacebook(contact, `Esta es nuestr aubucaicaoin::: jeje`);
 }
 
