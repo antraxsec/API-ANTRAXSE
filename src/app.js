@@ -117,8 +117,11 @@ async function handleIncomingMessage(chatId, message) {
                 // chatStates.set(numero, "welcomed");
             }
 			else if (mensajeInicial.some(phrase => messageText.indexOf(phrase.toLowerCase()) !== -1)) {
-                await sendProductDetails(numero);
-
+                await promocionFlow(numero);
+            }
+			else if (messageText === "admin") {
+                await adminFlow(numero);
+                // chatStates.set(chatId, "admin");
             }
             break;
         case "admin":
@@ -128,7 +131,7 @@ async function handleIncomingMessage(chatId, message) {
     }
 }
 
-async function sendProductDetails(numero) {
+async function promocionFlow(numero) {
 	const dia = await obtenerDiaActual();
 
 	await mensajeFacebook(numero, `¡Hola! Puedes encontrar todos los detalles y realizar la compra de la Samsung Galaxy Book en nuestra tienda 👉 multi.bz/samsung 🛒💻.`);
@@ -180,6 +183,20 @@ function createProductText(product) {
 	  `*(${product.price}) Ver precio actualizado 👉* ${product.priceUrl}`,
 	  `-----------------------------------`,
 	].join('\n');
+}
+
+async function adminFlow(numero) {
+	mensajeFacebook(numero, [
+		`🔒 *Modo Admin* 🔒`,
+		``,
+		` 1️⃣ Reenviar promoción 1 ➜`,
+		` 2️⃣ Seleccionar productos ➜`,
+		` 3️⃣ Enviar ubicación ➜`,
+		` 4️⃣ Enviar Proceso de compra ➜`,
+		` 5️⃣ Formas de pago ➜`,
+		` 8️⃣ ChatGPT 🤖`,
+		 `9️⃣ Salir`,
+	].join('\n'));
 }
 
 async function obtenerDiaActual() {
