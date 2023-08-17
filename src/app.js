@@ -121,13 +121,38 @@ async function handleIncomingMessage(chatId, message) {
             }
 			else if (messageText === "admin") {
                 await adminFlow(numero);
-                // chatStates.set(chatId, "admin");
+                chatStates.set(chatId, "admin");
             }
             break;
         case "admin":
-			await mensajeFacebook(numero, "Modo admin");
+			switch (messageText) {
+                case "1":
+                    mensajeFacebook(numero, `Ingresa el número [Promo] ⬇`);
+                    // chatStates.set(chatId, "reenviarPromocion");
+                break;
+                // case "2":
+                // break;
+                // case "3":
+                //     client.sendMessage(message.from, `Ingresa el número [Ubica]⬇`);
+                //     chatStates.set(chatId, "reenviarUbicacion");
+                // break;
+                // case "4":
+                //     client.sendMessage(message.from, `Ingresa el número [ProcesoCompra]⬇`);
+                //     chatStates.set(chatId, "reenviarProcesoCompra");
+                // break;
+                // case "5":
+                //     client.sendMessage(message.from, `Ingresa el número [FormaPago]⬇`);
+                //     chatStates.set(chatId, "reenviarFormasPago");
+                // break;
+                // case "9":
+                //     client.sendMessage(message.from, `Saliendo`);
+                //     chatStates.set(chatId, "initial");
+                // break;
+                default:
+                    await adminFlow();
+                    chatStates.set(chatId, "admin");
+            }
             break;
-        // Agrega más casos según sea necesario.
     }
 }
 
