@@ -274,7 +274,7 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 		``,
 		`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
 	].join('\n');
-	await ubicacionFacebook("59175258005", "-16.5047299", "-68.1550654", 'Multilaptops', texto)
+	await ubicacionFacebook("59175258005", "-16.5047299", "-68.1550654", 'Multilaptops', 'Multilaptops, Uyustus 990, La Paz')
 	// await client.sendMessage(contact, imagen, { caption: texto });
 	mensajeFacebook(contact, `Esta es nuestr aubucaicaoin::: jeje`);
 }
