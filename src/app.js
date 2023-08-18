@@ -2,17 +2,21 @@
 import express from "express";
 import axios from 'axios';
 import cors from "cors";
+import OpenAI from 'openai';
 import items from "./routes/item.routes.js";
 import whatsapps from "./routes/whatsapp.routes.js";
 import indexRouter from "./routes/index.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
-import { WHATSAPP_API_KEY } from "./config.js";
+import {
+	OPENAI_API_KEY,
+} from "./config.js";
 import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook } from './funciones.js'
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
+
 
 const chatStates = new Map();
 
@@ -111,7 +115,7 @@ async function handleIncomingMessage(chatId, message) {
 					chatStates.set(chatId, "reenviarFormasPago");
 					break;
 				case "8":
-                    client.sendMessage(message.from, `Ingresa el número [GPT]⬇`);
+                    mensajeFacebook(numero, `Ingresa el número [GPT]⬇`);
                     chatStates.set(chatId, "asistenteGPT");
                 break;
 				case "9":
@@ -171,14 +175,13 @@ async function handleIncomingMessage(chatId, message) {
 				].join('\n'));
 				chatStates.set(chatId, "reenviarProcesoCompra");
 			}
-			else if (message.text.body === "1") {
+			else if (message.body === "1") {
 				chatStates.set(chatId, "admin");
-				await adminFlow(numero);
 			}
 			else {
 				client.sendMessage(numero, [
 					`Ingresa un número de celular válido.`,
-					` 1️⃣ Salir.  `,
+					` 1️⃣ Salir.`,
 				].join('\n'));
 				chatStates.set(chatId, "reenviarProcesoCompra");
 			}
@@ -186,16 +189,12 @@ async function handleIncomingMessage(chatId, message) {
 		case "reenviarFormasPago":
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarFormasPago(message.text.body, true);
-				mensajeFacebook(numero, [
-					`Forma-Pago fue enviada, ahora estas en este nivel.`,
-					`Ingresa el número [Proceso]⬇`,
-				].join('\n'));
 				chatStates.set(chatId, "reenviarFormasPago");
 			}
 			else if (message.text.body === "1") {
 				chatStates.set(chatId, "admin");
-				await adminFlow(numero);
 			}
+
 			else {
 				client.sendMessage(numero, [
 					`Ingresa un número de celular válido.`,
@@ -215,7 +214,7 @@ async function handleIncomingMessage(chatId, message) {
             }
         break;
 		default:
-			await promocionFlow(message.text.body, true);
+			await promocionFlow(message.from)
 	}
 }
 
@@ -287,10 +286,16 @@ async function adminFlow(numero) {
 	].join('\n'));
 }
 
+async function reenviarFormasPago(contactId, isReflow = false) {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+	imgFacebook(contact, 'hola como estas david', "https://multilaptops.net/recursos/imagenes/productos/ecommerce/301458/5301829467.jpg")
+
+}
+
 async function reenviarUbicacion(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus3.jpg";
+	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus2.webp";
 	const texto = [
 		`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
 		``,
@@ -305,6 +310,28 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 	await imgFacebook(contact, texto, imagen)
 }
 
+async function enviarGPT(mensaje, contactId, isReflow = false) {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+	//mensajeFacebook(contact, 'hola como estas');
+	const openai = new OpenAI({
+		apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+	});
+
+	try {
+		const completion = await openai.chat.completions.create({
+			messages: [{ "role": 'user', "content": mensaje }],
+			model: 'gpt-3.5-turbo',
+		});
+
+		// Imprime el contenido del mensaje del sistema en la consola
+		let res = completion.choices[0].message['content']
+		mensajeFacebook(contact, res);
+		console.log(completion.choices[0].message['content']);
+	} catch (error) {
+		console.error("Ocurrió un error al realizar la petición:", error);
+	}
+}
+
 async function reenviarProcesoCompra(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
@@ -315,14 +342,14 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 		`Nuestra tienda en línea multi.bz está abierta 24/7 🕒, permitiéndote explorar, realizar tus pedidos, compras y reservas a cualquier hora y desde cualquier lugar. 📦🛍️`,
 	].join('\n'));
 
-	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/1.jpg";
+	const imagen1 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/1.webp";
 	const texto1 = [
 		`▸ Elige el producto que deseas comprar`,
 		`▸ Envíanos el código SKU del producto elegido `,
 	].join('\n');
 	await imgFacebook(contact, texto1, imagen1)
 
-	const imagen2 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/2.jpg";
+	const imagen2 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/2.webp";
 	const texto2 = [
 		`Comprueba la disponibilidad del producto:`,
 		``,
@@ -333,13 +360,13 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	].join('\n');
 	await imgFacebook(contact, texto2, imagen2)
 
-	const imagen3 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/3.jpg";
+	const imagen3 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/3.webp";
 	const texto3 = [
 		`Rellena el formulario con tus datos personales: nombre completo, número de identificación y número de celular. 📝`,
 	].join('\n');
 	await imgFacebook(contact, texto3, imagen3)
 
-	const imagen4 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/4.2.jpg";
+	const imagen4 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/4.2.webp";
 	const texto4 = [
 		`Selecciona tu método de entrega preferido:`,
 		``,
@@ -347,7 +374,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	].join('\n');
 	await imgFacebook(contact, texto4, imagen4)
 
-	const imagen42 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/4.3.jpg";
+	const imagen42 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/4.3.webp";
 	const texto42 = [
 		`Selecciona tu método de entrega preferido:`,
 		``,
@@ -356,7 +383,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	].join('\n');
 	await imgFacebook(contact, texto42, imagen42)
 
-	const imagen5 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/5.jpg";
+	const imagen5 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/5.webp";
 	const texto5 = [
 		`Selecciona tu método de pago: 🏧`,
 		``,
@@ -367,7 +394,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 	].join('\n');
 	await imgFacebook(contact, texto5, imagen5)
 
-	const imagen6 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-3/6.jpg";
+	const imagen6 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/6.webp";
 	const texto6 = [
 		`¡Listo! Al finalizar tu compra, generaremos la orden de entrega con los datos proporcionados. `,
 		``,
