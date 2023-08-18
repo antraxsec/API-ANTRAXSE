@@ -206,7 +206,6 @@ async function handleIncomingMessage(chatId, message) {
 			await enviarGPT(message.text.body, numero)
 			mensajeFacebook(numero, [
 				`Ingresa Otra pregunta [GPT]⬇`,
-				` 1️⃣ Salir.`,
 			].join('\n'));
 			chatStates.set(chatId, "admin");
 			break;
@@ -311,7 +310,7 @@ async function enviarGPT(mensaje, contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 	//mensajeFacebook(contact, 'hola como estas');
 	const openai = new OpenAI({
-		apiKey: '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', // defaults to process.env["OPENAI_API_KEY"]
+		apiKey: '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', // defaults to process.env["OPENAI_API_KEY"]
 	});
 	try {
 		const completion = await openai.chat.completions.create({
