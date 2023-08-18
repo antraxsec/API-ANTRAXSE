@@ -304,28 +304,6 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 	await imgFacebook(contact, texto, imagen)
 }
 
-async function enviarGPT(mensaje, contactId, isReflow = false) {
-	const contact = isReflow ? `591${contactId}@c.us` : contactId;
-	//mensajeFacebook(contact, 'hola como estas');
-	const openai = new OpenAI({
-		apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
-	});
-
-	try {
-		const completion = await openai.chat.completions.create({
-			messages: [{ "role": 'user', "content": mensaje }],
-			model: 'gpt-3.5-turbo',
-		});
-
-		// Imprime el contenido del mensaje del sistema en la consola
-		let res = completion.choices[0].message['content']
-		mensajeFacebook(contact, res);
-		console.log(completion.choices[0].message['content']);
-	} catch (error) {
-		console.error("Ocurrió un error al realizar la petición:", error);
-	}
-}
-
 async function reenviarProcesoCompra(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
@@ -443,10 +421,50 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 	await mensajeFacebook(contact, `Si tienes cualquier consulta, ¡estamos a tu disposición para ayudarte!`);
 }
 
-async function asistenteGPT(contactId, isReflow = false, numero) {
+async function asistenteGPT(mensaje, isReflow = false, contact) {
 	// const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	await mensajeFacebook(numero, `Hola soy tu asistente virtual`);
+	await mensajeFacebook(contact, `Hola soy tu asistente virtual`);
+	
+	const openai = new OpenAI({
+		apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+	});
+
+	try {
+		const completion = await openai.chat.completions.create({
+			messages: [{ "role": 'user', "content": mensaje }],
+			model: 'gpt-3.5-turbo',
+		});
+
+		// Imprime el contenido del mensaje del sistema en la consola
+		let res = completion.choices[0].message['content']
+		await mensajeFacebook(contact, res);
+		console.log(completion.choices[0].message['content']);
+	} catch (error) {
+		console.error("Ocurrió un error al realizar la petición:", error);
+	}
+}
+
+async function enviarGPT(mensaje, contactId, isReflow = false) {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+	//mensajeFacebook(contact, 'hola como estas');
+	const openai = new OpenAI({
+		apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+	});
+
+	try {
+		const completion = await openai.chat.completions.create({
+			messages: [{ "role": 'user', "content": mensaje }],
+			model: 'gpt-3.5-turbo',
+		});
+
+		// Imprime el contenido del mensaje del sistema en la consola
+		let res = completion.choices[0].message['content']
+		mensajeFacebook(contact, res);
+		console.log(completion.choices[0].message['content']);
+	} catch (error) {
+		console.error("Ocurrió un error al realizar la petición:", error);
+	}
 }
 
 async function obtenerDiaActual() {
