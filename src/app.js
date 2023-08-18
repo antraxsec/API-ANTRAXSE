@@ -16,9 +16,7 @@ const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 
-const openai = new OpenAI({
-	apiKey: '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', // defaults to process.env["OPENAI_API_KEY"]
-});
+
 const chatStates = new Map();
 
 app.use(cors());
@@ -207,7 +205,6 @@ async function handleIncomingMessage(chatId, message) {
 		case "GPT":
 			await enviarGPT(message.text.body, numero)
 			mensajeFacebook(numero, [
-				`Pregunda enviada`,
 				`Ingresa Otra pregunta [GPT]⬇`,
 			].join('\n'));
 			chatStates.set(chatId, "admin");
@@ -311,16 +308,19 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 
 async function enviarGPT(mensaje, contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
-	mensajeFacebook(contact, 'hola como estas');
+	//mensajeFacebook(contact, 'hola como estas');
+	const openai = new OpenAI({
+		apiKey: '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', // defaults to process.env["OPENAI_API_KEY"]
+	});
 	try {
 		const completion = await openai.chat.completions.create({
-			messages: [{ "role": 'user', "content": 'hola' }],
+			messages: [{ "role": 'user', "content": mensaje }],
 			model: 'gpt-3.5-turbo',
 		});
 
 		// Imprime el contenido del mensaje del sistema en la consola
-
-		mensajeFacebook(contact, 'hola como estas');
+		let res = completion.choices[0].message['content']
+		mensajeFacebook(contact, res);
 		console.log(completion.choices[0].message['content']);
 	} catch (error) {
 		console.error("Ocurrió un error al realizar la petición:", error);
