@@ -203,11 +203,18 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "GPT":
-			await enviarGPT(message.text.body, numero)
-			mensajeFacebook(numero, [
-				`Ingresa Otra pregunta [GPT]⬇`,
-			].join('\n'));
-			chatStates.set(chatId, "admin");
+			if (message.text.body === 1) {
+				await adminFlow();
+				chatStates.set(chatId, "admin");
+			} else {
+				await enviarGPT(message.text.body, numero)
+				mensajeFacebook(numero, [
+					`Ingresa Otra pregunta [GPT]⬇`,
+					` 1️⃣ Salir.`,
+				].join('\n'));
+				chatStates.set(chatId, "GPT");
+			}
+
 			break;
 		default:
 			await promocionFlow(message.from)
