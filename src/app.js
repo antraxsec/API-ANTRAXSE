@@ -205,7 +205,7 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "GPT":
-			GPT(message.text.body, numero)
+			await enviarGPT(message.text.body, numero)
 			mensajeFacebook(numero, [
 				`Pregunda enviada`,
 				`Ingresa Otra pregunta [GPT]⬇`,
@@ -309,16 +309,16 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 	await imgFacebook(contact, texto, imagen)
 }
 
-async function GPT(mensaje, contactId) {
+async function enviarGPT(mensaje, contactId) {
 	try {
 		const completion = await openai.chat.completions.create({
-			messages: [{ "role": 'user', "content": mensaje }],
+			messages: [{ "role": 'user', "content": 'hola' }],
 			model: 'gpt-3.5-turbo',
 		});
 
 		// Imprime el contenido del mensaje del sistema en la consola
 		const contact = isReflow ? `591${contactId}@c.us` : contactId;
-		await mensajeFacebook(contact, completion.choices[0].message['content']);
+		mensajeFacebook(contactId, completion.choices[0].message['content']);
 		console.log(completion.choices[0].message['content']);
 	} catch (error) {
 		console.error("Ocurrió un error al realizar la petición:", error);
