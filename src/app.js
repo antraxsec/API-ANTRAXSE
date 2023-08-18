@@ -78,7 +78,7 @@ async function handleIncomingMessage(chatId, message) {
 
 	switch (currentState) {
 		case "initial":
-			if (messageText === "hola mundo") {
+			if (messageText === "Hola") {
 				await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
 				// chatStates.set(numero, "welcomed");
 			}
@@ -110,6 +110,10 @@ async function handleIncomingMessage(chatId, message) {
 					mensajeFacebook(numero, `Ingresa el número [FormaPago]⬇`);
 					chatStates.set(chatId, "reenviarFormasPago");
 					break;
+				case "8":
+                    client.sendMessage(message.from, `Ingresa el número [GPT]⬇`);
+                    chatStates.set(chatId, "asistenteGPT");
+                break;
 				case "9":
 					mensajeFacebook(numero, `Saliendo`);
 					chatStates.set(chatId, "initial");
@@ -200,7 +204,16 @@ async function handleIncomingMessage(chatId, message) {
 				chatStates.set(chatId, "reenviarFormasPago");
 			}
 			break;
-
+		case "asistenteGPT":
+            if (messageText.length > 1) {
+                console.log("El mensaje tiene más de un carácter.");
+                await asistenteGPT(message.body, true);
+                chatStates.set(chatId, "asistenteGPT");
+            } 
+            else if (message.body === "1") {
+                chatStates.set(chatId, "admin");
+            }
+        break;
 		default:
 			await promocionFlow(message.text.body, true);
 	}
@@ -407,6 +420,12 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 	await imgFacebook(contact, imagen4, texto4);
 
 	await mensajeFacebook(contact, `Si tienes cualquier consulta, ¡estamos a tu disposición para ayudarte!`);
+}
+
+async function asistenteGPT(contactId, isReflow = false) {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+
+	await mensajeFacebook(contact, `Hola soy tu asistente virtual`);
 }
 
 async function obtenerDiaActual() {
