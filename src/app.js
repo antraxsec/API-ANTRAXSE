@@ -14,7 +14,9 @@ import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook } fro
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-
+const openai = new OpenAI({
+	apiKey: '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', // defaults to process.env["OPENAI_API_KEY"]
+});
 
 
 const chatStates = new Map();
@@ -309,9 +311,7 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 async function enviarGPT(mensaje, contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 	//mensajeFacebook(contact, 'hola como estas');
-	const openai = new OpenAI({
-		apiKey: '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', // defaults to process.env["OPENAI_API_KEY"]
-	});
+
 	try {
 		const completion = await openai.chat.completions.create({
 			messages: [{ "role": 'user', "content": mensaje }],
