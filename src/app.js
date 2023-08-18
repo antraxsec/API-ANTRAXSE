@@ -210,7 +210,7 @@ async function handleIncomingMessage(chatId, message) {
 				`Pregunda enviada`,
 				`Ingresa Otra pregunta [GPT]⬇`,
 			].join('\n'));
-			chatStates.set(chatId, "reenviarProcesoCompra");
+			chatStates.set(chatId, "admin");
 			break;
 		default:
 			await promocionFlow(message.from)
@@ -309,7 +309,9 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 	await imgFacebook(contact, texto, imagen)
 }
 
-async function enviarGPT(mensaje, contactId) {
+async function enviarGPT(mensaje, contactId, isReflow = false) {
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+	mensajeFacebook(contact, 'hola como estas');
 	try {
 		const completion = await openai.chat.completions.create({
 			messages: [{ "role": 'user', "content": 'hola' }],
@@ -317,8 +319,8 @@ async function enviarGPT(mensaje, contactId) {
 		});
 
 		// Imprime el contenido del mensaje del sistema en la consola
-		const contact = isReflow ? `591${contactId}@c.us` : contactId;
-		mensajeFacebook(contactId, completion.choices[0].message['content']);
+
+		mensajeFacebook(contact, 'hola como estas');
 		console.log(completion.choices[0].message['content']);
 	} catch (error) {
 		console.error("Ocurrió un error al realizar la petición:", error);
