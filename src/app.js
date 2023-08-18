@@ -115,7 +115,7 @@ async function handleIncomingMessage(chatId, message) {
 					chatStates.set(chatId, "reenviarFormasPago");
 					break;
 				case "8":
-                    mensajeFacebook(numero, `Ingresa el número [GPT]⬇`);
+                    mensajeFacebook(numero, `Realiza tu consulta[GPT]⬇`);
                     chatStates.set(chatId, "asistenteGPT");
                 break;
 				case "9":
@@ -206,7 +206,7 @@ async function handleIncomingMessage(chatId, message) {
 		case "asistenteGPT":
             if (messageText.length > 1) {
                 console.log("El mensaje tiene más de un carácter.");
-                await asistenteGPT(message.body, true);
+                await asistenteGPT(message.text.body, true, numero);
                 chatStates.set(chatId, "asistenteGPT");
             } 
             else if (message.body === "1") {
@@ -443,10 +443,10 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 	await mensajeFacebook(contact, `Si tienes cualquier consulta, ¡estamos a tu disposición para ayudarte!`);
 }
 
-async function asistenteGPT(contactId, isReflow = false) {
-	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+async function asistenteGPT(contactId, isReflow = false, numero) {
+	// const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	await mensajeFacebook(contact, `Hola soy tu asistente virtual`);
+	await mensajeFacebook(numero, `Hola soy tu asistente virtual`);
 }
 
 async function obtenerDiaActual() {
