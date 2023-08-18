@@ -204,7 +204,7 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "GPT":
-			await enviarGPT(message.text.body, numero)
+			await enviarGPT(message.text.body, numero, true)
 			mensajeFacebook(numero, [
 				`Ingresa Otra pregunta [GPT]⬇`,
 			].join('\n'));
