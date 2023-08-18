@@ -512,5 +512,7 @@ export default server;
 // git add .
 // git commit -m "16/08/23 : 16:20"
 // git push origin master
+
+// git pull origin master
 //HOMA MUNDO CRUEL
 // pedrogit 
