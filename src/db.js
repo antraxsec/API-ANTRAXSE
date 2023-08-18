@@ -5,6 +5,7 @@ import {
   DB_PASSWORD,
   DB_PORT,
   DB_USER,
+  OPENAI_API_KEY,
 } from "./config.js";
 
 // export const pool = createPool({
