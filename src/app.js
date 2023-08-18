@@ -2,7 +2,7 @@
 import express from "express";
 import axios from 'axios';
 import cors from "cors";
-const { OpenAI } = require('openai');
+import OpenAI from 'openai';
 import items from "./routes/item.routes.js";
 import whatsapps from "./routes/whatsapp.routes.js";
 import indexRouter from "./routes/index.routes.js";
