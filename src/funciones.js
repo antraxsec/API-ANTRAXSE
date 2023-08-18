@@ -82,18 +82,18 @@ export async function imgFacebook(to, textBody, imgurl) {
     var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
     var token = WHATSAPP_API_KEY
 
-    axios.post(url, message, {
+    return axios.post(url, message, {
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         }
     })
-        .then(response => {
-            console.log("Mensaje enviado con éxito");
-        })
-        .catch(error => {
-            console.log("Error al enviar el mensaje: ", error);
-        });
+    .then(response => {
+        console.log("Mensaje enviado con éxito");
+    })
+    .catch(error => {
+        console.log("Error al enviar el mensaje: ", error);
+    });
 }
 
 export function ubicacionFacebook(to, longitude, latitude, name, address) {
