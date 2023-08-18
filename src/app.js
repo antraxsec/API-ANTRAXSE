@@ -2,6 +2,7 @@
 import express from "express";
 import axios from 'axios';
 import cors from "cors";
+const { OpenAI } = require('openai');
 import items from "./routes/item.routes.js";
 import whatsapps from "./routes/whatsapp.routes.js";
 import indexRouter from "./routes/index.routes.js";
@@ -14,7 +15,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-const { OpenAI } = require('openai');
+
 const openai = new OpenAI({
 	apiKey: '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', // defaults to process.env["OPENAI_API_KEY"]
 });
