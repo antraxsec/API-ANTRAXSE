@@ -204,9 +204,9 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "asistenteGPT":
-			mensajeFacebook(numero, `Estamos en el flujo asistenteGPT`);
+			await mensajeFacebook(numero, `Estamos en el flujo asistenteGPT`);
             if (message.text.body && message.text.body.trim().length > 0) {
-				mensajeFacebook(numero, `Estamos dentro del if`);
+				await mensajeFacebook(numero, `Estamos dentro del if`);
                 console.log("El mensaje tiene más de un carácter.");
                 await asistenteGPT(message.text.body, true, numero);
             } 
@@ -433,6 +433,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 		apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
 	});
 
+	await mensajeFacebook(contact, `antes de try`);
 	try {
 		await mensajeFacebook(contact, `Estamos dentro de try`);
 		const completion = await openai.chat.completions.create({
@@ -448,6 +449,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 		console.error("Ocurrió un error al realizar la petición:", error);
 		await mensajeFacebook(contact, `Estamos en catch`);
 	}
+	await mensajeFacebook(contact, `desoues de  try`);
 }
 
 async function enviarGPT(mensaje, contactId, isReflow = false) {
