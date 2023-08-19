@@ -430,7 +430,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXX`);
 	
 	const openai = new OpenAI({
-		apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+		 apiKey: process.env["OPENAI_API_KEY"],// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
 	});
 
 	await mensajeFacebook(contact, `antes de try`);
