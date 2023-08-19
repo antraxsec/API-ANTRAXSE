@@ -19,6 +19,7 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 
 const chatStates = new Map();
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 app.use(cors());
 app.use(express.json());
@@ -456,7 +457,8 @@ async function enviarGPT(mensaje, contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 	//mensajeFacebook(contact, 'hola como estas');
 	const openai = new OpenAI({
-		apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+		// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+		apiKey: OPENAI_API_KEY,
 	});
 
 	try {
