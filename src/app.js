@@ -138,9 +138,9 @@ async function handleIncomingMessage(chatId, message) {
 				await adminFlow(numero);
 			}
 			else {
-				client.sendMessage(numero, [
+				mensajeFacebook(numero, [
 					`Ingresa un número de celular válido.`,
-					` 1️⃣ Salir.`,
+					`1️⃣ Salir.`,
 				].join('\n'));
 				chatStates.set(chatId, "reenviarPromocion");
 			}
@@ -179,9 +179,9 @@ async function handleIncomingMessage(chatId, message) {
 				chatStates.set(chatId, "admin");
 			}
 			else {
-				client.sendMessage(numero, [
+				mensajeFacebook(numero, [
 					`Ingresa un número de celular válido.`,
-					` 1️⃣ Salir.`,
+					`1️⃣ Salir.`,
 				].join('\n'));
 				chatStates.set(chatId, "reenviarProcesoCompra");
 			}
@@ -427,7 +427,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 async function asistenteGPT(mensaje, isReflow = false, contact) {
 	// const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	await mensajeFacebook(contact, `Hola soy tu asistente virtual`);
+	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXX`);
 	
 	const openai = new OpenAI({
 		apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
