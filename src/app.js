@@ -9,9 +9,9 @@ import indexRouter from "./routes/index.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
-import {
-	OPENAI_API_KEY,
-} from "./config.js";
+// import {
+// 	OPENAI_API_KEY,
+// } from "./config.js";
 import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook } from './funciones.js'
 const app = express();
 const server = createServer(app);
@@ -430,7 +430,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXX`);
 	
 	const openai = new OpenAI({
-		 apiKey: process.env["OPENAI_API_KEY"],// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+		 apiKey: OPENAI_API_KEY,// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
 	});
 
 	await mensajeFacebook(contact, `antes de try`);
