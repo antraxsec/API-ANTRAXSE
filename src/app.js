@@ -207,12 +207,12 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "asistenteGPT":
-			await mensajeFacebook(numero, `Estamos en el flujo asistenteGPT`);
+			await mensajeFacebook(numero, `Estamos [asistenteGPT]`);
 			if (message.text.body === "1") {
 				mensajeFacebook(numero, `Saliendo del asistenteGPT`);
 				chatStates.set(chatId, "admin")
 			} else {
-				await mensajeFacebook(numero, `Estamos dentro del if`);
+				//await mensajeFacebook(numero, `Estamos dentro del if`);
 				console.log("El mensaje tiene más de un carácter.");
 				asistenteGPT(message.text.body, true, numero);
 				chatStates.set(chatId, "asistenteGPT")
