@@ -431,17 +431,17 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 async function asistenteGPT(mensaje, isReflow = false, contact) {
 	// const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXXZZ ${process.env.OPENAI_API_KEY}`);
-	await mensajeFacebook(contact, `llego esto::` + mensaje);
-	await mensajeFacebook(contact, `antes de try`);
+	//await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXXZZ ${process.env.OPENAI_API_KEY}`);
+	//await mensajeFacebook(contact, `llego esto::` + mensaje);
+	//await mensajeFacebook(contact, `antes de try`);
 	const openai = new OpenAI({
 		// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
 		apiKey: process.env.OPENAI_API_KEY,
 	});
 
-	await mensajeFacebook(contact, `antes de try`);
+	//await mensajeFacebook(contact, `antes de try`);
 	try {
-		await mensajeFacebook(contact, `Estamos dentro de try`);
+		//await mensajeFacebook(contact, `Estamos dentro de try`);
 		const completion = await openai.chat.completions.create({
 			messages: [{ "role": 'user', "content": mensaje }],
 			model: 'gpt-3.5-turbo',
@@ -461,7 +461,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			if (err) console.error("Error al escribir en el archivo de registro:", err);
 		});
 	}
-	await mensajeFacebook(contact, `desoues de  try`);
+	//await mensajeFacebook(contact, `desoues de  try`);
 }
 
 async function enviarGPT(mensaje, contactId, isReflow = false) {
