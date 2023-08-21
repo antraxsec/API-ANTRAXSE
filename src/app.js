@@ -10,16 +10,16 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
 import { appendFile } from 'fs';
-// import {
-// 	OPENAI_API_KEY,
-// } from "./config.js";
+import {
+	OPENAI_API_KEY,
+} from "./config.js";
 import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook } from './funciones.js'
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 const chatStates = new Map();
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+//const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 app.use(cors());
 app.use(express.json());
@@ -212,10 +212,11 @@ async function handleIncomingMessage(chatId, message) {
 			} else {
 				await mensajeFacebook(numero, `Estamos dentro del if`);
 				console.log("El mensaje tiene más de un carácter.");
-				//await asistenteGPT(message.text.body, true, numero);
+				asistenteGPT(message.text.body, true, numero);
+				chatStates.set(chatId, "asistenteGPT")
 			}
 
-			mensajeFacebook(numero, `No ingreso al if`);
+			//mensajeFacebook(numero, `No ingreso al if`);
 			break;
 		default:
 			await promocionFlow(message.from)
@@ -428,7 +429,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 async function asistenteGPT(mensaje, isReflow = false, contact) {
 	// const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXXZZ`);
+	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXXZZ ${OPENAI_API_KEY}`);
 	await mensajeFacebook(contact, `llego esto::` + mensaje);
 	await mensajeFacebook(contact, `antes de try`);
 	const openai = new OpenAI({
