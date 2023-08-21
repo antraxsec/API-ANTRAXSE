@@ -446,9 +446,10 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			messages: [{ "role": 'user', "content": mensaje }],
 			model: 'gpt-3.5-turbo',
 		});
-
+		console.log(completion.choices[0].message['content'])
 		// Imprime el contenido del mensaje del sistema en la consola
 		let res = completion.choices[0].message['content']
+		console.log(res)
 		await mensajeFacebook(contact, res);
 		console.log(completion.choices[0].message['content']);
 	} catch (error) {
