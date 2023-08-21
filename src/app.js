@@ -9,6 +9,7 @@ import indexRouter from "./routes/index.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
+import { appendFile } from 'fs';
 // import {
 // 	OPENAI_API_KEY,
 // } from "./config.js";
@@ -16,9 +17,6 @@ import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook } fro
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-
-const fs = require('fs');
-
 
 const chatStates = new Map();
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -455,7 +453,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 		// await mensajeFacebook(contact, `Estamos en catch`);
 
 		// Registrar el error en un archivo
-		fs.appendFile('error-log.txt', `Error en ${new Date()}: ${error}\n`, (err) => {
+		appendFile('error-log.txt', `Error en ${new Date()}: ${error}\n`, (err) => {
 			if (err) console.error("Error al escribir en el archivo de registro:", err);
 		});
 	}
