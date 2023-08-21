@@ -17,6 +17,8 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
+const fs = require('fs');
+
 
 const chatStates = new Map();
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -429,6 +431,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	// const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
 	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXXZZ`);
+	await mensajeFacebook(contact, `llego esto::` + mensaje);
 	await mensajeFacebook(contact, `antes de try`);
 	const openai = new OpenAI({
 		// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
@@ -449,7 +452,12 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 		console.log(completion.choices[0].message['content']);
 	} catch (error) {
 		console.error("Ocurrió un error al realizar la petición:", error);
-		await mensajeFacebook(contact, `Estamos en catch`);
+		// await mensajeFacebook(contact, `Estamos en catch`);
+
+		// Registrar el error en un archivo
+		fs.appendFile('error-log.txt', `Error en ${new Date()}: ${error}\n`, (err) => {
+			if (err) console.error("Error al escribir en el archivo de registro:", err);
+		});
 	}
 	await mensajeFacebook(contact, `desoues de  try`);
 }
