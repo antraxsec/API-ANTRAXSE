@@ -2,6 +2,8 @@
 import express from "express";
 import axios from 'axios';
 import cors from "cors";
+import { config } from 'dotenv';
+config();
 import OpenAI from 'openai';
 import items from "./routes/item.routes.js";
 import whatsapps from "./routes/whatsapp.routes.js";
@@ -429,12 +431,12 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 async function asistenteGPT(mensaje, isReflow = false, contact) {
 	// const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXXZZ ${OPENAI_API_KEY}`);
+	await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXXZZ ${process.env.OPENAI_API_KEY}`);
 	await mensajeFacebook(contact, `llego esto::` + mensaje);
 	await mensajeFacebook(contact, `antes de try`);
 	const openai = new OpenAI({
 		// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
-		apiKey: OPENAI_API_KEY,
+		apiKey: process.env.OPENAI_API_KEY,
 	});
 
 	await mensajeFacebook(contact, `antes de try`);
