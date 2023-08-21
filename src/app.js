@@ -116,9 +116,9 @@ async function handleIncomingMessage(chatId, message) {
 					chatStates.set(chatId, "reenviarFormasPago");
 					break;
 				case "8":
-                    mensajeFacebook(numero, `Escribe tu consulta aquí [GPT]⬇`);
-                    chatStates.set(chatId, "asistenteGPT");
-                	break;
+					mensajeFacebook(numero, `Escribe tu consulta aquí [GPT]⬇`);
+					chatStates.set(chatId, "asistenteGPT");
+					break;
 				case "9":
 					mensajeFacebook(numero, `Saliendo`);
 					chatStates.set(chatId, "initial");
@@ -206,17 +206,17 @@ async function handleIncomingMessage(chatId, message) {
 			break;
 		case "asistenteGPT":
 			await mensajeFacebook(numero, `Estamos en el flujo asistenteGPT`);
-            if (message.text.body && message.text.body.trim().length > 0) {
-				await mensajeFacebook(numero, `Estamos dentro del if`);
-                console.log("El mensaje tiene más de un carácter.");
-                await asistenteGPT(message.text.body, true, numero);
-            } 
-            else if (message.text.body === "1") {
+			if (message.text.body === "1") {
 				mensajeFacebook(numero, `Saliendo del asistenteGPT`);
-                chatStates.set(chatId, "admin");
-            }
+				chatStates.set(chatId, "admin")
+			} else {
+				await mensajeFacebook(numero, `Estamos dentro del if`);
+				console.log("El mensaje tiene más de un carácter.");
+				//await asistenteGPT(message.text.body, true, numero);
+			}
+
 			mensajeFacebook(numero, `No ingreso al if`);
-        	break;
+			break;
 		default:
 			await promocionFlow(message.from)
 	}
