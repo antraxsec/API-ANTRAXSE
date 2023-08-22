@@ -579,7 +579,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	async function chatConUsuario(mensajeDelUsuario) {
 		console.log('entro', mensajeDelUsuario)
 		const mensajeInicial = [
-			{ role: "system", content: `Eres un asistente de ventas de laptops. Estos son los productos disponibles:\n${descripcionDeProductos()}\nPuedes proporcionar información detallada y ayudar con la compra.` },
+			{ role: "system", content: `Eres un asistente de ventas de laptops. Estos son los productos disponibles:\n${descripcionDeProductos()}\nPuedes proporcionar información detallada y ayudar con la compra. si mustras un producto agregar el codigo sku` },
 			{ role: "user", content: mensajeDelUsuario }
 		];
 
