@@ -601,7 +601,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 
 	for (var i = 0; i < parrafos.length; i++) {
 		var parrafo = parrafos[i];
-		var skuMatch = parrafo.match(/SKU:(\d+)/); // Usar una expresión regular para encontrar el SKU
+		var skuMatch = parrafo.match(/SKU:\s*(\d+)/); // Usar una expresión regular para encontrar el SKU
 		var sku = skuMatch ? skuMatch[1] : 'No encontrado'; // Si se encuentra el SKU, usarlo, si no, poner 'No encontrado'
 
 		if (sku === 'No encontrado') {
