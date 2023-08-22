@@ -435,6 +435,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	});
 	const productos = [
 		{
+			"sku": "100355",
 			"marcas": "Samsung",
 			"ram": "16GB a 5200 Mhz",
 			"cantidad": "0",
@@ -444,6 +445,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 1 TB"
 		},
 		{
+			"sku": "100354",
 			"marcas": "Samsung",
 			"ram": "16GB a 5200 Mhz",
 			"cantidad": "1",
@@ -453,6 +455,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
 		},
 		{
+			"sku": "100353",
 			"marcas": "Samsung",
 			"ram": "8GB a 4267 Mhz",
 			"cantidad": "2",
@@ -462,6 +465,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
 		},
 		{
+			"sku": "100352",
 			"marcas": "Samsung",
 			"ram": "8GB a 4267 Mhz",
 			"cantidad": "5",
@@ -471,11 +475,13 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
 		},
 		{
+			"sku": "100324",
 			"marcas": "Samsung",
 			"cantidad": "1",
 			"precio": "6930.00"
 		},
 		{
+			"sku": "100279",
 			"marcas": "Samsung",
 			"ram": "8GB a 2666 Mhz",
 			"cantidad": "1",
@@ -485,6 +491,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD M2 256 GB"
 		},
 		{
+			"sku": "100278",
 			"marcas": "Samsung",
 			"ram": "8GB a 3200 Mhz",
 			"cantidad": "14",
@@ -494,6 +501,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
 		},
 		{
+			"sku": "100246",
 			"marcas": "Samsung",
 			"ram": "16GB a 5200 Mhz",
 			"cantidad": "2",
@@ -503,6 +511,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
 		},
 		{
+			"sku": "100214",
 			"marcas": "Samsung",
 			"ram": "16GB a 6400 Mhz de velocidad, LPDDR5",
 			"cantidad": "3",
@@ -512,6 +521,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
 		},
 		{
+			"sku": "100213",
 			"marcas": "Samsung",
 			"ram": "16GB a 5200 Mhz",
 			"cantidad": "3",
@@ -521,6 +531,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
 		},
 		{
+			"sku": "100208",
 			"marcas": "Samsung",
 			"ram": "8GB a 5200 Mhz de velocidad, LPDDR5",
 			"cantidad": "1",
@@ -530,6 +541,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD M2 512 GB"
 		},
 		{
+			"sku": "100207",
 			"marcas": "Samsung",
 			"ram": "8GB a 4267 Mhz",
 			"cantidad": "18",
@@ -539,6 +551,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
 		},
 		{
+			"sku": "100206",
 			"marcas": "Samsung",
 			"ram": "8GB a 4267 Mhz",
 			"cantidad": "8",
@@ -548,6 +561,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 			"UnidaEstadoSolidoSSD": "SSD NVME 256 GB"
 		},
 		{
+			"sku": "100205",
 			"marcas": "Samsung",
 			"ram": "8GB a 4267 Mhz",
 			"cantidad": "11",
@@ -559,7 +573,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	];
 
 	function descripcionDeProductos() {
-		return productos.map((producto, index) => `Producto ${index + 1}: ${producto.marcas}, RAM: ${producto.ram}, Precio: ${producto.precio}, Pantalla: ${producto.pantalla}, Procesador: ${producto.procesador}, Unidad Estado Sólido: ${producto.UnidaEstadoSolidoSSD}`).join('\n');
+		return productos.map((producto, index) => `Producto con codigo SKU ${producto.sku}: ${producto.marcas}, RAM: ${producto.ram}, Precio: ${producto.precio}, Pantalla: ${producto.pantalla}, Procesador: ${producto.procesador}, Unidad Estado Sólido: ${producto.UnidaEstadoSolidoSSD}`).join('\n');
 	}
 
 	async function chatConUsuario(mensajeDelUsuario) {
