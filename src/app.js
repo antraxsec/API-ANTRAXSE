@@ -562,7 +562,8 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 		return productos.map((producto, index) => `Producto ${index + 1}: ${producto.marcas}, RAM: ${producto.ram}, Precio: ${producto.precio}, Pantalla: ${producto.pantalla}, Procesador: ${producto.procesador}, Unidad Estado Sólido: ${producto.UnidaEstadoSolidoSSD}`).join('\n');
 	}
 
-	async function chatConUsuario(mensaje) {
+	async function chatConUsuario(mensajeDelUsuario) {
+		console.log('entro', mensajeDelUsuario)
 		const mensajeInicial = [
 			{ role: "system", content: `Eres un asistente de ventas de laptops. Estos son los productos disponibles:\n${descripcionDeProductos()}\nPuedes proporcionar información detallada y ayudar con la compra.` },
 			{ role: "user", content: mensajeDelUsuario }
