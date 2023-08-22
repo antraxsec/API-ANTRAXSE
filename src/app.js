@@ -597,6 +597,8 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	/////////////////////////////////////////////////////////////////////
 	let res = await chatConUsuario(mensaje)
 	await mensajeFacebook(contact, res);
+
+	await productoFacebook(contact, "100354", 'Multilaptops', 'datos de pc')
 	/////////////////////////////////////////////////////////////////////
 	// try {
 	// 	const completion = await openai.chat.completions.create({
