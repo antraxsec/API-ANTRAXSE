@@ -573,7 +573,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	];
 
 	function descripcionDeProductos() {
-		return productos.map((producto, index) => `Producto con codigo SKU ${producto.sku}: ${producto.marcas}, RAM: ${producto.ram}, Precio: ${producto.precio}, Pantalla: ${producto.pantalla}, Procesador: ${producto.procesador}, Unidad Estado Sólido: ${producto.UnidaEstadoSolidoSSD}`).join('\n');
+		return productos.map((producto, index) => `Producto con codigo SKU:${producto.sku}: ${producto.marcas}, RAM: ${producto.ram}, Precio: ${producto.precio}, Pantalla: ${producto.pantalla}, Procesador: ${producto.procesador}, Unidad Estado Sólido: ${producto.UnidaEstadoSolidoSSD}`).join('\n');
 	}
 
 	async function chatConUsuario(mensajeDelUsuario) {
