@@ -606,7 +606,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 
 		if (sku === 'No encontrado') {
 			await mensajeFacebook(contact, parrafo);
-			await productoFacebook(contact, '100352', 'Multilaptops', 'Producto con código SKU: 100352: Samsung. Es una opción más económica pero ig')
+			await productoFacebook(contact, '100352', 'Multilaptops', 'asd')
 
 		} else {
 			await productoFacebook(contact, '100352', 'Multilaptops', 'Producto con código SKU: 100352: Samsung. Es una opción más económica pero igualmente capaz para jugar. Cuenta con una RAM de 8GB a 4267 Mhz, pantalla de 15,6" LED FULLHD IPS, procesador Intel Core i5-1335U 4,60 Ghz 13va Gen. 10-cores y una unidad de Estado Sólido (SSD) NVME de 512 GB. El precio de este producto es de 5350.00.')
