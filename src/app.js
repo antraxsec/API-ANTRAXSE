@@ -429,39 +429,176 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 }
 
 async function asistenteGPT(mensaje, isReflow = false, contact) {
-	// const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	//await mensajeFacebook(contact, `Hola soy tu asistente virtualXXXXZZ ${process.env.OPENAI_API_KEY}`);
-	//await mensajeFacebook(contact, `llego esto::` + mensaje);
-	//await mensajeFacebook(contact, `antes de try`);
 	const openai = new OpenAI({
-		// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
 		apiKey: process.env.OPENAI_API_KEY,
 	});
+	const productos = [
+		{
+			"marcas": "Samsung",
+			"ram": "16GB a 5200 Mhz",
+			"cantidad": "0",
+			"precio": "15600.00",
+			"pantalla": "16\" AMOLED 3K",
+			"procesador": "Intel Core i7-13700H 5 Ghz 13va Gen. 14-cores",
+			"UnidaEstadoSolidoSSD": "SSD NVME 1 TB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "16GB a 5200 Mhz",
+			"cantidad": "1",
+			"precio": "10620.00",
+			"pantalla": "16\" AMOLED 3K",
+			"procesador": "Intel Core i7-1360P 5 Ghz 13va Gen. 12-cores",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "8GB a 4267 Mhz",
+			"cantidad": "2",
+			"precio": "9400.00",
+			"pantalla": "15,6\" AMOLED FULLHD Touchscreen",
+			"procesador": "Intel Core i7-1360P 5 Ghz 13va Gen. 12-cores",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "8GB a 4267 Mhz",
+			"cantidad": "5",
+			"precio": "5350.00",
+			"pantalla": "15,6\" LED FULLHD IPS",
+			"procesador": "Intel Core i5-1335U 4,60 Ghz 13va Gen. 10-cores",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"cantidad": "1",
+			"precio": "6930.00"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "8GB a 2666 Mhz",
+			"cantidad": "1",
+			"precio": "3300.00",
+			"pantalla": "15,6\" LED FULLHD",
+			"procesador": "Intel Core i3-1115G4 4,1Ghz Dual-core",
+			"UnidaEstadoSolidoSSD": "SSD M2 256 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "8GB a 3200 Mhz",
+			"cantidad": "14",
+			"precio": "3400.00",
+			"pantalla": "15,6\" LED FULLHD",
+			"procesador": "Intel Core i3-1115G4 4,1Ghz Dual-core",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "16GB a 5200 Mhz",
+			"cantidad": "2",
+			"precio": "11600.00",
+			"pantalla": "13.3\" FHD AMOLED Display (1920 x 1080) con micro bordes Touch Screen Panel",
+			"procesador": "Intel Core i7-1260P 4,70 Ghz Dodeca-core",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "16GB a 6400 Mhz de velocidad, LPDDR5",
+			"cantidad": "3",
+			"precio": "10800.00",
+			"pantalla": "13.3\" FHD AMOLED Display (1920 x 1080) con micro bordes Touch Screen Panel",
+			"procesador": "Intel Core i7-1260P 4,70 Ghz Dodeca-core",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "16GB a 5200 Mhz",
+			"cantidad": "3",
+			"precio": "10890.00",
+			"pantalla": "15,6\" AMOLED FULLHD",
+			"procesador": "Intel Core i7-1260P 4,70 Ghz Dodeca-core",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "8GB a 5200 Mhz de velocidad, LPDDR5",
+			"cantidad": "1",
+			"precio": "8470.00",
+			"pantalla": "13,3\" AMOLED FULLHD",
+			"procesador": "Intel Core i5-1240P 4,40Ghz Dodeca-core",
+			"UnidaEstadoSolidoSSD": "SSD M2 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "8GB a 4267 Mhz",
+			"cantidad": "18",
+			"precio": "6270.00",
+			"pantalla": "15,6\" LED FULLHD IPS",
+			"procesador": "Intel Core i7-1255U 4,70 Ghz Deca-core",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "8GB a 4267 Mhz",
+			"cantidad": "8",
+			"precio": "5520.00",
+			"pantalla": "15,6\" LED FULLHD IPS",
+			"procesador": "Intel Core i5-1235U 4,40 Ghz Deca-core",
+			"UnidaEstadoSolidoSSD": "SSD NVME 256 GB"
+		},
+		{
+			"marcas": "Samsung",
+			"ram": "8GB a 4267 Mhz",
+			"cantidad": "11",
+			"precio": "4800.00",
+			"pantalla": "15,6\" LED FULLHD IPS",
+			"procesador": "Intel Core i5-1235U 4,40 Ghz Deca-core",
+			"UnidaEstadoSolidoSSD": "SSD NVME 512 GB"
+		}
+	];
 
-	//await mensajeFacebook(contact, `antes de try`);
-	try {
-		//await mensajeFacebook(contact, `Estamos dentro de try`);
-		const completion = await openai.chat.completions.create({
-			messages: [{ "role": 'user', "content": mensaje }],
-			model: 'gpt-3.5-turbo',
-		});
-		console.log(completion.choices[0].message['content'])
-		// Imprime el contenido del mensaje del sistema en la consola
-		let res = completion.choices[0].message['content']
-		console.log(res)
-		await mensajeFacebook(contact, res);
-		console.log(completion.choices[0].message['content']);
-	} catch (error) {
-		console.error("Ocurrió un error al realizar la petición:", error);
-		// await mensajeFacebook(contact, `Estamos en catch`);
-
-		// Registrar el error en un archivo
-		appendFile('error-log.txt', `Error en ${new Date()}: ${error}\n`, (err) => {
-			if (err) console.error("Error al escribir en el archivo de registro:", err);
-		});
+	function descripcionDeProductos() {
+		return productos.map((producto, index) => `Producto ${index + 1}: ${producto.marcas}, RAM: ${producto.ram}, Precio: ${producto.precio}, Pantalla: ${producto.pantalla}, Procesador: ${producto.procesador}, Unidad Estado Sólido: ${producto.UnidaEstadoSolidoSSD}`).join('\n');
 	}
-	//await mensajeFacebook(contact, `desoues de  try`);
+
+	async function chatConUsuario(mensaje) {
+		const mensajeInicial = [
+			{ role: "system", content: `Eres un asistente de ventas de laptops. Estos son los productos disponibles:\n${descripcionDeProductos()}\nPuedes proporcionar información detallada y ayudar con la compra.` },
+			{ role: "user", content: mensajeDelUsuario }
+		];
+
+		try {
+			const completion = await openai.chat.completions.create({
+				messages: mensajeInicial,
+				model: 'gpt-3.5-turbo',
+			});
+
+			return completion.choices[0].message['content'];
+		} catch (error) {
+			console.error("Ocurrió un error al realizar la petición:", error);
+		}
+	}
+	/////////////////////////////////////////////////////////////////////
+	let res = await chatConUsuario(mensaje)
+	await mensajeFacebook(contact, res);
+	/////////////////////////////////////////////////////////////////////
+	// try {
+	// 	const completion = await openai.chat.completions.create({
+	// 		messages: [{ "role": 'user', "content": mensaje }],
+	// 		model: 'gpt-3.5-turbo',
+	// 	});
+	// 	console.log(completion.choices[0].message['content'])
+	// 	let res = completion.choices[0].message['content']
+	// 	console.log(res)
+	// 	await mensajeFacebook(contact, res);
+	// 	console.log(completion.choices[0].message['content']);
+	// } catch (error) {
+	// 	console.error("Ocurrió un error al realizar la petición:", error);
+	// 	appendFile('error-log.txt', `Error en ${new Date()}: ${error}\n`, (err) => {
+	// 		if (err) console.error("Error al escribir en el archivo de registro:", err);
+	// 	});
+	// }
 }
 
 async function enviarGPT(mensaje, contactId, isReflow = false) {
