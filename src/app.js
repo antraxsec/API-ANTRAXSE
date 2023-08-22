@@ -596,9 +596,30 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	}
 	/////////////////////////////////////////////////////////////////////
 	let res = await chatConUsuario(mensaje)
-	await mensajeFacebook(contact, res);
+	//////////poner //////////////
+	var parrafos = res.split('\n\n'); // Separar por dos saltos de línea
 
-	await productoFacebook(contact, "100354", 'Multilaptops', 'datos de pc')
+	for (var i = 0; i < parrafos.length; i++) {
+		var parrafo = parrafos[i];
+		var skuMatch = parrafo.match(/SKU (\d+)/); // Usar una expresión regular para encontrar el SKU
+		var sku = skuMatch ? skuMatch[1] : 'No encontrado'; // Si se encuentra el SKU, usarlo, si no, poner 'No encontrado'
+
+		if (sku === 'No encontrado') {
+			await mensajeFacebook(contact, parrafo);
+		} else {
+			await productoFacebook(contact, sku, 'Multilaptops', parrafo)
+		}
+
+		console.log('Párrafo:', parrafo);
+		console.log('SKU:', sku);
+	}
+	//////////////////////////////
+
+	//funcionan esto
+
+	//	await mensajeFacebook(contact, res);
+
+	//	await productoFacebook(contact, "100354", 'Multilaptops', 'datos de pc')
 	/////////////////////////////////////////////////////////////////////
 	// try {
 	// 	const completion = await openai.chat.completions.create({
