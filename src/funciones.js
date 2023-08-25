@@ -30,12 +30,12 @@ export async function productoFacebook(to, id_catalogo, boy_text, footer_text) {
             "Authorization": `Bearer ${token}`
         }
     })
-    .then(response => {
-        console.log("Mensaje enviado con éxito");
-    })
-    .catch(error => {
-        console.log("Error al enviar el mensaje: ", error);
-    });
+        .then(response => {
+            console.log("Mensaje enviado con éxito");
+        })
+        .catch(error => {
+            console.log("Error al enviar el mensaje: ", error);
+        });
 }
 
 export async function mensajeFacebook(to, textBody) {
@@ -59,12 +59,40 @@ export async function mensajeFacebook(to, textBody) {
             "Authorization": `Bearer ${token}`
         }
     })
-    .then(response => {
-        console.log("Mensaje enviado con éxito");
+        .then(response => {
+            console.log("Mensaje enviado con éxito");
+        })
+        .catch(error => {
+            console.log("Error al enviar el mensaje: ", error);
+        });
+}
+export async function reaccionFacebook(to, wamid, emoji) {
+    var message = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": to,
+        "type": "reaction",
+        "reaction": {
+            "message_id": wamid,
+            "emoji": emoji
+        }
+    };
+
+    var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
+    var token = WHATSAPP_API_KEY;
+
+    return axios.post(url, message, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
     })
-    .catch(error => {
-        console.log("Error al enviar el mensaje: ", error);
-    });
+        .then(response => {
+            console.log("Mensaje enviado con éxito");
+        })
+        .catch(error => {
+            console.log("Error al enviar el mensaje: ", error);
+        });
 }
 
 export async function imgFacebook(to, textBody, imgurl) {
@@ -79,7 +107,7 @@ export async function imgFacebook(to, textBody, imgurl) {
         }
     };
 
-    var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
+    var url = "https://graph.facebook.com/v17.0/119254337784335/messages";
     var token = WHATSAPP_API_KEY
 
     return axios.post(url, message, {
@@ -88,12 +116,12 @@ export async function imgFacebook(to, textBody, imgurl) {
             "Authorization": `Bearer ${token}`
         }
     })
-    .then(response => {
-        console.log("Mensaje enviado con éxito");
-    })
-    .catch(error => {
-        console.log("Error al enviar el mensaje: ", error);
-    });
+        .then(response => {
+            console.log("Mensaje enviado con éxito");
+        })
+        .catch(error => {
+            console.log("Error al enviar el mensaje: ", error);
+        });
 }
 
 export function ubicacionFacebook(to, longitude, latitude, name, address) {
@@ -272,6 +300,90 @@ export function bottonesFacebook(to, textBody, arrayBtn) {
     var token = WHATSAPP_API_KEY
 
     axios.post(url, message, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+        .then(response => {
+            console.log("Mensaje enviado con éxito");
+        })
+        .catch(error => {
+            console.log("Error al enviar el mensaje: ", error);
+        });
+}
+
+export function bottonesDosFacebook(to) {
+    var message = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": to,
+        "type": "interactive",
+        "interactive": {
+            "type": "list",
+            "header": {
+                "type": "text",
+                "text": "Multilaptops"
+            },
+            "body": {
+                "text": "Seleccionar una opción"
+            },
+            "footer": {
+                "text": "Obtén más información"
+            },
+            "action": {
+                "button": "MENU",
+                "sections": [
+                    {
+                        "title": "Asistencia",
+                        "rows": [
+                            {
+                                "id": "ASSISTANT",
+                                "title": "Hablar con un asistente",
+                                "description": "Conéctate con un asistente en línea"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Tienda",
+                        "rows": [
+                            {
+                                "id": "LOCATION",
+                                "title": "Ubicación de la tienda",
+                                "description": "Encuentra nuestra tienda más cercana"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Pago",
+                        "rows": [
+                            {
+                                "id": "PAYMENT",
+                                "title": "Forma de pago",
+                                "description": "Conoce nuestras opciones de pago"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Compra",
+                        "rows": [
+                            {
+                                "id": "PURCHASE_PROCESS",
+                                "title": "Proceso de compra",
+                                "description": "Aprende cómo realizar una compra"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+        ;
+
+    var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
+    var token = WHATSAPP_API_KEY
+
+    return axios.post(url, message, {
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`

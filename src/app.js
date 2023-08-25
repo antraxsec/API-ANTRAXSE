@@ -15,7 +15,7 @@ import { appendFile } from 'fs';
 import {
 	OPENAI_API_KEY,
 } from "./config.js";
-import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook } from './funciones.js'
+import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook, reaccionFacebook, bottonesDosFacebook } from './funciones.js'
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -38,7 +38,7 @@ app.post("/webhook", (req, res) => {
 app.get("/webhookwhatsapp", function (req, res) {
 	if (
 		req.query["hub.mode"] == "subscribe" &&
-		req.query["hub.verify_token"] == "david"
+		req.query["hub.verify_token"] == "david"//david ////token de verificacion
 	) {
 		res.send(req.query["hub.challenge"]);
 	} else {
@@ -46,9 +46,9 @@ app.get("/webhookwhatsapp", function (req, res) {
 	}
 });
 
-app.post("/webhookwhatsapp", async function (request, response) {
-	console.log("Incoming webhook: " + JSON.stringify(request.body));
+const estado = new Map();
 
+app.post("/webhookwhatsapp", async function (request, response) {
 	const { entry } = request.body;
 	const { changes } = entry?.[0] || {};
 	const { value } = changes?.[0] || {};
@@ -56,15 +56,7 @@ app.post("/webhookwhatsapp", async function (request, response) {
 	const messageDetails = messages?.[0];
 	const message = messages?.[0];
 
-	// if (message) {
-	// 	const chatId = messageDetails?.chat?.id;
-	// 	const messageText = messageDetails?.message?.text;
-	// 	if (chatId && message) {
-	// 		await handleIncomingMessage(chatId, message);
-	// 	} else {
-	// 		console.log("Falta información en el mensaje entrante");
-	// 	}
-	// }
+
 	if (message) {
 		const chatId = messageDetails?.chat?.id;
 		handleIncomingMessage(chatId, message);
@@ -75,9 +67,10 @@ app.post("/webhookwhatsapp", async function (request, response) {
 
 async function handleIncomingMessage(chatId, message) {
 	const currentState = chatStates.get(chatId) || "initial";
-
+	const tipo = message.type
 	const numero = message.from;
-	const messageText = message.text.body.toLowerCase();
+	console.log(message)
+	//console.log(messageText, 'numero:', numero)
 
 	const mensajeInicial = ["¡Hola! Estoy interesado en la Samsung Galaxy Book3"];
 
@@ -85,20 +78,69 @@ async function handleIncomingMessage(chatId, message) {
 
 	switch (currentState) {
 		case "initial":
-			if (messageText === "Hola") {
-				await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
-				// chatStates.set(numero, "welcomed");
+			if (tipo === 'text') {
+				const messageText = message.text.body.toLowerCase();
+				if (messageText === "Hola") {
+					await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
+					// chatStates.set(numero, "welcomed");
+				}
+				else if (mensajeInicial.some(phrase => messageText.indexOf(phrase.toLowerCase()) !== -1)) {
+					await promocionFlow(numero);
+				}
+				else if (messageText === "admin") {
+					await adminFlow(numero);
+					chatStates.set(chatId, "admin");
+				}
+				break;
+			} else if (tipo === 'interactive') {
+				chatStates.set(chatId, "menu");
+			} else if (tipo === 'reaction') {
+				console.log('volviendo a inicial por reaction')
+				chatStates.set(chatId, "initial");
 			}
-			else if (mensajeInicial.some(phrase => messageText.indexOf(phrase.toLowerCase()) !== -1)) {
-				await promocionFlow(numero);
+			break
+		case "menu":
+			switch (message.interactive.list_reply.id) {
+				case 'ASSISTANT':
+					await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops Cual es tu pregunta?");
+					chatStates.set(chatId, "ASSISTANT1");
+					break;
+				case 'LOCATION':
+					await mensajeFacebook(numero, "¡Hola! 🤗 [ubicacion]");
+					await reenviarUbicacion(numero, true);
+					chatStates.set(chatId, "initial");
+					break;
+				case 'PAYMENT':
+					await mensajeFacebook(numero, "¡Hola! 🤗 [forma de pago]");
+					await reenviarFormasPago(numero, true)
+					chatStates.set(chatId, "initial");
+					break;
+				case 'PURCHASE_PROCESS':
+					await mensajeFacebook(numero, "¡Hola! 🤗 [proceso de compra]");
+					await reenviarProcesoCompra(numero, true)
+					chatStates.set(chatId, "initial");
+					break;
+				default:
+					console.log('Opción desconocida seleccionada');
+					break;
 			}
-			else if (messageText === "admin") {
-				await adminFlow(numero);
-				chatStates.set(chatId, "admin");
+			break
+		case 'ASSISTANT1':
+			await reaccionFacebook(numero, message.id, "\u231B")
+			await mensajeFacebook(numero, `Asistente...⌛`);
+			if (message.text.body === "1") {
+				await mensajeFacebook(numero, `Saliendo del asistenteGPT`);
+				await bottonesDosFacebook(numero)
+				chatStates.set(chatId, "initial");
+			} else {
+				asistenteGPT(message.text.body, true, numero, message);
+				chatStates.set(chatId, "ASSISTANT1")
 			}
-			break;
+			console.log('estoy en ASSISTANT1')
+			break
 		case "admin":
-			switch (messageText) {
+
+			switch (message.text.body) {
 				case "1":
 					mensajeFacebook(numero, `Ingresa el número [Promo] ⬇`);
 					chatStates.set(chatId, "reenviarPromocion");
@@ -131,21 +173,26 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "reenviarPromocion":
-			if (validarNumerocelular(message.text.body)) {
-				await promocionFlow(message.text.body, true);
-				chatStates.set(chatId, "reenviarPromocion");
-			}
-			else if (message.text.body === "1") {
-				chatStates.set(chatId, "admin");
-				//chatStates.set(chatId, "initial"); new
-				await adminFlow(numero);
-			}
-			else {
-				mensajeFacebook(numero, [
-					`Ingresa un número de celular válido.`,
-					`1️⃣ Salir.`,
-				].join('\n'));
-				chatStates.set(chatId, "reenviarPromocion");
+			if (tipo === 'interactive') {
+				chatStates.set(chatId, "menu");
+			} else {
+				if (validarNumerocelular(message.text.body)) {
+					await promocionFlow(message.text.body, true);
+					await bottonesDosFacebook(message.text.body)
+					chatStates.set(chatId, "reenviarPromocion");
+				}
+				else if (message.text.body === "1") {
+					chatStates.set(chatId, "admin");
+					//chatStates.set(chatId, "initial"); new
+					await adminFlow(numero);
+				}
+				else {
+					mensajeFacebook(numero, [
+						`Ingresa un número de celular válido.`,
+						`1️⃣ Salir.`,
+					].join('\n'));
+					chatStates.set(chatId, "reenviarPromocion");
+				}
 			}
 			break;
 		case "reenviarUbicacion":
@@ -207,14 +254,16 @@ async function handleIncomingMessage(chatId, message) {
 			}
 			break;
 		case "asistenteGPT":
-			await mensajeFacebook(numero, `Estamos [asistenteGPT]`);
+			await reaccionFacebook(numero, message.id, "\u231B")
+			await mensajeFacebook(numero, `Asistente...⌛`);
 			if (message.text.body === "1") {
-				mensajeFacebook(numero, `Saliendo del asistenteGPT`);
-				chatStates.set(chatId, "admin")
+				await mensajeFacebook(numero, `Saliendo del asistenteGPT`);
+				chatStates.set(chatId, "admin");
+				await adminFlow(numero);
 			} else {
 				//await mensajeFacebook(numero, `Estamos dentro del if`);
-				console.log("El mensaje tiene más de un carácter.");
-				asistenteGPT(message.text.body, true, numero);
+				//console.log("El mensaje tiene más de un carácter.");
+				asistenteGPT(message.text.body, true, numero, message);
 				chatStates.set(chatId, "asistenteGPT")
 			}
 
@@ -223,6 +272,7 @@ async function handleIncomingMessage(chatId, message) {
 		default:
 			await promocionFlow(message.from)
 	}
+	console.log(currentState)
 }
 
 async function promocionFlow(numero) {
@@ -263,6 +313,7 @@ async function promocionFlow(numero) {
 
 	await mensajeFacebook(numero, `Si te interesa uno de nuestros productos, necesitas más información o estás listo para comprar, estoy aquí para ayudarte. Puedo agendarte una llamada, y un asesor de ventas se pondrá en contacto contigo para facilitar todo el proceso.`);
 	await mensajeFacebook(numero, `Nos esforzamos por hacer tu experiencia de compra lo más sencilla y cómoda posible. Como empresa moderna y líder en innovación tecnológica, revisa todos nuestros productos en multilaptops.net. ¡No dudes en contactarnos con cualquier pregunta!`);
+	await bottonesDosFacebook(numero)
 }
 
 function createProductText(product) {
@@ -308,14 +359,14 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 		`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
 	].join('\n');
 
-	await imgFacebook(contact, texto, imagen)
+	await imgFacebook(contactId, texto, imagen)
 }
 
 async function reenviarProcesoCompra(contactId, isReflow = false) {
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
-	await mensajeFacebook(contact, `*¿Como comprar en Multilaptops?* 🛒💻`);
-	await mensajeFacebook(contact, [
+	await mensajeFacebook(contactId, `*¿Como comprar en Multilaptops?* 🛒💻`);
+	await mensajeFacebook(contactId, [
 		`Comprar en Multilaptops es fácil, cómodo y rápido: olvídate de los bloqueos, marchas y tráfico. `,
 		``,
 		`Nuestra tienda en línea multi.bz está abierta 24/7 🕒, permitiéndote explorar, realizar tus pedidos, compras y reservas a cualquier hora y desde cualquier lugar. 📦🛍️`,
@@ -326,7 +377,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 		`▸ Elige el producto que deseas comprar`,
 		`▸ Envíanos el código SKU del producto elegido `,
 	].join('\n');
-	await imgFacebook(contact, texto1, imagen1)
+	await imgFacebook(contactId, texto1, imagen1)
 
 	const imagen2 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/2.webp";
 	const texto2 = [
@@ -337,13 +388,13 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 		`💻 Exclusivo online`,
 		`🚚 En tránsito`,
 	].join('\n');
-	await imgFacebook(contact, texto2, imagen2)
+	await imgFacebook(contactId, texto2, imagen2)
 
 	const imagen3 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/3.webp";
 	const texto3 = [
 		`Rellena el formulario con tus datos personales: nombre completo, número de identificación y número de celular. 📝`,
 	].join('\n');
-	await imgFacebook(contact, texto3, imagen3)
+	await imgFacebook(contactId, texto3, imagen3)
 
 	const imagen4 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/4.2.webp";
 	const texto4 = [
@@ -351,7 +402,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 		``,
 		`✈️ *Envío nacional*: Si te encuentras en otro departamento o ciudad, elige esta opción y te lo enviaremos.`,
 	].join('\n');
-	await imgFacebook(contact, texto4, imagen4)
+	await imgFacebook(contactId, texto4, imagen4)
 
 	const imagen42 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/4.3.webp";
 	const texto42 = [
@@ -360,7 +411,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 		`🚚 *Entrega a domicilio*: Si estás en la ciudad La Paz, indícanos tu dirección y ubicación.`,
 		`🏬 *Retiro en tienda*: Agenda fecha y hora para recoger tus productos en nuestra tienda física.`,
 	].join('\n');
-	await imgFacebook(contact, texto42, imagen42)
+	await imgFacebook(contactId, texto42, imagen42)
 
 	const imagen5 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/5.webp";
 	const texto5 = [
@@ -371,7 +422,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 		`🏦 Pago con transferencia`,
 		`💳 Pago con tarjeta`,
 	].join('\n');
-	await imgFacebook(contact, texto5, imagen5)
+	await imgFacebook(contactId, texto5, imagen5)
 
 	const imagen6 = "https://multilaptops.net/recursos/imagenes/tiendaonline/procesocompra-2/6.webp";
 	const texto6 = [
@@ -379,7 +430,7 @@ async function reenviarProcesoCompra(contactId, isReflow = false) {
 		``,
 		`Un asesor de ventas se pondrá en contacto contigo para coordinar la entrega. 📦🤝`,
 	].join('\n');
-	await imgFacebook(contact, texto6, imagen6)
+	await imgFacebook(contactId, texto6, imagen6)
 }
 
 async function reenviarFormasPago(contactId, isReflow = false) {
@@ -397,7 +448,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 		`▸ Seleccionando este medio de pago se desplegará toda la información con las cuentas habilitadas.`,
 		`▸ Una vez realizado la transferencia, debe subir el comprobante de pago.`,
 	].join('\n');
-	await imgFacebook(contact, texto1, imagen1);
+	await imgFacebook(contactId, texto1, imagen1);
 
 	const imagen2 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/2.jpg";
 	const texto2 = [
@@ -406,7 +457,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 		`▸ Para realizar el pago mediante este medio debe tener habilitado su tarjeta para compras por internet y configurar los parámetros de importe máximo en la aplicación de su banco.`,
 		`▸ Utilizar este método de pago aplica un cargo adicional del 2% sobre el valor total.`,
 	].join('\n');
-	await imgFacebook(contact, texto2, imagen2);
+	await imgFacebook(contactId, texto2, imagen2);
 
 	const imagen3 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/3.jpg";
 	const texto3 = [
@@ -414,7 +465,7 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 		`*QR:* `,
 		`▸ Paga con QR de forma fácil y rápida`,
 	].join('\n');
-	await imgFacebook(contact, texto3, imagen3);
+	await imgFacebook(contactId, texto3, imagen3);
 
 	const imagen4 = "https://multilaptops.net/recursos/imagenes/tiendaonline/formaspago-2/4.jpg"
 	const texto4 = [
@@ -423,13 +474,14 @@ async function reenviarFormasPago(contactId, isReflow = false) {
 		`▸ Los pagos en efectivo se realizan de forma presencial al momento de entrega del pedido en su domicilio o del retiro en tienda de acuerdo a lo programado.`,
 		`▸ Puede pagar en las siguientes monedas: dólares americanos USD, moneda nacional Bolivianos BOB.`,
 	].join('\n');
-	await imgFacebook(contact, imagen4, texto4);
+	await imgFacebook(contactId, imagen4, texto4);
 
-	await mensajeFacebook(contact, `Si tienes cualquier consulta, ¡estamos a tu disposición para ayudarte!`);
+	await mensajeFacebook(contactId, `Si tienes cualquier consulta, ¡estamos a tu disposición para ayudarte!`);
 }
 
-async function asistenteGPT(mensaje, isReflow = false, contact) {
+async function asistenteGPT(mensaje, isReflow = false, contact, message) {
 
+	console.log(message)
 	const openai = new OpenAI({
 		apiKey: process.env.OPENAI_API_KEY,
 	});
@@ -577,7 +629,7 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	}
 
 	async function chatConUsuario(mensajeDelUsuario) {
-		console.log('entro', mensajeDelUsuario)
+		//console.log('entro', mensajeDelUsuario)
 		const mensajeInicial = [
 			{ role: "system", content: `Eres un asistente de ventas de laptops. Estos son los productos disponibles:\n${descripcionDeProductos()}\nPuedes proporcionar información detallada y ayudar con la compra.` },
 			{ role: "user", content: mensajeDelUsuario }
@@ -601,19 +653,34 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 
 	for (var i = 0; i < parrafos.length; i++) {
 		var parrafo = parrafos[i];
-		var skuMatch = parrafo.match(/SKU:\s*(\d+)/); // Usar una expresión regular para encontrar el SKU
-		var sku = skuMatch ? skuMatch[1] : 'No encontrado'; // Si se encuentra el SKU, usarlo, si no, poner 'No encontrado'
+		//var skuMatch = parrafo.match(/\b\d{6}\b/); // Usar una expresión regular para encontrar el SKU
+		//var sku = skuMatch ? skuMatch[0] : 'No encontrado'; // Si se encuentra el SKU, usarlo, si no, poner 'No encontrado'
 
-		if (sku === 'No encontrado') {
+		var resultado = parrafo.match(/\b\d{6}\b/);
+		if (resultado) {
+			var numero = resultado[0];
+			console.log('Número de 6 dígitos 00000000:', numero); // Salida: Número de 6 dígitos: 100206
+			await productoFacebook(contact, numero, 'Multilaptops', 'Ver mas detalle')
 			await mensajeFacebook(contact, parrafo);
 		} else {
-			await productoFacebook(contact, sku, 'Multilaptops', 'Ver mas detalle')
 			await mensajeFacebook(contact, parrafo);
+			console.log('Número de 6 dígitos no encontrado');
 		}
 
+
+		// if (sku === 'No encontrado') {
+		// 	await mensajeFacebook(contact, parrafo);
+		// } else {
+		// 	await productoFacebook(contact, sku, 'Multilaptops', 'Ver mas detalle')
+		// 	await mensajeFacebook(contact, parrafo);
+		// }
+
 		console.log('Párrafo:', parrafo);
-		console.log('SKU:', sku);
+		//console.log('SKU:', sku);
 	}
+
+
+	await reaccionFacebook(contact, message.id, "\u2705")
 	//////////////////////////////
 
 	//funcionan esto
@@ -638,29 +705,6 @@ async function asistenteGPT(mensaje, isReflow = false, contact) {
 	// 		if (err) console.error("Error al escribir en el archivo de registro:", err);
 	// 	});
 	// }
-}
-
-async function enviarGPT(mensaje, contactId, isReflow = false) {
-	const contact = isReflow ? `591${contactId}@c.us` : contactId;
-	//mensajeFacebook(contact, 'hola como estas');
-	const openai = new OpenAI({
-		// apiKey: OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
-		apiKey: OPENAI_API_KEY,
-	});
-
-	try {
-		const completion = await openai.chat.completions.create({
-			messages: [{ "role": 'user', "content": mensaje }],
-			model: 'gpt-3.5-turbo',
-		});
-
-		// Imprime el contenido del mensaje del sistema en la consola
-		let res = completion.choices[0].message['content']
-		mensajeFacebook(contact, res);
-		console.log(completion.choices[0].message['content']);
-	} catch (error) {
-		console.error("Ocurrió un error al realizar la petición:", error);
-	}
 }
 
 async function obtenerDiaActual() {
