@@ -23,13 +23,13 @@ import {
 	OPENAI_API_KEY,
 } from "./config.js";
 import { WHATSAPP_API_KEY } from "./config.js";
-import { mensajeFacebook, productoFacebook, ubicacionFacebook, bottonesFacebook, imgFacebook, reaccionFacebook, bottonesDosFacebook, obtenerDescargarImagen } from './funciones.js'
+import { mensajeFacebook, productoFacebook, ubicacionFacebook, bottonesFacebook, imgFacebook, reaccionFacebook, bottonesDosFacebook, obtenerImagen } from './funciones.js'
 
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 const app = express();
 const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*", methods:["GET", "POST"] }  });
+const io = new Server(server, { cors: { origin: "*" } });
 
 const chatStates = new Map();
 //const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -201,6 +201,46 @@ async function nivelInitial(chatId, message, numero, tipo) {
 	}
 	else if (tipo === 'image') {
 
+		// const filePath = `./images/1775938842877266.jpg`; 
+		// 	const fileName = '1775938842877266.jpg';
+		// 	const destFileName = `images/${fileName}`;
+			
+		// uploadFile(filePath, destFileName);
+
+		// await obtenerImagen(message)
+
+		// let messageMedia = message.image;
+		// console.log("===>>>>>>>>", messageMedia);
+
+		// const token = WHATSAPP_API_KEY;
+		// const imageUrl = `https://graph.facebook.com/v16.0/${messageMedia.id}/`;
+		// const headers = {
+		// 	'Authorization': `Bearer ${token}`
+		// };
+
+		// try {
+		// 	const response = await axios.get(imageUrl, {
+		// 		headers: headers,
+		// 		responseType: 'json'  // Cambiado a 'json' ya que queremos obtener la URL primero
+		// 	});
+
+		// 	const imageURLFromResponse = response.data.url;
+		// 	const imageResponse = await axios.get(imageURLFromResponse, {
+		// 		headers: headers,
+		// 		responseType: 'arraybuffer'
+		// 	});
+
+		// 	// Convertir ArrayBuffer a Buffer
+		// 	const imageData = Buffer.from(imageResponse.data);
+
+		// 	// Especificar la ruta del archivo donde quieres guardar la imagen
+		// 	const imagePath = `./images/${messageMedia.id}.jpg`;
+		// 	await fsPromises.writeFile(imagePath, imageData);
+		// 	console.log('Imagen guardada exitosamente en:', imagePath);
+
+		// } catch (error) {
+		// 	console.error('Error fetching and saving the image:', error.message);
+		// }
 	}
 	else if (tipo === 'video') {
 		// Aquí puedes manejar vídeos recibidos
@@ -1028,21 +1068,8 @@ async function guardarEnFirebase(data) {
 	const date = new Date();  // Ejemplo de fecha
     const timestamp = date.getTime();
 	try {
-		if (data.text) {
-			console.log("La respuesta es de tipo texto.");
-			await set(ref(db, `chat/${data.from}/${timestamp}/`), data);
-			
-		} else if (data.image) {
-			console.log("La respuesta es de tipo imagen.");
-
-			const respuesta = await obtenerDescargarImagen(data)
-			await set(ref(db, `chat/${data.from}/${timestamp}/`), respuesta);
-
-		} else {
-			console.log("La respuesta es de otro tipo.");
-		}
-
-		console.log('Datos guardados exitosamente.');		
+		await set(ref(db, `chat/${data.from}/${timestamp}/`), data);
+		console.log('Datos guardados exitosamente.');
 	} catch (error) {
 		console.error('Error al guardar los datos:', error);
 	}

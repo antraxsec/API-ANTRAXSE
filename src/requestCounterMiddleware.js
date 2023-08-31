@@ -1,20 +1,20 @@
 // requestCounterMiddleware.js
 const activeRequests = {
-    count: 0
+  count: 0
 };
 
 const requestCounterMiddleware = (io) => (req, res, next) => {
-    activeRequests.count++;
-    io.emit('activeRequests', activeRequests.count);
+  activeRequests.count++;
+  io.emit('activeRequests', activeRequests.count);
 
-    const end = res.end;
-    res.end = function (...args) {
-        activeRequests.count--;
-        io.emit('activeRequests', activeRequests.count);
-        end.apply(this, args);
-    };
+  const end = res.end;
+  res.end = function (...args) {
+      activeRequests.count--;
+      io.emit('activeRequests', activeRequests.count);
+      end.apply(this, args);
+  };
 
-    next();
+  next();
 };
 
 export default requestCounterMiddleware;

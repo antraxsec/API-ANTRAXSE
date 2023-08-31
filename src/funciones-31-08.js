@@ -2,13 +2,7 @@ import axios from 'axios';
 import { WHATSAPP_API_KEY } from "./config.js";
 import {db,  gcsBucket, uploadFile} from '../src/firebase.js'
 import { getDatabase, ref, set ,onValue} from "firebase/database";
-// import fsPromises from 'fs/promises';
-
-import fs from 'fs';
-import { promises as fsPromises } from 'fs';
-
-// import { promises as fsPromises } from 'fs';
-import path from 'path';
+import fsPromises from 'fs/promises';
 
 export async function productoFacebook(to, id_catalogo, boy_text, footer_text) {
     var message = {
@@ -411,7 +405,7 @@ export function bottonesDosFacebook(to) {
 export async function obtenerDescargarImagen(message) {
 
     let messageMedia = message.image;
-    console.log("-----------------",message)
+    console.log("===>>>>>>>>", messageMedia);
 
     const token = WHATSAPP_API_KEY;
     const imageUrl = `https://graph.facebook.com/v16.0/${messageMedia.id}/`;
@@ -434,26 +428,17 @@ export async function obtenerDescargarImagen(message) {
         // Convertir ArrayBuffer a Buffer
         const imageData = Buffer.from(imageResponse.data);
 
-        // Verifica y crea la carpeta si no existe
-        const dir = `./images/${message.from}`;
-        if (!fs.existsSync(dir)){
-            await fsPromises.mkdir(dir, { recursive: true });  // `recursive` permite crear subdirectorios si es necesario
-        }
-
         // GUARDA EN LOCAL FUNCIONA CORRECTAMENTE
-        const imagePath = path.join(dir, `${messageMedia.id}.jpg`);
+        const imagePath = `./images/${messageMedia.id}.jpg`;
         await fsPromises.writeFile(imagePath, imageData);
         console.log('Imagen guardada exitosamente en:', imagePath);
 
-
         // Subir la imagen directamente a Firebase Storage
+        // const filePath = `./images/1775938842877266.jpg`; 
         const fileName = `${messageMedia.id}.jpg`;
-        const destFileName = `images/${message.from}/${fileName}`;
+        const destFileName = `images/${fileName}`;
 				
-        const url = await uploadFile(imagePath, destFileName);
-        message.image.url = url;
-
-        return message;
+        uploadFile(imagePath, destFileName);
 
     } catch (error) {
         console.error('Error fetching and saving the image:', error.message);
