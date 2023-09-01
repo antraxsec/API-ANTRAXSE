@@ -1101,7 +1101,7 @@ io.on('connection', (socket) => {
 
 	socket.on('mensaje',(data)=>{
 		console.log(data)
-		mensajes = data;
+		// mensajes = data;
 
 		mensajeFacebook(data.numero, data.mensaje);
 	})
