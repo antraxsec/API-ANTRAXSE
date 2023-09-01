@@ -1098,6 +1098,10 @@ io.on('connection', (socket) => {
 		io.emit('serverTracer', dataTracking)
 	});
 
+	socket.on('mensaje',(data)=>{
+		console.log(data)
+	})
+
 });
 
 app.use(express.static("public"));
