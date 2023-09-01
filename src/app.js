@@ -30,6 +30,7 @@ import { mensajeFacebook, productoFacebook, ubicacionFacebook, bottonesFacebook,
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*", methods:["GET", "POST"] }  });
+const mensajes = ''; 
 
 const chatStates = new Map();
 //const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -1100,6 +1101,9 @@ io.on('connection', (socket) => {
 
 	socket.on('mensaje',(data)=>{
 		console.log(data)
+		mensajes = data;
+
+		mensajeFacebook(data.numero, data.mensaje);
 	})
 
 });
