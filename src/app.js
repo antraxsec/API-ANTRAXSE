@@ -1,9 +1,8 @@
-// server.js
 import express from "express";
 import axios from 'axios';
 import cors from "cors";
 import { config } from 'dotenv';
-import fs from 'fs';  // Aquí está la importación del módulo fs
+import fs from 'fs';
 import fsPromises from 'fs/promises';
 config();
 import OpenAI from 'openai';
@@ -17,23 +16,18 @@ import requestCounterMiddleware from "./requestCounterMiddleware.js";
 import { ref, set } from "firebase/database";
 import {db, gcsBucket, uploadFile} from '../src/firebase.js'
 
-
 import { appendFile } from 'fs';
 import {
 	OPENAI_API_KEY,
 } from "./config.js";
 import { WHATSAPP_API_KEY } from "./config.js";
-import { mensajeFacebook, productoFacebook, ubicacionFacebook, bottonesFacebook, imgFacebook, reaccionFacebook, bottonesDosFacebook, obtenerDescargarImagen } from './funciones.js'
+import { mensajeFacebook, productoFacebook, ubicacionFacebook, bottonesFacebook, imgFacebook, reaccionFacebook, menuListaFacebook, obtenerDescargarImagen, enviarContacto } from './funciones.js'
 
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*", methods:["GET", "POST"] }  });
-const mensajes = ''; 
-
+const historialAnalisis = new Map(); //Guarda el contexto de openai en analisis
 const chatStates = new Map();
-//const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 app.use(cors());
 app.use(express.json());
@@ -46,11 +40,10 @@ app.post("/webhook", (req, res) => {
 	console.log(req.body);
 });
 
-///api de whatsapp
 app.get("/webhookwhatsapp", function (req, res) {
 	if (
 		req.query["hub.mode"] == "subscribe" &&
-		req.query["hub.verify_token"] == "david"//david ////token de verificacion
+		req.query["hub.verify_token"] == "david"
 	) {
 		res.send(req.query["hub.challenge"]);
 	} else {
@@ -58,12 +51,16 @@ app.get("/webhookwhatsapp", function (req, res) {
 	}
 });
 
-const estado = new Map();
-
 app.post("/webhookwhatsapp", async function (request, response) {
-	// console.log("aaaaaa>> " + JSON.stringify(request.body));
+	console.log('LLEGO:: ', request.body)
 	try {
 		const { entry } = request.body;
+        
+        if (!entry || !Array.isArray(entry) || entry.length === 0) {
+            console.warn('Solicitud no válida: ', request.body);
+            return response.sendStatus(400);
+        }
+
 		const { changes } = entry?.[0] || {};
 		const { value } = changes?.[0] || {};
 		const { messages, statuses } = value || {};
@@ -72,16 +69,16 @@ app.post("/webhookwhatsapp", async function (request, response) {
 
 		// Ahora puedes manejar los mensajes y los estados por separado
 		if (messageDetails) {
-			const chatId = messageDetails?.chat?.id;
-			handleIncomingMessage(chatId, messageDetails); // Asegúrate de que esté implementada
-			
-			console.log('JEJEJE ', messageDetails)
+			console.log('DETALLES:: ', messageDetails)
+			const chatId = messageDetails?.from;
+
+			procesarMensajeEntrante(chatId, messageDetails);
 			guardarEnFirebase(messageDetails);
-		
 		}
 
 		if (statusDetails) {
-			// console.log('Llego un estado desde whatsapp business')
+			let hora = horaConSegundos();
+			console.log('Llego un estado desde whatsapp business: ', hora)
 		}
 
 		response.sendStatus(200);
@@ -92,42 +89,48 @@ app.post("/webhookwhatsapp", async function (request, response) {
 
 });
 
-const STATES = {
-	INITIAL: 	"initial",
-	MENU: 		"menu",
-	ASISTENTE:  "asistente",
-	ADMIN: 		"admin",
-	PROMO1: 	"reenviarPromocion",
-	UBICACION: 	"reenviarUbicacion"
-	// ... otros estados
+const ESTADOS = {
+    INICIAL: 	"initial",
+    MENU: 		"menu",
+    ASISTENTE: 	"asistente",
+    ADMIN: 		"admin",
+    PROMO1: 	"reenviarPromocion",
+    UBICACION: 	"reenviarUbicacion",
+	FORMAENTREGA:			"formaEntrega",
+	RETIROTIENDA:			"retiroTienda",
+	RETIROPROGRAMA:			"retiroTiendaPrograma",
+	ENTREGADOMICILIO:		"entregaDomicilio",
+	ENTREGAPROGRAMA:		"entregaDomicilioPrograma",
+	ENVIONACIONAL:			"envioNacional",
+	ENVIONACIONALPROGRAMA:	"envioNacionalPrograma",
 };
 
-function getCurrentState(chatId) {
-	return chatStates.get(chatId) || STATES.INITIAL;
+function obtenerEstadoActual(chatId) {
+    if (!chatStates.has(chatId)) {
+        chatStates.set(chatId, ESTADOS.INICIAL);
+    }
+	return chatStates.get(chatId);
 }
 
-async function handleIncomingMessage(chatId, message) {
-	const currentState = getCurrentState(chatId);
+async function procesarMensajeEntrante(chatId, message) {
+
+    const estadoActual = obtenerEstadoActual(chatId);  // Ahora puedes obtener el estado actual	
 	const tipo 	 = message.type;
 	const numero = message.from;
-	console.warn(message)
-
-	console.log('tipo: ', tipo);
 	
-	switch (currentState) {
-		case STATES.INITIAL:
-			nivelInitial(chatId, message, numero, tipo);
+	switch (estadoActual) {
+		case ESTADOS.INICIAL:
+			await nivelInicial(chatId, message, numero, tipo);
 			break;
-		case STATES.ADMIN:
+		case ESTADOS.ADMIN:
 			nivelAdmin(chatId, message, numero, tipo);
 			break;
-		case STATES.MENU:
+		case ESTADOS.MENU:
 			nivelMenu(chatId, message, numero, tipo);
 			break;
-		case STATES.PROMO1:
+		case ESTADOS.PROMO1:
 			if (validarNumerocelular(message.text.body)) {
 				await promocionFlow(message.text.body, true);
-				// await bottonesDosFacebook(message.text.body)
 			}
 			else if (message.text.body === "1") {
 				chatStates.set(chatId, "admin");
@@ -141,11 +144,12 @@ async function handleIncomingMessage(chatId, message) {
 				].join('\n'));
 				chatStates.set(chatId, "reenviarPromocion");
 			}
+
 			break;
-		case STATES.UBICACION:
+		case ESTADOS.UBICACION:
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarUbicacion(message.text.body, true);
-				// await bottonesDosFacebook(message.text.body)
+				
 			}
 			else if (message.text.body === "1") {
 				chatStates.set(chatId, "admin");
@@ -159,77 +163,923 @@ async function handleIncomingMessage(chatId, message) {
 				chatStates.set(chatId, "reenviarUbicacion");
 			}
 			break;
-		case STATES.ASISTENTE:
-			mensajeFacebook(numero, "Estamos en el nivel del asistente");
-			asistenteGPT(numero, false, message);
-			break;			
+		case ESTADOS.ASISTENTE:
+			if (message.text.body.trim() !== "") {
+				if (message.text.body === "1") {
+					chatStates.set(chatId, "menu");
+					await adminFlow(numero);
+				}
+				else{
+					mensajeFacebook(numero, "Estamos en el nivel del asistente");
+					asistenteGPT(numero, false, message);
+				}
+			} else {
+				console.log("Algún error raro")
+			}
+			break;		
+
+		case ESTADOS.FORMAENTREGA:
+			nivelFormaEntrega(chatId, message, numero, tipo) 
+			break;
+		case ESTADOS.RETIROTIENDA:
+			nivelRetiroTienda(chatId, message, numero, tipo) 
+			break;
+		case ESTADOS.RETIROPROGRAMA:
+			nivelRetiroTiendaPrograma(chatId, message, numero, tipo) 
+			break;	
+		case ESTADOS.ENTREGADOMICILIO:
+			nivelEntregaDomicilio(chatId, message, numero, tipo) 
+			break;	
+		case ESTADOS.ENTREGAPROGRAMA:
+			nivelEntregaDomicilioPrograma(chatId, message, numero, tipo) 
+			break;		
+		case ESTADOS.ENVIONACIONAL:
+			nivelEnvioNacional(chatId, message, numero, tipo) 
+			break;		
+		case ESTADOS.ENVIONACIONALPROGRAMA:
+			nivelEnvioNacionalPrograma(chatId, message, numero, tipo) 
+			break;
+		default:
+            console.log("Estado no reconocido");
+            break;	
 	}
-	
-	console.log(currentState);
+
 }
 
-async function nivelInitial(chatId, message, numero, tipo) {
-	console.log("1. Nivel inicial")
+export async function nivelInicial(chatId, message, numero, tipo) {
 
-	const mensajeInicial = ["Producto"];
+    const compararPalabrasClave = (mensajeTexto, palabrasClave) => {
+		return palabrasClave.some(phrase => mensajeTexto.toLowerCase().indexOf(phrase.toLowerCase()) !== -1);
+	};
+
+	const palabrasClave = ["Hola"];
 	if (tipo === 'text') {
+		const mensajeTexto = message.text.body;
 
-		const messageText = message.text.body;
-		console.log('mensaje::', messageText)
-
-		if (messageText === "Admin") {
-			// await mensajeFacebook(numero, "Administrador");
-			await adminFlow(numero);
-			chatStates.set(chatId, "admin");
-		}
-		if (messageText === "Menu") {
-			await menuFlow(numero);
+		if (compararPalabrasClave(mensajeTexto, palabrasClave)) {
+			await mensajeFacebook(numero, `¡Hola! 🤗 Bienvenido a Multilaptops`);
+			await menuLista(numero);
 			chatStates.set(chatId, "menu");
 		}
-		if (messageText === "Hola") {
-			
-		}
-		// else if (mensajeInicial.some(phrase => messageText.indexOf(phrase.toLowerCase()) !== -1)) {
-		// 	await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
-		// }
-	} 
-	else if (tipo === 'interactive') {
-		// Aquí puedes manejar la lógica interactiva, como botones o elementos seleccionables
-		// await mensajeFacebook(numero, "¡Hola! 🤗 Bienvenido a Multilaptops");
-	} 
-	else if (tipo === 'reaction') {
-		// Aquí puedes manejar las reacciones, como likes, dislikes, etc.
-	}
-	else if (tipo === 'image') {
 
+		// else {
+		// 	nivelRetiroTiendaPrograma(chatId, message, numero, tipo)
+		// }
+
+	} 
+}
+
+async function menuLista(numero) {
+	const opciones = [
+		{
+			"title": "Opciones principales",
+			"rows": [
+				{
+					"id": "btn_catalogo",
+					"title": "Cátalogo de productos",
+				},
+				{
+					"id": "btn_comprar",
+					"title": "Comprar un producto",
+				},
+				{
+					"id": "btn_promocion",
+					"title": "Promociones",
+				},
+				{
+					"id": "btn_formaEntrega",
+					"title": "Ubicación y entrega",
+				},
+				{
+					"id": "btn_asesor",
+					"title": "Asesor de ventas",
+				}
+			]
+		},
+	];
+	await menuListaFacebook(numero, opciones);
+}
+
+async function nivelMenu(chatId, message, numero, tipo) {
+
+	const response = message;
+	if (response.type === 'interactive' && response.interactive.type === 'list_reply') {
+		const buttonId = response.interactive.list_reply.id;
+		console.log("ID del botón seleccionado:", buttonId);
+
+		switch (buttonId) {
+			case "btn_catalogo":
+				promocionFlow(numero, false) 
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_comprar":
+				reenviarUbicacion(numero, false) 
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_promocion":
+				promocionFlow(numero, false) 
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_formaEntrega":
+				menuFormaEntrega(numero) 
+				chatStates.set(chatId, "formaEntrega");
+				break;
+			case "btn_asesor":
+				await mensajeFacebook(numero, "*Activando asistente*");
+				await mensajeFacebook(numero, "Realiza tu consulta");
+				chatStates.set(chatId, "asistente");
+				break;
+			default:
+				console.log("Botón no reconocido.");
+		}
+		
 	}
-	else if (tipo === 'video') {
-		// Aquí puedes manejar vídeos recibidos
-	}
-	else if (tipo === 'audio') {
-		// Aquí puedes manejar audios recibidos, como procesar o guardar el archivo
-	}
-	else if (tipo === 'document') {
-		// Aquí puedes manejar documentos recibidos
-	}
-	else if (tipo === 'location') {
-		// Aquí puedes manejar la ubicación del usuario
-	}
-	else if (tipo === 'contacts') {
-		// Aquí puedes manejar la información de contacto del usuario
-	}
-	else if (tipo === 'enlace') {
-		// Aquí puedes manejar enlaces recibidos
-	}
-	else if (tipo === 'unsupported') {
-		// Aquí puedes manejar enlaces recibidos
-		console.log('No soportado')
+	else if (response.text.body === "1") {
+		await mensajeFacebook(numero, "Saliendo del menu");
+		chatStates.set(chatId, "initial");
 	}
 	else {
-		// Tipo no reconocido o no soportado
-		console.log('2. Tipo de mensaje no reconocido')
+		await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
+		await menuLista(numero);
 	}
+}
+
+async function menuFormaEntrega(numero) {
+	const texto = [
+		`Ofrecemos diferentes formas de entrega para que puedas elegir la que más te convenga. `,
+		``,
+		`Porfavor selecciona una opción`,
+	];
+	const botones = [
+		{ id: "btn_submenuFormaEntrega1", title: "Retiro en tienda" },
+		{ id: "btn_submenuFormaEntrega2", title: "Entrega a domicilio" },
+		{ id: "btn_submenuFormaEntrega3", title: "Envio nacional" }
+	];
+	const opciones = {
+		header: "Formas de entrega",
+		body: 	texto.join('\n'),
+		buttons: botones
+	}
+	await bottonesFacebook(numero, opciones);
+}
+
+async function nivelFormaEntrega(chatId, message, numero, tipo) {
+
+	const response = message;
+	if (response.type === 'interactive' && response.interactive.type === 'button_reply') {
+		const buttonId = response.interactive.button_reply.id;
+		console.log("ID del botón seleccionado:", buttonId);
+
+		switch (buttonId) {
+			case "btn_submenuFormaEntrega1":
+				await reenviarFormasEntrega(numero, false)
+					.then(async result => {
+						await menuRetiroTienda(numero)
+					})
+					.catch(error => {
+						// Manejar cualquier error que pueda surgir
+					});
+				// await reenviarFormasEntrega(numero, false)
+				// await menuRetiroTienda(numero)
+				chatStates.set(chatId, "retiroTienda");
+				break;
+			case "btn_submenuFormaEntrega2":
+				await reenviarEntregaDomicilio(numero, false)
+				await menuEntregaDomicilio(numero) 
+				chatStates.set(chatId, "entregaDomicilio");
+				break;
+			case "btn_submenuFormaEntrega3":
+				await reenviarEnvioNacional(numero, false)
+				await menuEnvioNacional(numero) 
+				chatStates.set(chatId, "envioNacional");
+				break;
+			default:
+				console.log("Botón no reconocido.");
+		}
+		
+	}
+	else if (response.text.body === "1") {
+		await mensajeFacebook(numero, "Saliendo del menu");
+		chatStates.set(chatId, "formaEntrega");
+	}
+	else {
+		await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
+		await menuFormaEntrega(numero);
+	}
+}
+
+/*
+* Retiro en tienda - inicia
+*/
+async function menuRetiroTienda(numero) {
+	const texto = [
+		`Reserva tus productos online y recógelos en nuestra sucursal principal.`,
+		``,
+		`Porfavor selecciona una opción`,
+	];
+	const botones = [
+		{ id: "btn_submenuProgramar", title: "Programar una visita" },
+		{ id: "btn_submenuAsesor", title: "Hablar con un asesor" },
+		{ id: "btn_submenuSalir", title: "Volver" }
+	];
+	const opciones = {
+		header: "Retiro en tienda",
+		body: 	texto.join('\n'),
+		buttons: botones
+	}
+	await bottonesFacebook(numero, opciones);
+}
+
+async function nivelRetiroTienda(chatId, message, numero, tipo) {
+
+	const response = message;
+	if (response.type === 'interactive' && response.interactive.type === 'button_reply') {
+		const buttonId = response.interactive.button_reply.id;
+		console.log("ID del botón seleccionado:", buttonId);
+
+		switch (buttonId) {
+			case "btn_submenuProgramar":
+				const mensaje = [
+					`*Programa tu visita* 🏬`,
+					`Nuestro horario de atención es de Lunes a Sábado de 12:00 a 19:00. Sin embargo, es posible que haya cambios debido a manifestaciones, mal clima o restricciones. `,
+					``,
+				];
+				await mensajeFacebook(numero, mensaje.join('\n'));
+				const mensaje2 = [
+					`*Para programar tu visita*, por favor indícanos:`,
+					``,
+					`1. Tu nombre `,
+					`2. Número de celular `,
+					`3. Fecha o día`,
+					`4. Hora de visita `,
+				];
+				await mensajeFacebook(numero, mensaje2.join('\n'));
+				chatStates.set(chatId, "retiroTiendaPrograma");
+				break;
+			case "btn_submenuAsesor":
+				await mensajeFacebook(numero, "Si tienes alguna pregunta o inquietud, no dudes en contactarnos llamando al siguiente número 👇");
+				await enviarContacto(numero)
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_submenuSalir":
+				menuFormaEntrega(chatId, message, numero, tipo)
+				chatStates.set(chatId, "formaEntrega");
+				break;
+			default:
+				console.log("Botón no reconocido.");
+		}
+		
+	}
+	else if (response.text && response.text.body === "1") {
+		await mensajeFacebook(numero, "Saliendo del menu");
+		chatStates.set(chatId, "formaEntrega");
+	}
+	else {
+		await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
+		await menuRetiroTienda(numero);
+	}
+}
+
+async function nivelRetiroTiendaPrograma(chatId, message, numero, tipo) {
+	console.log('Extracción de datos: ', numero)
+	const response = message;
+	if (response.text && response.text.body) {
+		
+		try {
+			const datos = {
+				parametros: "nombre, celular, fecha, hora",
+				objetivo: `Extraer el [nombre], [celular], [fecha] y [hora] que vendra el cliente a la tienda pide la hora de visita. La fecha de hoy es ${await obtenerDiaActual()}, si no lo encuentras pidelo`,
+				mensaje:  response.text.body,
+				numero: numero,
+			}
+			const respuestaJSON = await analisisAI(datos);
+			
+			// Asegurarte de que la respuesta tiene las propiedades que esperas antes de acceder a ellas
+			if (respuestaJSON && respuestaJSON.estado) {
+				const mensaje = [
+					`*Información de contacto*`,
+					`*Nombre:* ${respuestaJSON.nombre}`,
+					`*Celular:* ${respuestaJSON.celular}`,
+					`*Fecha:* ${respuestaJSON.fecha}`,
+					`*Hora:* ${respuestaJSON.hora}`,
+					``,
+					`${respuestaJSON.comentario}`,
+				];
+				await mensajeFacebook(numero, mensaje.join('\n'));
+				await mensajeFacebook(numero, `Muchas gracias por programar tu visita a nuestra sucursal. Estamos emocionados de conocerte y ayudarte a encontrar el producto que necesitas.`);
+				await mensajeFacebook(numero, `Recuerda que si necesitas reprogramar tu visita por cualquier imprevisto, puedes hacerlo sin costo alguno. Sin embargo, lamentamos informarte que no podemos reservar equipos, ya que estos se pueden agotar.`);
+				await mensajeFacebook(numero, `Te esperamos en nuestra sucursal el día y la hora que hayas programado. ¡Esperamos poder ayudarte!`);
+
+				const botones = [
+					{ id: "btn_submenuMenu", title: "Menu principal" },
+					{ id: "btn_submenuAsesor", title: "Hablar con un asesor" },
+					{ id: "btn_submenuSalir", title: "Salir" }
+				];
+				const opciones = {
+					header: "Opciones",
+					body: 	"Porfavor selecciona una opción",
+					buttons: botones
+				}
+				await bottonesFacebook(numero, opciones);
+				chatStates.set(chatId, "menu");
+			}
+			else if (respuestaJSON && respuestaJSON.comentario) {
+				await mensajeFacebook(numero, respuestaJSON.comentario);
+			}
+			else {
+				await mensajeFacebook(numero, "Lo siento, hubo un problema procesando tu solicitud.");
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+			}
+		} catch (error) {
+			console.error("Error al procesar la respuesta de OpenAI:", error);
+			await mensajeFacebook(numero, "Lo siento, hubo un problema procesando tu solicitud.");
+		}
+	}
+	else if (response.type === 'interactive' && response.interactive.type === 'button_reply') {
+		const buttonId = response.interactive.button_reply.id;
+		console.log("ID del botón seleccionado:", buttonId);
+
+		switch (buttonId) {
+			case "btn_submenuMenu":
+				await mensajeFacebook(numero, "Nuestro menú de opciones está disponible para que interactúes con nosotros de manera fácil y rápida.");
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_submenuAsesor":
+				await mensajeFacebook(numero, "Si tienes alguna pregunta o inquietud, no dudes en contactarnos llamando al siguiente número 👇");
+				await enviarContacto(numero)
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_submenuSalir":
+				await mensajeFacebook(numero, "Ha sido un placer atenderte. ¡Muchas gracias por tu preferencia!");
+				chatStates.set(chatId, "initial");
+				break;
+			default:
+				console.log("Botón no reconocido.");
+		}
+		
+	}
+	else {
+		// await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
+		// await menuRetiroTienda(numero);
+	}
+}
+
+async function reenviarFormasEntrega(contactId, isReflow = false) {
+
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+
+	const mensaje = [
+		`*Retiro en tienda:* 🏬`,
+		`Reserva tus productos online y recógelos en la sucursal y hora que más te convenga. `,
+		``,
+		`*¿Quieres comprar tus productos cuando quieras y cómo quieras? ¡Con el retiro en tienda es posible!*`,
+		``,
+		`👉 Elige los productos que quieres comprar en nuestra tienda online y resérvalos para la fecha y hora que más te convenga. Te enviaremos un correo electrónico con la confirmación de tu reserva.`,
+		``,
+		`👉 Recuerda que puedes realizar el pago de tu compra en línea o en la sucursal al momento de retirar tus productos.`,
+		``,
+	];
+
+	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus3.jpg";
+	const texto = [
+		`👉 Visítanos en *Multilaptops* - Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
+		``,
+		`▸ Atendemos con cita previa de lunes a sábado.`,
+		`▸ Durante feriados y días festivos, solo atendemos compras previamente confirmadas.`,
+		``,
+		`Encuentra nuestra ubicación aquí: https://goo.gl/maps/g3gX5UsfrCkL2r7g8`,
+		``,
+	].join('\n');
+
+	try {
+        const textResponse = await mensajeFacebook(contact, mensaje.join('\n'));
+        console.log("Mensaje de texto enviado con éxito:");
+
+        const imgResponse = await imgFacebook(contact, texto, imagen);
+        console.log("Imagen enviada con éxito:");
+    } catch (error) {
+        console.error("Hubo un error al enviar el mensaje o la imagen:", error);
+    }
+}
+
+/*
+* Entrega a domicilio - inicia
+*/
+async function menuEntregaDomicilio(numero) {
+	const texto = [
+		`¡Haz clic aquí para conocer más sobre nuestro servicio de envío a domicilio!`,
+		``,
+		`Porfavor selecciona una opción`,
+	];
+	const botones = [
+		{ id: "btn_submenuProgramarEntrega", title: "Pedir una entrega" },
+		{ id: "btn_submenuAsesor", title: "Hablar con un asesor" },
+		{ id: "btn_submenuSalir", title: "Volver" }
+	];
+	const opciones = {
+		header: "Entrega a domicilio",
+		body: 	texto.join('\n'),
+		buttons: botones
+	}
+	await bottonesFacebook(numero, opciones);
+}
+
+async function nivelEntregaDomicilio(chatId, message, numero, tipo) {
+
+	const response = message;
+	if (response.type === 'interactive' && response.interactive.type === 'button_reply') {
+		const buttonId = response.interactive.button_reply.id;
+		console.log("ID del botón seleccionado:", buttonId);
+
+		switch (buttonId) {
+			case "btn_submenuProgramarEntrega":
+				const mensaje = [
+					`*Solicitar entrega a domicilio* 🏬`,
+					`Entregamos tus compras a domicilio de Lunes a Sábado de 12:00 a 19:00. En caso de eventos especiales, te avisaremos. `,
+					``,
+				];
+				await mensajeFacebook(numero, mensaje.join('\n'));
+				const mensaje2 = [
+					`*Para solicitar la entrega a domicilio en la ciudad de La Paz o El Alto*, por favor indícanos:`,
+					``,
+					`1. Tu nombre `,
+					`2. Número de celular `,
+					`3. Producto (SKU)`,
+					`4. Dirección`,
+				];
+				await mensajeFacebook(numero, mensaje2.join('\n'));
+				chatStates.set(chatId, "entregaDomicilioPrograma");
+				break;
+			case "btn_submenuAsesor":
+				await mensajeFacebook(numero, "Si tienes alguna pregunta o inquietud, no dudes en contactarnos llamando al siguiente número 👇");
+				await enviarContacto(numero)
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_submenuSalir":
+				menuFormaEntrega(chatId, message, numero, tipo)
+				chatStates.set(chatId, "formaEntrega");
+				break;
+			default:
+				console.log("Botón no reconocido.");
+		}
+		
+	}
+	else if (response.text.body === "1") {
+		await mensajeFacebook(numero, "Saliendo del menu");
+		chatStates.set(chatId, "formaEntrega");
+	}
+	else {
+		await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
+		await menuEntregaDomicilio(numero);
+	}
+}
+
+async function nivelEntregaDomicilioPrograma(chatId, message, numero, tipo) {
+	console.log('Extracción de datos: ', numero)
+	const response = message;
+	if (response.text && response.text.body) {
+		
+		try {
+			const datos = {
+				parametros: "nombre, celular, producto_sku, direccion",
+				objetivo: `Extraer el [nombre], [celular], [producto_sku], [direccion] donde enviaremos su pedido. Si falta datos debes pedirlo`,
+				mensaje:  response.text.body,
+				numero: numero,
+			}
+			const respuestaJSON = await analisisAI(datos);
+			
+			if (respuestaJSON && respuestaJSON.estado) {
+				const mensaje = [
+					`*Información de contacto*`,
+					`*Nombre:* ${respuestaJSON.nombre}`,
+					`*Celular:* ${respuestaJSON.celular}`,
+					`*Producto:* ${respuestaJSON.producto_sku}`,
+					`*Dirección:* ${respuestaJSON.direccion}`,
+					``,
+					`${respuestaJSON.comentario}`,
+				];
+				await mensajeFacebook(numero, mensaje.join('\n'));
+				await mensajeFacebook(numero, `¡Gracias por tu pedido a domicilio!`);
+				await mensajeFacebook(numero, `Nos alegra saber que has elegido nuestro servicio de entrega a domicilio para recibir tus productos. Estamos comprometidos a brindarte la mejor experiencia posible, y tu satisfacción es nuestra prioridad.`);
+				await mensajeFacebook(numero, `En breve nos contactaremos contigo para coordinar la entrega de tu pedido.`);
+
+				const botones = [
+					{ id: "btn_submenuMenu", title: "Menu principal" },
+					{ id: "btn_submenuAsesor", title: "Hablar con un asesor" },
+					{ id: "btn_submenuSalir", title: "Salir" }
+				];
+				const opciones = {
+					header: "Opciones",
+					body: 	"Porfavor selecciona una opción",
+					buttons: botones
+				}
+				await bottonesFacebook(numero, opciones);
+				chatStates.set(chatId, "menu");
+			}
+			else if (respuestaJSON && respuestaJSON.comentario) {
+				await mensajeFacebook(numero, respuestaJSON.comentario);
+			}
+			else {
+				await mensajeFacebook(numero, "Lo siento, hubo un problema procesando tu solicitud.");
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+			}
+		} catch (error) {
+			console.error("Error al procesar la respuesta de OpenAI:", error);
+			await mensajeFacebook(numero, "Lo siento, hubo un problema procesando tu solicitud.");
+		}
+	}
+	else if (response.type === 'interactive' && response.interactive.type === 'button_reply') {
+		const buttonId = response.interactive.button_reply.id;
+		console.log("ID del botón seleccionado:", buttonId);
+
+		switch (buttonId) {
+			case "btn_submenuMenu":
+				await mensajeFacebook(numero, "Nuestro menú de opciones está disponible para que interactúes con nosotros de manera fácil y rápida.");
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_submenuAsesor":
+				await mensajeFacebook(numero, "Si tienes alguna pregunta o inquietud, no dudes en contactarnos llamando al siguiente número 👇");
+				await enviarContacto(numero)
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_submenuSalir":
+				await mensajeFacebook(numero, "Ha sido un placer atenderte. ¡Muchas gracias por tu preferencia!");
+				chatStates.set(chatId, "initial");
+				break;
+			default:
+				console.log("Botón no reconocido.");
+		}
+		
+	}
+	else {
+		// await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
+		// await menuRetiroTienda(numero);
+	}
+}
+
+async function reenviarEntregaDomicilio(contactId, isReflow = false) {
+
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+
+	const mensaje1 = [
+		`*Entrega a domicilio:* 🚚`,
+		`El envío a domicilio es la mejor manera de ahorrar tiempo y esfuerzo. `,
+	];
+	const mensaje2 = [
+		`Con el envío a domicilio, puedes recibir tus compras en la puerta de tu casa, sin tener que preocuparte por el transporte. Esto te ahorra tiempo y esfuerzo, y te permite disfrutar de tus compras de inmediato.`,
+	];
+	const mensaje3 = [
+		`Servicio disponible en la ciudad de *La Paz* y *El Alto*. Puedes comprar lo que necesitas desde la comodidad de tu hogar, y recibirlo en el momento que quieras.`,
+	];
+
+	try {
+        const textResponse1 = await mensajeFacebook(contact, mensaje1.join('\n'));
+        console.log("Mensaje de texto enviado con éxito:");
+
+        const textResponse2 = await mensajeFacebook(contact, mensaje2.join('\n'));
+        console.log("Imagen enviada con éxito:");
+
+		const textResponse3 = await mensajeFacebook(contact, mensaje3.join('\n'));
+		console.log("Imagen enviada con éxito:");
+    } catch (error) {
+        console.error("Hubo un error al enviar el mensaje o la imagen:", error);
+    }
+}
+
+/*
+* Envio Nacional - inicia
+*/
+async function menuEnvioNacional(numero) {
+	const texto = [
+		`Porfavor selecciona una opción`,
+	];
+	const botones = [
+		{ id: "btn_submenuProgramarEnvio", title: "Solicitar un envío" },
+		{ id: "btn_submenuAsesor", title: "Hablar con un asesor" },
+		{ id: "btn_submenuSalir", title: "Volver" }
+	];
+	const opciones = {
+		header: "Envio nacional",
+		body: 	texto.join('\n'),
+		buttons: botones
+	}
+	await bottonesFacebook(numero, opciones);
+}
+
+async function nivelEnvioNacional(chatId, message, numero, tipo) {
+
+	const response = message;
+	if (response.type === 'interactive' && response.interactive.type === 'button_reply') {
+		const buttonId = response.interactive.button_reply.id;
+		console.log("ID del botón seleccionado:", buttonId);
+
+		switch (buttonId) {
+			case "btn_submenuProgramarEnvio":
+				const mensaje = [
+					`*Solicitar un envio* 🏬`,
+					`Realiza tu compra el día de hoy antes de las 16:00 y lo enviamos hoy mismo a donde estes.`,
+					``,
+				];
+				await mensajeFacebook(numero, mensaje.join('\n'));
+				const mensaje2 = [
+					`*Solicita tu envío* completando los siguientes datos:`,
+					``,
+					`1. Tu nombre `,
+					`2. Número de celular `,
+					`3. Producto (SKU)`,
+					`4. Ciudad`,
+				];
+				await mensajeFacebook(numero, mensaje2.join('\n'));
+				chatStates.set(chatId, "envioNacionalPrograma");
+				break;
+			case "btn_submenuAsesor":
+				await mensajeFacebook(numero, "Si tienes alguna pregunta o inquietud, no dudes en contactarnos llamando al siguiente número 👇");
+				await enviarContacto(numero)
+				await menuLista(numero)
+				chatStates.set(chatId, "entregaDomicilio");
+				break;
+			case "btn_submenuSalir":
+				menuFormaEntrega(chatId, message, numero, tipo)
+				chatStates.set(chatId, "formaEntrega");
+				break;
+			default:
+				console.log("Botón no reconocido.");
+		}
+		
+	}
+	else if (response.text.body === "1") {
+		await mensajeFacebook(numero, "Saliendo del menu");
+		chatStates.set(chatId, "formaEntrega");
+	}
+	else {
+		await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
+		await menuEntregaDomicilio(numero);
+	}
+}
+
+async function nivelEnvioNacionalPrograma(chatId, message, numero, tipo) {
+	console.log('Extracción de datos: ', numero)
+	const response = message;
+	if (response.text && response.text.body) {
+		
+		try {
+			const datos = {
+				parametros: "nombre, celular, producto_sku, ciudad",
+				objetivo: `Extraer el [nombre], [celular], [producto_sku], [ciudad] donde enviaremos su pedido. Si falta datos debes pedirlo`,
+				mensaje:  response.text.body,
+				numero: numero,
+			}
+			const respuestaJSON = await analisisAI(datos);
+			
+			if (respuestaJSON && respuestaJSON.estado) {
+				const mensaje = [
+					`*Información de contacto*`,
+					`*Nombre:* ${respuestaJSON.nombre}`,
+					`*Celular:* ${respuestaJSON.celular}`,
+					`*Producto:* ${respuestaJSON.producto_sku}`,
+					`*Ciudad:* ${respuestaJSON.ciudad}`,
+					``,
+					`${respuestaJSON.comentario}`,
+				];
+				await mensajeFacebook(numero, mensaje.join('\n'));
+				await mensajeFacebook(numero, `Gracias por tu compra. Te enviaremos tu pedido lo antes posible.`);
+				await mensajeFacebook(numero, `En breve nos contactaremos contigo para coordinar la entrega de tu pedido.`);
+
+				const botones = [
+					{ id: "btn_submenuMenu", 	title: "Menu principal" },
+					{ id: "btn_submenuAsesor", 	title: "Hablar con un asesor" },
+					{ id: "btn_submenuSalir", 	title: "Salir" }
+				];
+				const opciones = {
+					header: "Opciones",
+					body: 	"Porfavor selecciona una opción",
+					buttons: botones
+				}
+				await bottonesFacebook(numero, opciones);
+				chatStates.set(chatId, "envioNacionalPrograma");
+			}
+			else if (respuestaJSON && respuestaJSON.comentario) {
+				await mensajeFacebook(numero, respuestaJSON.comentario);
+			}
+			else {
+				await mensajeFacebook(numero, "Lo siento, hubo un problema procesando tu solicitud.");
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+			}
+		} catch (error) {
+			console.error("Error al procesar la respuesta de OpenAI:", error);
+			await mensajeFacebook(numero, "Lo siento, hubo un problema procesando tu solicitud.");
+		}
+	}
+	else if (response.type === 'interactive' && response.interactive.type === 'button_reply') {
+		const buttonId = response.interactive.button_reply.id;
+		console.log("ID del botón seleccionado:", buttonId);
+
+		switch (buttonId) {
+			case "btn_submenuMenu":
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_submenuAsesor":
+				await mensajeFacebook(numero, "Si tienes alguna pregunta o inquietud, no dudes en contactarnos llamando al siguiente número 👇");
+				await enviarContacto(numero)
+				await menuLista(numero)
+				chatStates.set(chatId, "menu");
+				break;
+			case "btn_submenuSalir":
+				await mensajeFacebook(numero, "Ha sido un placer atenderte. ¡Muchas gracias por tu preferencia!");
+				chatStates.set(chatId, "initial");
+				break;
+			default:
+				console.log("Botón no reconocido.");
+		}
+		
+	}
+	else {
+		// await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
+		// await menuRetiroTienda(numero);
+	}
+}
+
+async function reenviarEnvioNacional(contactId, isReflow = false) {
+
+	const contact = isReflow ? `591${contactId}@c.us` : contactId;
+
+	const mensaje1 = [
+		`*Envío nacional:* 🚚`,
+		`El envío a domicilio es la mejor manera de ahorrar tiempo y esfuerzo. `,
+	];
+	const mensaje2 = [
+		`¡Aprovecha los envíos nacionales de *MultiLaptops* y obtén tu nuevo equipo tecnológico en un abrir y cerrar de ojos! Nuestros envíos nacionales ofrecen la mejor rapidez, seguridad y confiabilidad para todas las entregas`,
+	];
+	const mensaje3 = [
+		`Enviamos a todo el país, con cobertura en las principales ciudades: Santa Cruz, Cochabamba, Oruro, Potosí, Tarija y Sucre.`,
+	];
+
+	try {
+        const textResponse1 = await mensajeFacebook(contact, mensaje1.join('\n'));
+        console.log("Mensaje de texto enviado con éxito:");
+
+        const textResponse2 = await mensajeFacebook(contact, mensaje2.join('\n'));
+        console.log("Mensaje de texto enviado con éxito:");
+
+		const textResponse3 = await mensajeFacebook(contact, mensaje3.join('\n'));
+		console.log("Mensaje de texto enviado con éxito:");
+    } catch (error) {
+        console.error("Hubo un error al enviar el mensaje o la imagen:", error);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function analisisAI(datos) {
 	
+	if (!historialAnalisis.has(datos.numero)) {
+        historialAnalisis.set(datos.numero, []);
+    }
+	
+    const historial = historialAnalisis.get(datos.numero);
+	const mensajes = [
+		{ role: "system", content: `Tu respuesta debe ser en formato JSON con los siguientes parametros: ${datos.parametros}. Tu funcion solo es cumplir esta orden: "${datos.objetivo}". El parametro "estado" debe ser TRUE si los datos se encuentran, FALSE en caso contrario. Agrega tu comentario en el parametro "comentario".` },
+		{ role: "user", content: datos.mensaje },
+	];
+	historial.push(...mensajes);
+  
+	try {
+		const respuestaOpenAI = await solicitarRespuestaOpenAI(historial);
+		// Agregar respuesta de OpenAI al historial y enviarla al usuario
+		historial.push({ role: "assistant", content: respuestaOpenAI });
+
+		if (historial.length > 100) {
+			// Truncar el historial para mantenerlo dentro del límite
+			historial.splice(0, historial.length - 100);  
+		}
+
+		try {
+			const respuestaJSON = JSON.parse(respuestaOpenAI);
+			console.log(respuestaJSON);
+
+			return respuestaJSON;
+
+		} catch (error) {
+			console.error("La respuesta no es JSON:", respuestaOpenAI);
+		}
+	
+	} catch (error) {
+	  	console.error("Ocurrió un error al realizar la petición:", error);
+	}
+}
+
+async function solicitarRespuestaOpenAI(mensajes) {
+	const openai = new OpenAI({
+		apiKey: process.env.OPENAI_API_KEY,
+  	});
+	
+    const completion = await openai.chat.completions.create({
+        messages: mensajes,
+        model: "gpt-3.5-turbo"
+    });
+    return completion.choices[0].message["content"];
+}
+
+async function analisisAIxxx(datos) {
+	const openai = new OpenAI({
+	  	apiKey: process.env.OPENAI_API_KEY,
+	});
+  
+	const mensajeInicial = [
+		{ role: "system", content: `Tu respuesta debe ser en formato JSON con los siguientes parametros: ${datos.parametros}. Tu funcion solo es cumplir esta orden: "${datos.objetivo}". El parametro "estado" debe ser TRUE si los datos se encuentran, FALSE en caso contrario. Agrega tu comentario en el parametro "comentario".` },
+		{ role: "user", content: datos.mensaje },
+	];
+  
+	try {
+		const completion = await openai.chat.completions.create({
+			messages: mensajeInicial,
+			model: "gpt-3.5-turbo",
+		});
+		const respuesta = completion.choices[0].message["content"];
+
+		try {
+			const respuestaJSON = JSON.parse(respuesta);
+			console.log(respuestaJSON);
+		} catch (error) {
+			console.error("La respuesta no es JSON:", respuesta);
+		}
+	
+	} catch (error) {
+	  	console.error("Ocurrió un error al realizar la petición:", error);
+	}
 }
 
 async function nivelAdmin(chatId, message, numero, tipo) {
@@ -259,71 +1109,7 @@ async function nivelAdmin(chatId, message, numero, tipo) {
 	}	
 }
 
-async function nivelMenu(chatId, message, numero, tipo) {
-	console.log("3. Nivel Menu")
-	await mensajeFacebook(numero, "Estamos en el nivel del menu");
 
-	const response = message;
-	if (response.type === 'interactive' && response.interactive.type === 'button_reply') {
-		const buttonId = response.interactive.button_reply.id;
-		console.log("ID del botón seleccionado:", buttonId);
-
-		switch (buttonId) {
-			case "clienteBoton_1":
-				promocionFlow(numero, false) 
-				break;
-			case "clienteBoton_2":
-				reenviarUbicacion(numero, false) 
-				break;
-			case "clienteBoton_3":
-				await mensajeFacebook(numero, "*Activando asistente*");
-				await mensajeFacebook(numero, "Realiza tu consulta");
-				chatStates.set(chatId, "asistente");
-				break;
-			default:
-				console.log("Botón no reconocido.");
-		}
-		
-	}
-
-	else if (message.text.body === "1") {
-		chatStates.set(chatId, "initial");
-	}
-
-	// switch (message.text.body) {
-	// 	case "1":
-	// 		mensajeFacebook(numero, `Ingresa el número [Promo] ⬇`);
-	// 		chatStates.set(chatId, "reenviarPromocion");
-	// 		break;
-	// 	case "2":
-	// 		break;
-	// 	case "3":
-	// 		mensajeFacebook(numero, `Ingresa el número [Ubica]⬇`);
-	// 		chatStates.set(chatId, "reenviarUbicacion");
-	// 		break;
-	// 	case "4":
-	// 		mensajeFacebook(numero, `Ingresa el número [ProcesoCompra]⬇`);
-	// 		chatStates.set(chatId, "reenviarProcesoCompra");
-	// 		break;
-	// 	case "5":
-	// 		mensajeFacebook(numero, `Ingresa el número [FormaPago]⬇`);
-	// 		chatStates.set(chatId, "reenviarFormasPago");
-	// 		break;
-	// 	case "8":
-	// 		mensajeFacebook(numero, `Escribe tu consulta aquí [GPT]⬇`);
-	// 		chatStates.set(chatId, "asistenteGPT");
-	// 		break;
-	// 	case "9":
-	// 		mensajeFacebook(numero, `Saliendo`);
-	// 		chatStates.set(chatId, "initial");
-	// 		break;
-	// 	default:
-	// 		await adminFlow();
-	// 		chatStates.set(chatId, "admin");
-	// }
-	// break;
-	
-}
 
 async function promocionFlow(contactId, isReflow = false) {
 
@@ -405,6 +1191,16 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
 
+	const mensaje = [
+		`*Retiro en tienda:* 🏬`,
+		`Reserva tus productos online y recógelos en la sucursal y hora que más te convenga. `,
+		``,
+		`¿Quieres comprar tus productos cuando quieras y cómo quieras? ¡Con el retiro en tienda es posible!`,
+		`Elige los productos que quieres comprar en nuestra tienda online y resérvalos para la fecha y hora que más te convenga. Te enviaremos un correo electrónico con la confirmación de tu reserva.`,
+		`Recuerda que puedes realizar el pago de tu compra en línea o en la sucursal al momento de retirar tus productos.`,
+	];
+	await mensajeFacebook(contact, mensaje.join('\n'));
+
 	const imagen = "https://multilaptops.net/recursos/imagenes/tiendaonline/mapa-uyustus3.jpg";
 	const texto = [
 		`👉 Visítanos en *Multilaptops* - Ubicados en Calle Uyustus #990 (Esquina Calatayud, primera casa bajando por la acera izquierda), La Paz - Bolivia`,
@@ -416,7 +1212,6 @@ async function reenviarUbicacion(contactId, isReflow = false) {
 		``,
 		`🚩 Recuerda agendar tu visita para una mejor atención. ¡Te esperamos con gusto! 😊`,
 	].join('\n');
-
 	await imgFacebook(contact, texto, imagen)
 }
 
@@ -1008,12 +1803,13 @@ async function obtenerDiaActual() {
 
 	const diaLiteral = dias[fecha.getDay()];
 	const diaNumero = fecha.getDate().toString();
-	const mesLiteral = meses[fecha.getMonth()]; // Obtener el nombre del mes
+	const mesLiteral = meses[fecha.getMonth()];
+	const año = fecha.getFullYear().toString(); // Obtener el año
 
-	// Concatenar el día y mes en el formato deseado
-	const fechaActual = `${diaLiteral} ${diaNumero} de ${mesLiteral}`;
+	// Concatenar el día, mes y año en el formato deseado
+	const fechaActual = `${diaLiteral} ${diaNumero} de ${mesLiteral} del ${año}`;
 
-	console.log('Fecha actual:', fechaActual); // Ejemplo: "Fecha actual: Miércoles 09 de agosto"
+	console.log('Fecha actual:', fechaActual); // Ejemplo: "Fecha actual: Miércoles 09 de agosto del 2023"
 
 	return fechaActual;
 }
@@ -1047,6 +1843,21 @@ async function guardarEnFirebase(data) {
 	} catch (error) {
 		console.error('Error al guardar los datos:', error);
 	}
+}
+
+function horaConSegundos(params) {
+	let ahora = new Date();
+	let horas = ahora.getHours();
+	let minutos = ahora.getMinutes();
+	let segundos = ahora.getSeconds();
+
+	// Asegurarse de que horas, minutos y segundos siempre tengan al menos dos dígitos
+	horas = ('0' + horas).slice(-2);
+	minutos = ('0' + minutos).slice(-2);
+	segundos = ('0' + segundos).slice(-2);
+
+	let horaConSegundos = `${horas}:${minutos}:${segundos}`;
+	return horaConSegundos;
 }
 
 app.use("/whatsapp", whatsapps);

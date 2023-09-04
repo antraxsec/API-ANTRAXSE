@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { WHATSAPP_API_KEY } from "./config.js";
-import {db,  gcsBucket, uploadFile} from '../src/firebase.js'
+import { WHATSAPP_API_KEY } from "../config.js";
+import {db,  gcsBucket, uploadFile} from '../firebase.js'
 import { getDatabase, ref, set ,onValue} from "firebase/database";
 import fsPromises from 'fs/promises';
 

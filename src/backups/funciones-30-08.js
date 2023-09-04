@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { WHATSAPP_API_KEY } from "./config.js";
-import {db} from '../src/firebase.js'
+import { WHATSAPP_API_KEY } from "../config.js";
+import {db} from '../firebase.js'
 import { getDatabase, ref, set ,onValue} from "firebase/database";
 
 export async function productoFacebook(to, id_catalogo, boy_text, footer_text) {
