@@ -43,11 +43,48 @@ export async function productoFacebook(to, id_catalogo, boy_text, footer_text) {
             guardarEnFirebase(message, response);
         })
         .catch((error) => {
-            console.log("Error al enviar el mensaje: ", error);
+            console.log("Error al enviar el productoFacebook: ", error.response);
+        });
+}
+
+export async function audioFacebook(to) {
+    var message = {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: to,
+        type: "audio",
+        audio: {
+            // "id": "your-media-id",
+            "link": "https://multilaptops.net/recursos/audio/voz_multilaptops.mp3"
+        }
+    };
+
+    var url = "https://graph.facebook.com/v16.0/119254337784335/messages";
+    var token = WHATSAPP_API_KEY;
+
+    const response = await axios
+        .post(url, message, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        })
+
+        .then((response) => {
+            console.log("Audio enviado con éxito");
+            guardarEnFirebase(message, response);
+            return true;
+        })
+        .catch((error) => {
+            console.log("Error al enviar el audio: ", error.response);
         });
 }
 
 export async function mensajeFacebook(to, textBody) {
+    
+    const maxLength = 4096;
+    // textBody = textBody.length > maxLength ? textBody.substring(0, maxLength - 3) + "..." : textBody;
+    
     const message = {
         messaging_product: "whatsapp",
         recipient_type: "individual",
@@ -74,7 +111,52 @@ export async function mensajeFacebook(to, textBody) {
         guardarEnFirebase(message, response);
         return response;
     } catch (error) {
-        console.log("Error al enviar el mensaje: ", error);
+        console.log("Error al enviar el mensajeFacebook: ", error.response);
+        // throw error;
+    }
+}
+
+export async function catalogoSeccionFacebook(to, opciones, sections) {
+    const message = {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: to,
+        type: "interactive",
+        interactive: {
+            "type": "product_list",
+            "header": {
+              "type": "text",
+              "text": opciones.header
+            },
+            "body": {
+              "text": opciones.body
+            },
+            // "footer": {
+            //   "text": "FOOTER_CONTENT"
+            // },
+            "action": {
+              "catalog_id": "1418912658860290",
+              "sections": sections
+            }
+        }
+    };
+
+    const url = "https://graph.facebook.com/v16.0/119254337784335/messages";
+    const token = WHATSAPP_API_KEY;
+
+    try {
+        const response = await axios.post(url, message, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        console.log("Mensaje-catalogo-selección enviado con éxito");
+        guardarEnFirebase(message, response);
+        return response;
+    } catch (error) {
+        console.log("Error al enviar el catálogo-selección: ", error.response);
         throw error;
     }
 }
@@ -105,7 +187,7 @@ export async function reaccionFacebook(to, wamid, emoji) {
             console.log("Mensaje enviado con éxito");
         })
         .catch((error) => {
-            console.log("Error al enviar el mensaje: ", error);
+            console.log("Error al enviar el reacción: ", error.response);
         });
 }
 
@@ -136,7 +218,7 @@ export async function imgFacebook(to, textBody, imgurl) {
         guardarEnFirebase(message, response);
         return response;
     } catch (error) {
-        console.log("Error al enviar el mensaje: ", error);
+        console.log("Error al enviar el img: ", error);
         throw error;
     }
 }
@@ -202,7 +284,7 @@ export async function enviarContacto(to, name, phone_number) {
 
         console.log("Mensaje-contacto enviado con éxito");
     } catch (error) {
-        console.log("Error al enviar el mensaje: ", error);
+        console.log("Error al enviar el contacto: ", error);
     }
 }
 
@@ -241,7 +323,7 @@ export async function ubicacionFacebook(
             guardarEnFirebase(message, response);
         })
         .catch((error) => {
-            console.log("Error al enviar el mensaje: ", error);
+            console.log("Error al enviar ubicación: ", error);
         });
 }
 
@@ -275,7 +357,7 @@ export async function mesajeReferencialFacebook(to, textBody, wamid) {
             guardarEnFirebase(message, response);
         })
         .catch((error) => {
-            console.log("Error al enviar el mensaje: ", error);
+            console.log("Error al enviar el m referencial: ", error.response);
         });
 }
 //hay que revisar
@@ -348,7 +430,7 @@ export function encuaestaFacebook(to, textBody, arrayBtn) {
             console.log("Mensaje enviado con éxito");
         })
         .catch((error) => {
-            console.log("Error al enviar el mensaje: ", error);
+            console.log("Error al enviar el encuesta: ", error.response);
         });
 }
 
@@ -411,17 +493,14 @@ export async function menuListaFacebook(to, opciones) {
             type: "list",
             header: {
                 type: "text",
-                text: "Menu de opciones",
+                text: opciones.header,
             },
             body: {
-                text: "Selecciona una opción y descubre nuestra tecnología. ¡Te sorprenderás!",
+                text: opciones.body,
             },
-            // "footer": {
-            //     "text": "Obtén más información"
-            // },
             action: {
                 button: "Opciones",
-                sections: opciones,
+                sections: opciones.lista,
             },
         },
     };
@@ -441,7 +520,7 @@ export async function menuListaFacebook(to, opciones) {
         guardarEnFirebase(message, response);
 
     } catch (error) {
-        console.log("Error al enviar el mensaje: ", error.response);
+        console.log("Error al enviar el menulista: ", error.response);
     }
 }
 

@@ -21,7 +21,7 @@ import {
 	OPENAI_API_KEY,
 } from "./config.js";
 import { WHATSAPP_API_KEY } from "./config.js";
-import { mensajeFacebook, productoFacebook, ubicacionFacebook, bottonesFacebook, imgFacebook, reaccionFacebook, menuListaFacebook, obtenerDescargarImagen, enviarContacto, catalogoSeccionFacebook, audioFacebook } from './funciones.js'
+import { mensajeFacebook, productoFacebook, ubicacionFacebook, bottonesFacebook, imgFacebook, reaccionFacebook, menuListaFacebook, obtenerDescargarImagen, enviarContacto, catalogoSeccionFacebook } from './funciones.js'
 
 const app = express();
 const server = createServer(app);
@@ -29,12 +29,6 @@ const io = new Server(server, { cors: { origin: "*", methods:["GET", "POST"] }  
 const historialAnalisis = new Map(); //Guarda el contexto de openai en analisis
 const historialAsistente = new Map();
 const chatStates = new Map();
-
-
-// const corsOption={
-// 	origin:"http://localhost:3000",
-// 	credentials:true
-// }
 
 app.use(cors());
 app.use(express.json());
@@ -227,93 +221,83 @@ export async function nivelInicial(chatId, message, numero, tipo) {
 		return palabrasClave.some(phrase => mensajeTexto.toLowerCase().indexOf(phrase.toLowerCase()) !== -1);
 	};
 
-	const palabrasClave = ["Vi esto en Facebook...", "hola"];
+	const palabrasClave = ["Hola"];
 	if (tipo === 'text') {
 		const mensajeTexto = message.text.body;
 
 		if (compararPalabrasClave(mensajeTexto, palabrasClave)) {
-			const texto = [
-				"Contamos con una amplia variedad de laptops de última generación para todo tipo de uso.",
-				"",
-				"Somos una tienda autorizada por *Samsung Bolivia*. Todos nuestros productos son originales y cuentan con la garantía del fabricante.",
-				"",
-				"Comprar con nosotros es rápido y sencillo. Puedes hacerlo desde nuestra tienda online o en cualquiera de nuestras tiendas virtuales.",
-			];
-			await mensajeFacebook(numero, `¡Hola! 🤗 Bienvenido a *Multilaptops*`);
-			await mensajeFacebook(numero, texto.join('\n'));
-			// await audioFacebook(numero) 
+			await mensajeFacebook(numero, `¡Hola! 🤗 Bienvenido a Multilaptops`);
 			await menuLista(numero);
 			chatStates.set(chatId, "menu");
 		}
 
 		else {
-			
-			// const response = message;
-			// mensajeFacebook(numero, "Activando asistente");
-			// const datos = {
-			// 	mensaje:  response.text.body,
-			// 	numero: numero,
-			// }			
-			// try {
-			// 	const respuesta = await asistenteAI(datos);
-			// 	if (respuesta) {
-			// 		console.log(respuesta);
 
-			// 		const parrafos = respuesta.split('\n\n');
-			// 		console.log(parrafos);
+			const response = message;
+			mensajeFacebook(numero, "Activando asistente");
+			const datos = {
+				mensaje:  response.text.body,
+				numero: numero,
+			}			
+			try {
+				const respuesta = await asistenteAI(datos);
+				if (respuesta) {
+					console.log(respuesta);
 
-			// 		for (const parrafo of parrafos) {
+					const parrafos = respuesta.split('\n');
+					console.log(parrafos);
 
-			// 			const regex = /\b\d{6}\b/g;
-			// 			const skus = parrafo.match(regex);
+					for (const parrafo of parrafos) {
 
-			// 			if (skus) {
-			// 				console.log(skus);
+						const regex = /\b\d{6}\b/g;
+						const skus = parrafo.match(regex);
 
-			// 				for (const sku of skus) {
-			// 					// await mensajeFacebook(numero, parrafo);
-			// 					await productoFacebook(numero, sku, 'Multilaptops', 'Ver producto');
-			// 				}
+						if (skus) {
+							console.log(skus);
 
-			// 			} else {
-			// 				console.log(typeof parrafo, parrafo)
-			// 				await mensajeFacebook(numero, parrafo);
-			// 			}
-			// 		}
+							for (const sku of skus) {
+								// await mensajeFacebook(numero, parrafo);
+								await productoFacebook(numero, sku, 'Multilaptops', 'Ver producto');
+							}
 
-			// 		// var parrafos = respuestaJSON.split('\n\n');
+						} else {
+							await mensajeFacebook(numero, parrafo);
+						}
+					}
 
-			// 		// 	parrafos = parrafos.map(parrafo => {
-			// 		// 		parrafo = parrafo.replace(/(RAM:)/g, '*$1*');
-			// 		// 		parrafo = parrafo.replace(/(Pantalla:)/g, '*$1*');
-			// 		// 		parrafo = parrafo.replace(/(Procesador:)/g, '*$1*');
-			// 		// 		parrafo = parrafo.replace(/(Almacenamiento:)/g, '*$1*');
-			// 		// 		parrafo = parrafo.replace(/(Precio:)/g, '*$1*');
-			// 		// 		parrafo = parrafo.replace(/(Producto SKU:)/g, '*$1*');
-			// 		// 		return parrafo;
-			// 		// 	});
+					// var parrafos = respuestaJSON.split('\n\n');
 
-			// 		// for(let index = 0; index < parrafos.length; index++) {
-			// 		// 	let parrafo = parrafos[index];
+					// 	parrafos = parrafos.map(parrafo => {
+					// 		parrafo = parrafo.replace(/(RAM:)/g, '*$1*');
+					// 		parrafo = parrafo.replace(/(Pantalla:)/g, '*$1*');
+					// 		parrafo = parrafo.replace(/(Procesador:)/g, '*$1*');
+					// 		parrafo = parrafo.replace(/(Almacenamiento:)/g, '*$1*');
+					// 		parrafo = parrafo.replace(/(Precio:)/g, '*$1*');
+					// 		parrafo = parrafo.replace(/(Producto SKU:)/g, '*$1*');
+					// 		return parrafo;
+					// 	});
 
-			// 		// 	console.log(`Párrafo ${index + 1}: ${parrafo}`);
+					// for(let index = 0; index < parrafos.length; index++) {
+					// 	let parrafo = parrafos[index];
+
+					// 	console.log(`Párrafo ${index + 1}: ${parrafo}`);
 						
-			// 		// 	if (parrafo.includes("SKU")) {
-			// 		// 		let skuMatch = parrafo.match(/(1\d{5})/);
-			// 		// 		if (skuMatch) {
-			// 		// 			let skuNumber = skuMatch[1];
-			// 		// 			await productoFacebook(numero, skuNumber, 'Multilaptops', 'Ver producto');
-			// 		// 		}
-			// 		// 	} else {
-			// 		// 		await mensajeFacebook(numero, parrafo);
-			// 		// 	}
-			// 		// }
+					// 	if (parrafo.includes("SKU")) {
+					// 		let skuMatch = parrafo.match(/(1\d{5})/);
+					// 		if (skuMatch) {
+					// 			let skuNumber = skuMatch[1];
+					// 			await productoFacebook(numero, skuNumber, 'Multilaptops', 'Ver producto');
+					// 		}
+					// 	} else {
+					// 		await mensajeFacebook(numero, parrafo);
+					// 	}
+					// }
 
-			// 	}
+				}
 				
-			// } catch (error) {
-			// 	console.error("Error en asistenteAI:", error.response);
-			// }
+			} catch (error) {
+				console.error("Error en asistenteAI:", error.response);
+			}
 		}
 
 	} 
@@ -1047,26 +1031,26 @@ async function menuListaCatalogo(numero) {
 					"id": "btn_catalogoMarca1",
 					"title": "Laptops Samsung",
 				},
-				// {
-				// 	"id": "btn_catalogoMarca2",
-				// 	"title": "Laptops Asus",
-				// },
-				// {
-				// 	"id": "btn_catalogoMarca3",
-				// 	"title": "Laptops Lenovo",
-				// },
-				// {
-				// 	"id": "btn_catalogoMarca4",
-				// 	"title": "Laptops Dell",
-				// },
-				// {
-				// 	"id": "btn_catalogoMarca5",
-				// 	"title": "Laptops MSI",
-				// },
-				// {
-				// 	"id": "btn_catalogoMarca6",
-				// 	"title": "Laptops Acer",
-				// }
+				{
+					"id": "btn_catalogoMarca2",
+					"title": "Laptops Asus",
+				},
+				{
+					"id": "btn_catalogoMarca3",
+					"title": "Laptops Lenovo",
+				},
+				{
+					"id": "btn_catalogoMarca4",
+					"title": "Laptops Dell",
+				},
+				{
+					"id": "btn_catalogoMarca5",
+					"title": "Laptops MSI",
+				},
+				{
+					"id": "btn_catalogoMarca6",
+					"title": "Laptops Acer",
+				}
 			]
 		},
 	];
@@ -1144,78 +1128,6 @@ async function reenviarCatalogoSamsung(numero) {
 	];
 	await catalogoSeccionFacebook(numero, opciones, secciones);
 
-}
-
-/*
-* Asistente
-*/
-async function nivelAsistente(params) {
-	// const response = message;
-	// mensajeFacebook(numero, "Activando asistente");
-	// const datos = {
-	// 	mensaje:  response.text.body,
-	// 	numero: numero,
-	// }			
-	// try {
-	// 	const respuesta = await asistenteAI(datos);
-	// 	if (respuesta) {
-	// 		console.log(respuesta);
-
-	// 		const parrafos = respuesta.split('\n\n');
-	// 		console.log(parrafos);
-
-	// 		for (const parrafo of parrafos) {
-
-	// 			const regex = /\b\d{6}\b/g;
-	// 			const skus = parrafo.match(regex);
-
-	// 			if (skus) {
-	// 				console.log(skus);
-
-	// 				for (const sku of skus) {
-	// 					// await mensajeFacebook(numero, parrafo);
-	// 					await productoFacebook(numero, sku, 'Multilaptops', 'Ver producto');
-	// 				}
-
-	// 			} else {
-	// 				console.log(typeof parrafo, parrafo)
-	// 				await mensajeFacebook(numero, parrafo);
-	// 			}
-	// 		}
-
-	// 		// var parrafos = respuestaJSON.split('\n\n');
-
-	// 		// 	parrafos = parrafos.map(parrafo => {
-	// 		// 		parrafo = parrafo.replace(/(RAM:)/g, '*$1*');
-	// 		// 		parrafo = parrafo.replace(/(Pantalla:)/g, '*$1*');
-	// 		// 		parrafo = parrafo.replace(/(Procesador:)/g, '*$1*');
-	// 		// 		parrafo = parrafo.replace(/(Almacenamiento:)/g, '*$1*');
-	// 		// 		parrafo = parrafo.replace(/(Precio:)/g, '*$1*');
-	// 		// 		parrafo = parrafo.replace(/(Producto SKU:)/g, '*$1*');
-	// 		// 		return parrafo;
-	// 		// 	});
-
-	// 		// for(let index = 0; index < parrafos.length; index++) {
-	// 		// 	let parrafo = parrafos[index];
-
-	// 		// 	console.log(`Párrafo ${index + 1}: ${parrafo}`);
-				
-	// 		// 	if (parrafo.includes("SKU")) {
-	// 		// 		let skuMatch = parrafo.match(/(1\d{5})/);
-	// 		// 		if (skuMatch) {
-	// 		// 			let skuNumber = skuMatch[1];
-	// 		// 			await productoFacebook(numero, skuNumber, 'Multilaptops', 'Ver producto');
-	// 		// 		}
-	// 		// 	} else {
-	// 		// 		await mensajeFacebook(numero, parrafo);
-	// 		// 	}
-	// 		// }
-
-	// 	}
-		
-	// } catch (error) {
-	// 	console.error("Error en asistenteAI:", error.response);
-	// }
 }
 
 
