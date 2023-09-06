@@ -58,42 +58,43 @@ app.get("/webhookwhatsapp", function (req, res) {
 	}
 });
 
-app.post("/webhookwhatsapp", async function (request, response) {
+app.post("/webhookwhatsapp", function (request, response) {
 	console.log('LLEGO:: ', request.body)
-	try {
-		const { entry } = request.body;
+	response.sendStatus(200);
+	// try {
+	// 	const { entry } = request.body;
         
-        if (!entry || !Array.isArray(entry) || entry.length === 0) {
-            console.warn('Solicitud no válida: ', request.body);
-            return response.sendStatus(400);
-        }
+    //     if (!entry || !Array.isArray(entry) || entry.length === 0) {
+    //         console.warn('Solicitud no válida: ', request.body);
+    //         return response.sendStatus(400);
+    //     }
 
-		const { changes } = entry?.[0] || {};
-		const { value } = changes?.[0] || {};
-		const { messages, statuses } = value || {};
-		const messageDetails = messages?.[0];
-		const statusDetails = statuses?.[0];
+	// 	const { changes } = entry?.[0] || {};
+	// 	const { value } = changes?.[0] || {};
+	// 	const { messages, statuses } = value || {};
+	// 	const messageDetails = messages?.[0];
+	// 	const statusDetails = statuses?.[0];
 
-		// Ahora puedes manejar los mensajes y los estados por separado
-		if (messageDetails) {
-			console.log('DETALLES:: ', messageDetails)
-			const chatId = messageDetails?.from;
+	// 	// Ahora puedes manejar los mensajes y los estados por separado
+	// 	if (messageDetails) {
+	// 		console.log('DETALLES:: ', messageDetails)
+	// 		const chatId = messageDetails?.from;
 
-			procesarMensajeEntrante(chatId, messageDetails);
-			// guardarEnFirebase(messageDetails);
-			response.sendStatus(200);
-		}
+	// 		procesarMensajeEntrante(chatId, messageDetails);
+	// 		// guardarEnFirebase(messageDetails);
+	// 		response.sendStatus(200);
+	// 	}
 
-		// if (statusDetails) {
-		// 	let hora = horaConSegundos();
-		// 	console.log('Llego un estado desde whatsapp business: ', hora)
-		// }
+	// 	// if (statusDetails) {
+	// 	// 	let hora = horaConSegundos();
+	// 	// 	console.log('Llego un estado desde whatsapp business: ', hora)
+	// 	// }
 
 		
-	} catch (error) {
-		console.error(error);
-		response.sendStatus(500);
-	}
+	// } catch (error) {
+	// 	console.error(error);
+	// 	response.sendStatus(500);
+	// }
 
 });
 
