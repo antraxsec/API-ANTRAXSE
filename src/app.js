@@ -18,7 +18,7 @@ import {
 import { mensajeFacebook, productoFacebook, ubicacionFacebook, imgFacebook, reaccionFacebook, bottonesDosFacebook } from './funciones.js'
 const app = express();
 const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
 
 const chatStates = new Map();
 //const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
