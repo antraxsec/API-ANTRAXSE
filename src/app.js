@@ -81,6 +81,7 @@ app.post("/webhookwhatsapp", async function (request, response) {
 
 			procesarMensajeEntrante(chatId, messageDetails);
 			// guardarEnFirebase(messageDetails);
+			response.sendStatus(200);
 		}
 
 		// if (statusDetails) {
@@ -88,7 +89,7 @@ app.post("/webhookwhatsapp", async function (request, response) {
 		// 	console.log('Llego un estado desde whatsapp business: ', hora)
 		// }
 
-		response.sendStatus(200);
+		
 	} catch (error) {
 		console.error(error);
 		response.sendStatus(500);
