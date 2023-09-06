@@ -75,13 +75,13 @@ app.post("/webhookwhatsapp", async function (request, response) {
 		const statusDetails = statuses?.[0];
 
 		// Ahora puedes manejar los mensajes y los estados por separado
-		// if (messageDetails) {
-		// 	console.log('DETALLES:: ', messageDetails)
-		// 	const chatId = messageDetails?.from;
+		if (messageDetails) {
+			console.log('DETALLES:: ', messageDetails)
+			const chatId = messageDetails?.from;
 
-		// 	procesarMensajeEntrante(chatId, messageDetails);
-		// 	guardarEnFirebase(messageDetails);
-		// }
+			procesarMensajeEntrante(chatId, messageDetails);
+			// guardarEnFirebase(messageDetails);
+		}
 
 		// if (statusDetails) {
 		// 	let hora = horaConSegundos();
