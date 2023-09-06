@@ -57,45 +57,79 @@ app.get("/webhookwhatsapp", function (req, res) {
 		res.sendStatus(400);
 	}
 });
+app.post("/webhookwhatsapp", async (request, response) => {
+    try {
+        console.log('Entrada recibida: ', request.body);
 
-app.post("/webhookwhatsapp", async function (request, response) {
-	console.log('LLEGO:: ', request.body)
-	try {
-		const { entry } = request.body;
-        
-        if (!entry || !Array.isArray(entry) || entry.length === 0) {
+        const entry = request.body?.entry;
+
+        if (!entry?.length) {
             console.warn('Solicitud no válida: ', request.body);
-            return response.sendStatus(400);
+            return response.status(400).send('Solicitud no válida');
         }
 
-		const { changes } = entry?.[0] || {};
-		const { value } = changes?.[0] || {};
-		const { messages, statuses } = value || {};
-		const messageDetails = messages?.[0];
-		const statusDetails = statuses?.[0];
+        const { changes } = entry[0] || {};
+        const { value } = changes?.[0] || {};
+        const { messages } = value || {};
+        const messageDetails = messages?.[0];
 
-		// Ahora puedes manejar los mensajes y los estados por separado
-		if (messageDetails) {
-			console.log('DETALLES:: ', messageDetails)
-			const chatId = messageDetails?.from;
+        if (messageDetails) {
+            console.log('Detalles del mensaje: ', messageDetails);
+            const chatId = messageDetails.from;
+            await procesarMensajeEntrante(chatId, messageDetails);
+            //await guardarEnFirebase(messageDetails);  // Descomenta si necesitas esta función.
+            return response.status(200).send('Mensaje procesado con éxito');
+        } else {
+            console.warn('No se encontraron detalles del mensaje en la solicitud.');
+            return response.status(400).send('Solicitud no válida');
+        }
 
-			procesarMensajeEntrante(chatId, messageDetails);
-			//guardarEnFirebase(messageDetails);
-			response.sendStatus(200);
-		}
+    } catch (error) {
+        console.error('Error al procesar la solicitud: ', error);
+        return response.status(500).send('Error interno del servidor');
+    }
+});
 
-		// if (statusDetails) {
-		// 	let hora = horaConSegundos();
-		// 	console.log('Llego un estado desde whatsapp business: ', hora)
-		// }
+// Define las funciones "procesarMensajeEntrante" y "guardarEnFirebase" si aún no las tienes.
+
+// app.post("/webhookwhatsapp", async function (request, response) {
+// 	console.log('LLEGO:: ', request.body)
+// 	try {
+// 		const { entry } = request.body;
+        
+//         if (!entry || !Array.isArray(entry) || entry.length === 0) {
+//             console.warn('Solicitud no válida: ', request.body);
+//             return response.sendStatus(400);
+//         }
+
+// 		const { changes } = entry?.[0] || {};
+// 		const { value } = changes?.[0] || {};
+// 		const { messages, statuses } = value || {};
+// 		const messageDetails = messages?.[0];
+// 		const statusDetails = statuses?.[0];
+
+// 		// Ahora puedes manejar los mensajes y los estados por separado
+// 		if (messageDetails) {
+// 			console.log('DETALLES:: ', messageDetails)
+// 			const chatId = messageDetails?.from;
+
+// 			procesarMensajeEntrante(chatId, messageDetails);
+// 			//guardarEnFirebase(messageDetails);
+// 			response.sendStatus(200);
+// 		}
+
+// 		// if (statusDetails) {
+// 		// 	let hora = horaConSegundos();
+// 		// 	console.log('Llego un estado desde whatsapp business: ', hora)
+// 		// }
 
 		
-	} catch (error) {
-		console.error(error);
-		response.sendStatus(500);
-	}
+// 	} catch (error) {
+// 		console.error(error);
+// 		response.sendStatus(500);
+// 	}
 
-});
+// });
 
 const ESTADOS = {
     INICIAL: 	"initial",
