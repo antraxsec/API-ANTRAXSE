@@ -78,10 +78,9 @@ app.post("/webhookwhatsapp", async function (request, response) {
 		if (messageDetails) {
 			console.log('DETALLES:: ', messageDetails)
 			const chatId = messageDetails?.from;
-
-			procesarMensajeEntrante(chatId, messageDetails);
+			await procesarMensajeEntrante(chatId, messageDetails);
 			//guardarEnFirebase(messageDetails);
-			response.sendStatus(200);
+			response.sendStatus(200).send('Enviado con exito');
 		}
 
 		// if (statusDetails) {
