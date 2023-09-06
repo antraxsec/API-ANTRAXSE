@@ -78,9 +78,10 @@ app.post("/webhookwhatsapp", async function (request, response) {
 		if (messageDetails) {
 			console.log('DETALLES:: ', messageDetails)
 			const chatId = messageDetails?.from;
-			await procesarMensajeEntrante(chatId, messageDetails);
-			//guardarEnFirebase(messageDetails);
-			response.sendStatus(200).send('Enviado con exito');
+
+			procesarMensajeEntrante(chatId, messageDetails);
+			// guardarEnFirebase(messageDetails);
+			response.sendStatus(200);
 		}
 
 		// if (statusDetails) {
@@ -127,97 +128,97 @@ async function procesarMensajeEntrante(chatId, message) {
 	const tipo 	 = message.type;
 	const numero = message.from;
 	
-	switch (estadoActual) {
-		case ESTADOS.INICIAL:
-			await nivelInicial(chatId, message, numero, tipo);
-			break;
-		case ESTADOS.ADMIN:
-			nivelAdmin(chatId, message, numero, tipo);
-			break;
-		case ESTADOS.MENU:
-			nivelMenu(chatId, message, numero, tipo);
-			break;
-		case ESTADOS.PROMO1:
-			if (validarNumerocelular(message.text.body)) {
-				await promocionFlow(message.text.body, true);
-			}
-			else if (message.text.body === "1") {
-				chatStates.set(chatId, "admin");
-				//chatStates.set(chatId, "initial"); new
-				await adminFlow(numero);
-			}
-			else {
-				mensajeFacebook(numero, [
-					`Ingresa un número de celular válido.`,
-					`1️⃣ Salir.`,
-				].join('\n'));
-				chatStates.set(chatId, "reenviarPromocion");
-			}
+	// switch (estadoActual) {
+	// 	case ESTADOS.INICIAL:
+	// 		await nivelInicial(chatId, message, numero, tipo);
+	// 		break;
+	// 	case ESTADOS.ADMIN:
+	// 		nivelAdmin(chatId, message, numero, tipo);
+	// 		break;
+	// 	case ESTADOS.MENU:
+	// 		nivelMenu(chatId, message, numero, tipo);
+	// 		break;
+	// 	case ESTADOS.PROMO1:
+	// 		if (validarNumerocelular(message.text.body)) {
+	// 			await promocionFlow(message.text.body, true);
+	// 		}
+	// 		else if (message.text.body === "1") {
+	// 			chatStates.set(chatId, "admin");
+	// 			//chatStates.set(chatId, "initial"); new
+	// 			await adminFlow(numero);
+	// 		}
+	// 		else {
+	// 			mensajeFacebook(numero, [
+	// 				`Ingresa un número de celular válido.`,
+	// 				`1️⃣ Salir.`,
+	// 			].join('\n'));
+	// 			chatStates.set(chatId, "reenviarPromocion");
+	// 		}
 
-			break;
-		case ESTADOS.UBICACION:
-			if (validarNumerocelular(message.text.body)) {
-				await reenviarUbicacion(message.text.body, true);
+	// 		break;
+	// 	case ESTADOS.UBICACION:
+	// 		if (validarNumerocelular(message.text.body)) {
+	// 			await reenviarUbicacion(message.text.body, true);
 				
-			}
-			else if (message.text.body === "1") {
-				chatStates.set(chatId, "admin");
-				await adminFlow(numero);
-			}
-			else {
-				mensajeFacebook(numero, [
-					`Ingresa un número de celular válido.`,
-					`1️⃣ Salir.`,
-				].join('\n'));
-				chatStates.set(chatId, "reenviarUbicacion");
-			}
-			break;
-		case ESTADOS.ASISTENTE:
-			if (message.text.body.trim() !== "") {
-				if (message.text.body === "1") {
-					chatStates.set(chatId, "menu");
-					await adminFlow(numero);
-				}
-				else{
-					mensajeFacebook(numero, "Estamos en el nivel del asistente");
-					asistenteGPT(numero, false, message);
-				}
-			} else {
-				console.log("Algún error raro")
-			}
-			break;		
+	// 		}
+	// 		else if (message.text.body === "1") {
+	// 			chatStates.set(chatId, "admin");
+	// 			await adminFlow(numero);
+	// 		}
+	// 		else {
+	// 			mensajeFacebook(numero, [
+	// 				`Ingresa un número de celular válido.`,
+	// 				`1️⃣ Salir.`,
+	// 			].join('\n'));
+	// 			chatStates.set(chatId, "reenviarUbicacion");
+	// 		}
+	// 		break;
+	// 	case ESTADOS.ASISTENTE:
+	// 		if (message.text.body.trim() !== "") {
+	// 			if (message.text.body === "1") {
+	// 				chatStates.set(chatId, "menu");
+	// 				await adminFlow(numero);
+	// 			}
+	// 			else{
+	// 				mensajeFacebook(numero, "Estamos en el nivel del asistente");
+	// 				asistenteGPT(numero, false, message);
+	// 			}
+	// 		} else {
+	// 			console.log("Algún error raro")
+	// 		}
+	// 		break;		
 
-		case ESTADOS.FORMAENTREGA:
-			nivelFormaEntrega(chatId, message, numero, tipo) 
-			break;
-		case ESTADOS.RETIROTIENDA:
-			nivelRetiroTienda(chatId, message, numero, tipo) 
-			break;
-		case ESTADOS.RETIROPROGRAMA:
-			nivelRetiroTiendaPrograma(chatId, message, numero, tipo) 
-			break;	
-		case ESTADOS.ENTREGADOMICILIO:
-			nivelEntregaDomicilio(chatId, message, numero, tipo) 
-			break;	
-		case ESTADOS.ENTREGAPROGRAMA:
-			nivelEntregaDomicilioPrograma(chatId, message, numero, tipo) 
-			break;		
-		case ESTADOS.ENVIONACIONAL:
-			nivelEnvioNacional(chatId, message, numero, tipo) 
-			break;		
-		case ESTADOS.ENVIONACIONALPROGRAMA:
-			nivelEnvioNacionalPrograma(chatId, message, numero, tipo) 
-			break;
-		case ESTADOS.MENUCATALOGO:
-			nivelCatalogo(chatId, message, numero, tipo) 
-			break;	
-		case ESTADOS.CATALOGOSAMSUNG:
-			// nivelCatalogo(chatId, message, numero, tipo) 
-			break;		
-		default:
-            console.log("Estado no reconocido");
-            break;	
-	}
+	// 	case ESTADOS.FORMAENTREGA:
+	// 		nivelFormaEntrega(chatId, message, numero, tipo) 
+	// 		break;
+	// 	case ESTADOS.RETIROTIENDA:
+	// 		nivelRetiroTienda(chatId, message, numero, tipo) 
+	// 		break;
+	// 	case ESTADOS.RETIROPROGRAMA:
+	// 		nivelRetiroTiendaPrograma(chatId, message, numero, tipo) 
+	// 		break;	
+	// 	case ESTADOS.ENTREGADOMICILIO:
+	// 		nivelEntregaDomicilio(chatId, message, numero, tipo) 
+	// 		break;	
+	// 	case ESTADOS.ENTREGAPROGRAMA:
+	// 		nivelEntregaDomicilioPrograma(chatId, message, numero, tipo) 
+	// 		break;		
+	// 	case ESTADOS.ENVIONACIONAL:
+	// 		nivelEnvioNacional(chatId, message, numero, tipo) 
+	// 		break;		
+	// 	case ESTADOS.ENVIONACIONALPROGRAMA:
+	// 		nivelEnvioNacionalPrograma(chatId, message, numero, tipo) 
+	// 		break;
+	// 	case ESTADOS.MENUCATALOGO:
+	// 		nivelCatalogo(chatId, message, numero, tipo) 
+	// 		break;	
+	// 	case ESTADOS.CATALOGOSAMSUNG:
+	// 		// nivelCatalogo(chatId, message, numero, tipo) 
+	// 		break;		
+	// 	default:
+    //         console.log("Estado no reconocido");
+    //         break;	
+	// }
 
 }
 
