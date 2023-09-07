@@ -2370,11 +2370,11 @@ io.on('connection', (socket) => {
 		console.log(data.numero)
 		console.log(data.type)
 		if (data.type === 'ubicacion') {
-			reenviarUbicacion(data.numero, true)
+			reenviarUbicacion(data.numero, false)
 		} else if (data.type === 'promocion') {
-			promocionFlow(data.numero, true)
+			promocionFlow(data.numero, false)
 		} else if (data.type === 'asistente') {
-			asistenteGPT(data.numero, true, 'Hola')
+			asistenteGPT(data.numero, false, 'Hola')
 		}
 
 	})
