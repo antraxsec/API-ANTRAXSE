@@ -2366,15 +2366,15 @@ io.on('connection', (socket) => {
 	})
 
 	socket.on('accionButton', (data) => {
-		console.log(data.type)
-		console.log(data.numero)
-		if (data.type === 'ubicacion') {
-			reenviarUbicacion(data.numero, true)
-		} else if (data.type === 'promocion') {
-			promocionFlow(data.numero, true)
-		} else if (data.type === 'asistente') {
-			asistenteGPT(data.numero, true, 'Hola')
-		}
+		console.log("hardyyy", data)
+		// console.log(data.numero)
+		// if (data.type === 'ubicacion') {
+		// 	reenviarUbicacion(data.numero, true)
+		// } else if (data.type === 'promocion') {
+		// 	promocionFlow(data.numero, true)
+		// } else if (data.type === 'asistente') {
+		// 	asistenteGPT(data.numero, true, 'Hola')
+		// }
 
 	})
 
