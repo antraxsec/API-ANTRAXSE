@@ -2365,6 +2365,19 @@ io.on('connection', (socket) => {
 		mensajeFacebook(data.numero, data.mensaje);
 	})
 
+	socket.on('accionButton', (data) => {
+		console.log(data.type)
+		console.log(data.numero)
+		if (data.type === 'ubicacion') {
+			reenviarUbicacion(data.numero, true)
+		} else if (data.type === 'promocion') {
+			promocionFlow(data.numero, true)
+		} else if (data.type === 'asistente') {
+			asistenteGPT(data.numero, true, 'Hola')
+		}
+
+	})
+
 });
 
 app.use(express.static("public"));
