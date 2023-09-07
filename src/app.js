@@ -87,12 +87,11 @@ app.post("/webhookwhatsapp", async function (request, response) {
 			console.log('Llego un estado desde whatsapp business: ', hora)
 		}
 
-		response.sendStatus(200);
+		response.sendStatus(200).send('Enviado con exito');
 	} catch (error) {
 		console.error(error);
 		response.sendStatus(500);
 	}
-
 });
 
 const ESTADOS = {
