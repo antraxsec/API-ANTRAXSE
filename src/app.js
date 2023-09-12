@@ -1217,63 +1217,6 @@ async function nivelAsistente(params) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 async function analisisAI(datos) {
 
 	if (!historialAnalisis.has(datos.numero)) {
@@ -2357,9 +2300,26 @@ io.on('connection', (socket) => {
 	socket.on('mensaje', (data) => {
 		console.log(data)
 		// mensajes = data;
-
 		mensajeFacebook(data.numero, data.mensaje);
 	})
+
+	socket.on('accionButton', (data) => {
+		console.log(data.type)
+		console.log(data.numero)
+		if (data.type === 'ubicacion') {
+			reenviarUbicacion(data.numero, true)
+		} else if (data.type === 'promocion') {
+			promocionFlow(data.numero, true)
+		} else if (data.type === 'asistente') {
+			asistenteGPT(data.numero, true, 'Hola')
+		} else {
+			console.log('no entro')
+		}
+
+	})
+
+
+
 
 });
 
