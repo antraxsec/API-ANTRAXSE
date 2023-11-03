@@ -246,7 +246,8 @@ export async function nivelInicial(chatId, message, numero, tipo) {
 			await menuLista(numero);
 			chatStates.set(chatId, "menu");
 		}
-//nuevo
+//nuevo dos
+
 		else {
 			
 			// const response = message;
