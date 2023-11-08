@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase, set } from "firebase/database";
 
-import { Storage as GCStorage} from "@google-cloud/storage";
+import { Storage as GCStorage } from "@google-cloud/storage";
 
 import { getStorage as FirebaseStorage, ref, getDownloadURL } from "@firebase/storage";
 
@@ -30,18 +30,18 @@ export async function uploadFile(filePath, destFileName, generationMatchPrecondi
         const options = {
             destination: destFileName,
             preconditionOpts: { ifGenerationMatch: generationMatchPrecondition },
-          };
-        
+        };
+
         await gcsBucket.upload(filePath, options); //await gcsBucket.upload(filePath, options);
 
         const fileRef = ref(storage, destFileName);
-        
+
         const downloadURL = await getDownloadURL(fileRef);
         console.log("Firebase Download URL:", downloadURL);
 
         return downloadURL;
 
     } catch (error) {
-    console.error(error);
+        console.error(error);
     }
 }
