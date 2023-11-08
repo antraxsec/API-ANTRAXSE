@@ -14,7 +14,7 @@ import { Server } from "socket.io";
 import requestCounterMiddleware from "./requestCounterMiddleware.js";
 
 import { ref, set } from "firebase/database";
-import { db, gcsBucket, uploadFile } from '../src/firebase.js'
+import {db, gcsBucket, uploadFile} from '../src/firebase.js'
 
 import { appendFile } from 'fs';
 import {
@@ -25,7 +25,7 @@ import { mensajeFacebook, productoFacebook, ubicacionFacebook, bottonesFacebook,
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
+const io = new Server(server, { cors: { origin: "*", methods:["GET", "POST"] }  });
 const historialAnalisis = new Map(); //Guarda el contexto de openai en analisis
 const historialAsistente = new Map();
 const chatStates = new Map();
@@ -62,11 +62,11 @@ app.post("/webhookwhatsapp", function (request, response) {
 
 	try {
 		const { entry } = request.body;
-
-		if (!entry || !Array.isArray(entry) || entry.length === 0) {
-			console.warn('Solicitud no válida: ', request.body);
-			return response.sendStatus(400);
-		}
+        
+        if (!entry || !Array.isArray(entry) || entry.length === 0) {
+            console.warn('Solicitud no válida: ', request.body);
+            return response.sendStatus(400);
+        }
 
 		const { changes } = entry?.[0] || {};
 		const { value } = changes?.[0] || {};
@@ -89,44 +89,45 @@ app.post("/webhookwhatsapp", function (request, response) {
 		// 	console.log('Llego un estado desde whatsapp business: ', hora)
 		// }
 
-
+		
 	} catch (error) {
 		console.error(error);
 		response.sendStatus(500);
 	}
+
 });
 
 const ESTADOS = {
-	INICIAL: "initial",
-	MENU: "menu",
-	ASISTENTE: "asistente",
-	ADMIN: "admin",
-	PROMO1: "reenviarPromocion",
-	UBICACION: "reenviarUbicacion",
-	FORMAENTREGA: "formaEntrega",
-	RETIROTIENDA: "retiroTienda",
-	RETIROPROGRAMA: "retiroTiendaPrograma",
-	ENTREGADOMICILIO: "entregaDomicilio",
-	ENTREGAPROGRAMA: "entregaDomicilioPrograma",
-	ENVIONACIONAL: "envioNacional",
-	ENVIONACIONALPROGRAMA: "envioNacionalPrograma",
-	MENUCATALOGO: "menuCatalogo",
-	CATALOGOSAMSUNG: "catalogoSamsung",
+    INICIAL: 	"initial",
+    MENU: 		"menu",
+    ASISTENTE: 	"asistente",
+    ADMIN: 		"admin",
+    PROMO1: 	"reenviarPromocion",
+    UBICACION: 	"reenviarUbicacion",
+	FORMAENTREGA:		"formaEntrega",
+	RETIROTIENDA:		"retiroTienda",
+	RETIROPROGRAMA:		"retiroTiendaPrograma",
+	ENTREGADOMICILIO:	"entregaDomicilio",
+	ENTREGAPROGRAMA:	"entregaDomicilioPrograma",
+	ENVIONACIONAL:		"envioNacional",
+	ENVIONACIONALPROGRAMA:	"envioNacionalPrograma",
+	MENUCATALOGO:	"menuCatalogo",
+	CATALOGOSAMSUNG:	"catalogoSamsung",
 };
 
 function obtenerEstadoActual(chatId) {
-	if (!chatStates.has(chatId)) {
-		chatStates.set(chatId, ESTADOS.INICIAL);
-	}
+    if (!chatStates.has(chatId)) {
+        chatStates.set(chatId, ESTADOS.INICIAL);
+    }
 	return chatStates.get(chatId);
 }
 
 async function procesarMensajeEntrante(chatId, message) {
 
-	const estadoActual = obtenerEstadoActual(chatId);  // Ahora puedes obtener el estado actual	
-	const tipo = message.type;
+    const estadoActual = obtenerEstadoActual(chatId);  // Ahora puedes obtener el estado actual	
+	const tipo 	 = message.type;
 	const numero = message.from;
-
+	
 	switch (estadoActual) {
 		case ESTADOS.INICIAL:
 			await nivelInicial(chatId, message, numero, tipo);
@@ -158,7 +159,7 @@ async function procesarMensajeEntrante(chatId, message) {
 		case ESTADOS.UBICACION:
 			if (validarNumerocelular(message.text.body)) {
 				await reenviarUbicacion(message.text.body, true);
-
+				
 			}
 			else if (message.text.body === "1") {
 				chatStates.set(chatId, "admin");
@@ -178,52 +179,52 @@ async function procesarMensajeEntrante(chatId, message) {
 					chatStates.set(chatId, "menu");
 					await adminFlow(numero);
 				}
-				else {
+				else{
 					mensajeFacebook(numero, "Estamos en el nivel del asistente");
 					asistenteGPT(numero, false, message);
 				}
 			} else {
 				console.log("Algún error raro")
 			}
-			break;
+			break;		
 
 		case ESTADOS.FORMAENTREGA:
-			nivelFormaEntrega(chatId, message, numero, tipo)
+			nivelFormaEntrega(chatId, message, numero, tipo) 
 			break;
 		case ESTADOS.RETIROTIENDA:
-			nivelRetiroTienda(chatId, message, numero, tipo)
+			nivelRetiroTienda(chatId, message, numero, tipo) 
 			break;
 		case ESTADOS.RETIROPROGRAMA:
-			nivelRetiroTiendaPrograma(chatId, message, numero, tipo)
-			break;
+			nivelRetiroTiendaPrograma(chatId, message, numero, tipo) 
+			break;	
 		case ESTADOS.ENTREGADOMICILIO:
-			nivelEntregaDomicilio(chatId, message, numero, tipo)
-			break;
+			nivelEntregaDomicilio(chatId, message, numero, tipo) 
+			break;	
 		case ESTADOS.ENTREGAPROGRAMA:
-			nivelEntregaDomicilioPrograma(chatId, message, numero, tipo)
-			break;
+			nivelEntregaDomicilioPrograma(chatId, message, numero, tipo) 
+			break;		
 		case ESTADOS.ENVIONACIONAL:
-			nivelEnvioNacional(chatId, message, numero, tipo)
-			break;
+			nivelEnvioNacional(chatId, message, numero, tipo) 
+			break;		
 		case ESTADOS.ENVIONACIONALPROGRAMA:
-			nivelEnvioNacionalPrograma(chatId, message, numero, tipo)
+			nivelEnvioNacionalPrograma(chatId, message, numero, tipo) 
 			break;
 		case ESTADOS.MENUCATALOGO:
-			nivelCatalogo(chatId, message, numero, tipo)
-			break;
+			nivelCatalogo(chatId, message, numero, tipo) 
+			break;	
 		case ESTADOS.CATALOGOSAMSUNG:
 			// nivelCatalogo(chatId, message, numero, tipo) 
-			break;
+			break;		
 		default:
-			console.log("Estado no reconocido");
-			break;
+            console.log("Estado no reconocido");
+            break;	
 	}
 
 }
 
 export async function nivelInicial(chatId, message, numero, tipo) {
 
-	const compararPalabrasClave = (mensajeTexto, palabrasClave) => {
+    const compararPalabrasClave = (mensajeTexto, palabrasClave) => {
 		return palabrasClave.some(phrase => mensajeTexto.toLowerCase().indexOf(phrase.toLowerCase()) !== -1);
 	};
 
@@ -247,7 +248,7 @@ export async function nivelInicial(chatId, message, numero, tipo) {
 		}
 
 		else {
-
+			
 			// const response = message;
 			// mensajeFacebook(numero, "Activando asistente");
 			// const datos = {
@@ -297,7 +298,7 @@ export async function nivelInicial(chatId, message, numero, tipo) {
 			// 		// 	let parrafo = parrafos[index];
 
 			// 		// 	console.log(`Párrafo ${index + 1}: ${parrafo}`);
-
+						
 			// 		// 	if (parrafo.includes("SKU")) {
 			// 		// 		let skuMatch = parrafo.match(/(1\d{5})/);
 			// 		// 		if (skuMatch) {
@@ -310,13 +311,13 @@ export async function nivelInicial(chatId, message, numero, tipo) {
 			// 		// }
 
 			// 	}
-
+				
 			// } catch (error) {
 			// 	console.error("Error en asistenteAI:", error.response);
 			// }
 		}
 
-	}
+	} 
 }
 
 async function menuLista(numero) {
@@ -350,7 +351,7 @@ async function menuLista(numero) {
 	];
 	const opciones = {
 		header: "Menu de opciones",
-		body: "Selecciona una opción y descubre nuestra tecnología. ¡Te sorprenderás!",
+		body: 	"Selecciona una opción y descubre nuestra tecnología. ¡Te sorprenderás!",
 		lista: lista
 	}
 	await menuListaFacebook(numero, opciones);
@@ -365,19 +366,19 @@ async function nivelMenu(chatId, message, numero, tipo) {
 
 		switch (buttonId) {
 			case "btn_catalogo":
-				menuListaCatalogo(numero)
+				menuListaCatalogo(numero) 
 				chatStates.set(chatId, "menuCatalogo");
 				break;
 			case "btn_comprar":
-				reenviarUbicacion(numero, false)
+				reenviarUbicacion(numero, false) 
 				chatStates.set(chatId, "menu");
 				break;
 			case "btn_promocion":
-				promocionFlow(numero, false)
+				promocionFlow(numero, false) 
 				chatStates.set(chatId, "menu");
 				break;
 			case "btn_formaEntrega":
-				menuFormaEntrega(numero)
+				menuFormaEntrega(numero) 
 				chatStates.set(chatId, "formaEntrega");
 				break;
 			case "btn_asesor":
@@ -388,7 +389,7 @@ async function nivelMenu(chatId, message, numero, tipo) {
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else if (response.text && response.text.body === "1") {
 		await mensajeFacebook(numero, "Saliendo del menu");
@@ -413,7 +414,7 @@ async function menuFormaEntrega(numero) {
 	];
 	const opciones = {
 		header: "Formas de entrega",
-		body: texto.join('\n'),
+		body: 	texto.join('\n'),
 		buttons: botones
 	}
 	await bottonesFacebook(numero, opciones);
@@ -441,18 +442,18 @@ async function nivelFormaEntrega(chatId, message, numero, tipo) {
 				break;
 			case "btn_submenuFormaEntrega2":
 				await reenviarEntregaDomicilio(numero, false)
-				await menuEntregaDomicilio(numero)
+				await menuEntregaDomicilio(numero) 
 				chatStates.set(chatId, "entregaDomicilio");
 				break;
 			case "btn_submenuFormaEntrega3":
 				await reenviarEnvioNacional(numero, false)
-				await menuEnvioNacional(numero)
+				await menuEnvioNacional(numero) 
 				chatStates.set(chatId, "envioNacional");
 				break;
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else if (response.text && response.text.body === "1") {
 		await mensajeFacebook(numero, "Saliendo del menu");
@@ -480,7 +481,7 @@ async function menuRetiroTienda(numero) {
 	];
 	const opciones = {
 		header: "Retiro en tienda",
-		body: texto.join('\n'),
+		body: 	texto.join('\n'),
 		buttons: botones
 	}
 	await bottonesFacebook(numero, opciones);
@@ -525,7 +526,7 @@ async function nivelRetiroTienda(chatId, message, numero, tipo) {
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else if (response.text && response.text.body === "1") {
 		await mensajeFacebook(numero, "Saliendo del menu");
@@ -541,16 +542,16 @@ async function nivelRetiroTiendaPrograma(chatId, message, numero, tipo) {
 	console.log('Extracción de datos: ', numero)
 	const response = message;
 	if (response.text && response.text.body) {
-
+		
 		try {
 			const datos = {
 				parametros: "nombre, celular, fecha, hora",
 				objetivo: `Extraer el [nombre], [celular], [fecha] y [hora] que vendra el cliente a la tienda pide la hora de visita. La fecha de hoy es ${await obtenerDiaActual()}, si no lo encuentras pidelo`,
-				mensaje: response.text.body,
+				mensaje:  response.text.body,
 				numero: numero,
 			}
 			const respuestaJSON = await analisisAI(datos);
-
+			
 			// Asegurarte de que la respuesta tiene las propiedades que esperas antes de acceder a ellas
 			if (respuestaJSON && respuestaJSON.estado) {
 				const mensaje = [
@@ -574,7 +575,7 @@ async function nivelRetiroTiendaPrograma(chatId, message, numero, tipo) {
 				];
 				const opciones = {
 					header: "Opciones",
-					body: "Porfavor selecciona una opción",
+					body: 	"Porfavor selecciona una opción",
 					buttons: botones
 				}
 				await bottonesFacebook(numero, opciones);
@@ -616,7 +617,7 @@ async function nivelRetiroTiendaPrograma(chatId, message, numero, tipo) {
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else {
 		// await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
@@ -652,14 +653,14 @@ async function reenviarFormasEntrega(contactId, isReflow = false) {
 	].join('\n');
 
 	try {
-		const textResponse = await mensajeFacebook(contact, mensaje.join('\n'));
-		console.log("Mensaje de texto enviado con éxito:");
+        const textResponse = await mensajeFacebook(contact, mensaje.join('\n'));
+        console.log("Mensaje de texto enviado con éxito:");
 
-		const imgResponse = await imgFacebook(contact, texto, imagen);
-		console.log("Imagen enviada con éxito:");
-	} catch (error) {
-		console.error("Hubo un error al enviar el mensaje o la imagen:", error);
-	}
+        const imgResponse = await imgFacebook(contact, texto, imagen);
+        console.log("Imagen enviada con éxito:");
+    } catch (error) {
+        console.error("Hubo un error al enviar el mensaje o la imagen:", error);
+    }
 }
 
 /*
@@ -678,7 +679,7 @@ async function menuEntregaDomicilio(numero) {
 	];
 	const opciones = {
 		header: "Entrega a domicilio",
-		body: texto.join('\n'),
+		body: 	texto.join('\n'),
 		buttons: botones
 	}
 	await bottonesFacebook(numero, opciones);
@@ -723,7 +724,7 @@ async function nivelEntregaDomicilio(chatId, message, numero, tipo) {
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else if (response.text.body === "1") {
 		await mensajeFacebook(numero, "Saliendo del menu");
@@ -739,16 +740,16 @@ async function nivelEntregaDomicilioPrograma(chatId, message, numero, tipo) {
 	console.log('Extracción de datos: ', numero)
 	const response = message;
 	if (response.text && response.text.body) {
-
+		
 		try {
 			const datos = {
 				parametros: "nombre, celular, producto_sku, direccion",
 				objetivo: `Extraer el [nombre], [celular], [producto_sku], [direccion] donde enviaremos su pedido. Si falta datos debes pedirlo`,
-				mensaje: response.text.body,
+				mensaje:  response.text.body,
 				numero: numero,
 			}
 			const respuestaJSON = await analisisAI(datos);
-
+			
 			if (respuestaJSON && respuestaJSON.estado) {
 				const mensaje = [
 					`*Información de contacto*`,
@@ -771,7 +772,7 @@ async function nivelEntregaDomicilioPrograma(chatId, message, numero, tipo) {
 				];
 				const opciones = {
 					header: "Opciones",
-					body: "Porfavor selecciona una opción",
+					body: 	"Porfavor selecciona una opción",
 					buttons: botones
 				}
 				await bottonesFacebook(numero, opciones);
@@ -813,7 +814,7 @@ async function nivelEntregaDomicilioPrograma(chatId, message, numero, tipo) {
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else {
 		// await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
@@ -837,17 +838,17 @@ async function reenviarEntregaDomicilio(contactId, isReflow = false) {
 	];
 
 	try {
-		const textResponse1 = await mensajeFacebook(contact, mensaje1.join('\n'));
-		console.log("Mensaje de texto enviado con éxito:");
+        const textResponse1 = await mensajeFacebook(contact, mensaje1.join('\n'));
+        console.log("Mensaje de texto enviado con éxito:");
 
-		const textResponse2 = await mensajeFacebook(contact, mensaje2.join('\n'));
-		console.log("Imagen enviada con éxito:");
+        const textResponse2 = await mensajeFacebook(contact, mensaje2.join('\n'));
+        console.log("Imagen enviada con éxito:");
 
 		const textResponse3 = await mensajeFacebook(contact, mensaje3.join('\n'));
 		console.log("Imagen enviada con éxito:");
-	} catch (error) {
-		console.error("Hubo un error al enviar el mensaje o la imagen:", error);
-	}
+    } catch (error) {
+        console.error("Hubo un error al enviar el mensaje o la imagen:", error);
+    }
 }
 
 /*
@@ -864,7 +865,7 @@ async function menuEnvioNacional(numero) {
 	];
 	const opciones = {
 		header: "Envio nacional",
-		body: texto.join('\n'),
+		body: 	texto.join('\n'),
 		buttons: botones
 	}
 	await bottonesFacebook(numero, opciones);
@@ -909,7 +910,7 @@ async function nivelEnvioNacional(chatId, message, numero, tipo) {
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else if (response.text.body === "1") {
 		await mensajeFacebook(numero, "Saliendo del menu");
@@ -925,16 +926,16 @@ async function nivelEnvioNacionalPrograma(chatId, message, numero, tipo) {
 	console.log('Extracción de datos: ', numero)
 	const response = message;
 	if (response.text && response.text.body) {
-
+		
 		try {
 			const datos = {
 				parametros: "nombre, celular, producto_sku, ciudad",
 				objetivo: `Extraer el [nombre], [celular], [producto_sku], [ciudad] donde enviaremos su pedido. Si falta datos debes pedirlo`,
-				mensaje: response.text.body,
+				mensaje:  response.text.body,
 				numero: numero,
 			}
 			const respuestaJSON = await analisisAI(datos);
-
+			
 			if (respuestaJSON && respuestaJSON.estado) {
 				const mensaje = [
 					`*Información de contacto*`,
@@ -950,13 +951,13 @@ async function nivelEnvioNacionalPrograma(chatId, message, numero, tipo) {
 				await mensajeFacebook(numero, `En breve nos contactaremos contigo para coordinar la entrega de tu pedido.`);
 
 				const botones = [
-					{ id: "btn_submenuMenu", title: "Menu principal" },
-					{ id: "btn_submenuAsesor", title: "Hablar con un asesor" },
-					{ id: "btn_submenuSalir", title: "Salir" }
+					{ id: "btn_submenuMenu", 	title: "Menu principal" },
+					{ id: "btn_submenuAsesor", 	title: "Hablar con un asesor" },
+					{ id: "btn_submenuSalir", 	title: "Salir" }
 				];
 				const opciones = {
 					header: "Opciones",
-					body: "Porfavor selecciona una opción",
+					body: 	"Porfavor selecciona una opción",
 					buttons: botones
 				}
 				await bottonesFacebook(numero, opciones);
@@ -997,7 +998,7 @@ async function nivelEnvioNacionalPrograma(chatId, message, numero, tipo) {
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else {
 		// await mensajeFacebook(numero, `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`);
@@ -1021,17 +1022,17 @@ async function reenviarEnvioNacional(contactId, isReflow = false) {
 	];
 
 	try {
-		const textResponse1 = await mensajeFacebook(contact, mensaje1.join('\n'));
-		console.log("Mensaje de texto enviado con éxito:");
+        const textResponse1 = await mensajeFacebook(contact, mensaje1.join('\n'));
+        console.log("Mensaje de texto enviado con éxito:");
 
-		const textResponse2 = await mensajeFacebook(contact, mensaje2.join('\n'));
-		console.log("Mensaje de texto enviado con éxito:");
+        const textResponse2 = await mensajeFacebook(contact, mensaje2.join('\n'));
+        console.log("Mensaje de texto enviado con éxito:");
 
 		const textResponse3 = await mensajeFacebook(contact, mensaje3.join('\n'));
 		console.log("Mensaje de texto enviado con éxito:");
-	} catch (error) {
-		console.error("Hubo un error al enviar el mensaje o la imagen:", error);
-	}
+    } catch (error) {
+        console.error("Hubo un error al enviar el mensaje o la imagen:", error);
+    }
 }
 
 /*
@@ -1072,11 +1073,11 @@ async function menuListaCatalogo(numero) {
 	];
 	const opciones = {
 		header: "Catálogos de productos",
-		body: "Toda nuestra lista de productos disponibles a tu alcance.",
+		body: 	"Toda nuestra lista de productos disponibles a tu alcance.",
 		lista: lista
 	}
 	await menuListaFacebook(numero, opciones);
-
+	
 }
 
 async function nivelCatalogo(chatId, message, numero, tipo) {
@@ -1094,7 +1095,7 @@ async function nivelCatalogo(chatId, message, numero, tipo) {
 			default:
 				console.log("Botón no reconocido.");
 		}
-
+		
 	}
 	else if (response.text && response.text.body === "1") {
 		await mensajeFacebook(numero, "Saliendo del menu");
@@ -1107,7 +1108,7 @@ async function nivelCatalogo(chatId, message, numero, tipo) {
 }
 
 async function reenviarCatalogoSamsung(numero) {
-
+	
 	const opciones = {
 		header: "Catálogo Samsung",
 		body: "Ofrecemos toda la gama de modelos homologados para Bolivia",
@@ -1199,7 +1200,7 @@ async function nivelAsistente(params) {
 	// 		// 	let parrafo = parrafos[index];
 
 	// 		// 	console.log(`Párrafo ${index + 1}: ${parrafo}`);
-
+				
 	// 		// 	if (parrafo.includes("SKU")) {
 	// 		// 		let skuMatch = parrafo.match(/(1\d{5})/);
 	// 		// 		if (skuMatch) {
@@ -1212,7 +1213,7 @@ async function nivelAsistente(params) {
 	// 		// }
 
 	// 	}
-
+		
 	// } catch (error) {
 	// 	console.error("Error en asistenteAI:", error.response);
 	// }
@@ -1277,18 +1278,18 @@ async function nivelAsistente(params) {
 
 
 async function analisisAI(datos) {
-
+	
 	if (!historialAnalisis.has(datos.numero)) {
-		historialAnalisis.set(datos.numero, []);
-	}
-
-	const historial = historialAnalisis.get(datos.numero);
+        historialAnalisis.set(datos.numero, []);
+    }
+	
+    const historial = historialAnalisis.get(datos.numero);
 	const mensajes = [
 		{ role: "system", content: `Tu respuesta debe ser en formato JSON con los siguientes parametros: ${datos.parametros}. Tu funcion solo es cumplir esta orden: "${datos.objetivo}". El parametro "estado" debe ser TRUE si los datos se encuentran, FALSE en caso contrario. Agrega tu comentario en el parametro "comentario".` },
 		{ role: "user", content: datos.mensaje },
 	];
 	historial.push(...mensajes);
-
+  
 	try {
 		const respuestaOpenAI = await solicitarRespuestaOpenAI(historial);
 		// Agregar respuesta de OpenAI al historial y enviarla al usuario
@@ -1296,7 +1297,7 @@ async function analisisAI(datos) {
 
 		if (historial.length > 100) {
 			// Truncar el historial para mantenerlo dentro del límite
-			historial.splice(0, historial.length - 100);
+			historial.splice(0, historial.length - 100);  
 		}
 
 		try {
@@ -1308,19 +1309,19 @@ async function analisisAI(datos) {
 		} catch (error) {
 			console.error("La respuesta no es JSON:", respuestaOpenAI);
 		}
-
+	
 	} catch (error) {
-		console.error("Ocurrió un error al realizar la petición:", error);
+	  	console.error("Ocurrió un error al realizar la petición:", error);
 	}
 }
 
 async function asistenteAI(datos) {
-
+	
 	if (!historialAsistente.has(datos.numero)) {
-		historialAsistente.set(datos.numero, []);
-	}
-
-	const historial = historialAsistente.get(datos.numero);
+        historialAsistente.set(datos.numero, []);
+    }
+	
+    const historial = historialAsistente.get(datos.numero);
 
 	const productos = [
 		{
@@ -1464,7 +1465,7 @@ async function asistenteAI(datos) {
 		{ role: "user", content: datos.mensaje },
 	];
 	historial.push(...mensajes);
-
+  
 	try {
 		const respuestaOpenAI = await solicitarRespuestaOpenAI(historial);
 		// Agregar respuesta de OpenAI al historial y enviarla al usuario
@@ -1472,7 +1473,7 @@ async function asistenteAI(datos) {
 
 		if (historial.length > 5) {
 			// Truncar el historial para mantenerlo dentro del límite
-			historial.splice(0, historial.length - 100);
+			historial.splice(0, historial.length - 100);  
 		}
 
 		try {
@@ -1481,34 +1482,34 @@ async function asistenteAI(datos) {
 		} catch (error) {
 			console.error("Ocurrio un error:", respuestaOpenAI);
 		}
-
+	
 	} catch (error) {
-		console.error("Ocurrió un error al realizar la petición:", error);
+	  	console.error("Ocurrió un error al realizar la petición:", error);
 	}
 }
 
 async function solicitarRespuestaOpenAI(mensajes) {
 	const openai = new OpenAI({
 		apiKey: process.env.OPENAI_API_KEY,
-	});
-
-	const completion = await openai.chat.completions.create({
-		messages: mensajes,
-		model: "gpt-3.5-turbo"
-	});
-	return completion.choices[0].message["content"];
+  	});
+	
+    const completion = await openai.chat.completions.create({
+        messages: mensajes,
+        model: "gpt-3.5-turbo"
+    });
+    return completion.choices[0].message["content"];
 }
 
 async function analisisAIxxx(datos) {
 	const openai = new OpenAI({
-		apiKey: process.env.OPENAI_API_KEY,
+	  	apiKey: process.env.OPENAI_API_KEY,
 	});
-
+  
 	const mensajeInicial = [
 		{ role: "system", content: `Tu respuesta debe ser en formato JSON con los siguientes parametros: ${datos.parametros}. Tu funcion solo es cumplir esta orden: "${datos.objetivo}". El parametro "estado" debe ser TRUE si los datos se encuentran, FALSE en caso contrario. Agrega tu comentario en el parametro "comentario".` },
 		{ role: "user", content: datos.mensaje },
 	];
-
+  
 	try {
 		const completion = await openai.chat.completions.create({
 			messages: mensajeInicial,
@@ -1522,9 +1523,9 @@ async function analisisAIxxx(datos) {
 		} catch (error) {
 			console.error("La respuesta no es JSON:", respuesta);
 		}
-
+	
 	} catch (error) {
-		console.error("Ocurrió un error al realizar la petición:", error);
+	  	console.error("Ocurrió un error al realizar la petición:", error);
 	}
 }
 
@@ -1551,8 +1552,8 @@ async function nivelAdmin(chatId, message, numero, tipo) {
 				break;
 			default:
 				console.log("Botón no reconocido.");
-		}
-	}
+		}	
+	}	
 }
 
 
@@ -1782,7 +1783,7 @@ async function asistenteGPT(contactId, isReflow = false, message) {
 
 	var mensaje = message.text.body;
 	const contact = isReflow ? `591${contactId}@c.us` : contactId;
-
+	
 	const openai = new OpenAI({
 		apiKey: process.env.OPENAI_API_KEY,
 	});
@@ -1929,7 +1930,7 @@ async function asistenteGPT(contactId, isReflow = false, message) {
 			{ role: "system", content: `Eres un vendedor de laptops samsung, solo vende estos disponibles:\n${descripcionDeProductos()}\nProporciona varios modelos.` },
 			{ role: "user", content: mensajeDelUsuario }
 		];
-
+		
 		try {
 			const completion = await openai.chat.completions.create({
 				messages: mensajeInicial,
@@ -1967,21 +1968,21 @@ async function asistenteGPT(contactId, isReflow = false, message) {
 		return parrafo;
 	});
 
-	for (let index = 0; index < parrafos.length; index++) {
-		let parrafo = parrafos[index];
+	for(let index = 0; index < parrafos.length; index++) {
+        let parrafo = parrafos[index];
 
 		console.log(`Párrafo ${index + 1}: ${parrafo}`);
-
-		if (parrafo.includes("SKU")) {
+        
+        if (parrafo.includes("SKU")) {
 			let skuMatch = parrafo.match(/(1\d{5})/);
-			if (skuMatch) {
-				let skuNumber = skuMatch[1];
-				await productoFacebook(contact, skuNumber, 'Multilaptops', 'Ver producto');
-			}
-		} else {
+            if (skuMatch) {
+                let skuNumber = skuMatch[1];
+                await productoFacebook(contact, skuNumber, 'Multilaptops', 'Ver producto');
+            }
+        } else {
 			await mensajeFacebook(contact, parrafo);
-		}
-	}
+        }
+    }
 
 	// for (var i = 0; i < parrafos.length; i++) {
 	// 	var parrafo = parrafos[i];
@@ -2269,12 +2270,12 @@ function validarNumerocelular(numero) {
 
 async function guardarEnFirebase(data) {
 	const date = new Date();  // Ejemplo de fecha
-	const timestamp = date.getTime();
+    const timestamp = date.getTime();
 	try {
 		if (data.text) {
 			console.log("La respuesta es de tipo texto.");
 			await set(ref(db, `chat/${data.from}/${timestamp}/`), data);
-
+			
 		} else if (data.image) {
 			console.log("La respuesta es de tipo imagen.");
 
@@ -2285,7 +2286,7 @@ async function guardarEnFirebase(data) {
 			console.log("La respuesta es de otro tipo.");
 		}
 
-		console.log('Datos guardados exitosamente.');
+		console.log('Datos guardados exitosamente.');		
 	} catch (error) {
 		console.error('Error al guardar los datos:', error);
 	}
@@ -2356,7 +2357,7 @@ io.on('connection', (socket) => {
 		io.emit('serverTracer', dataTracking)
 	});
 
-	socket.on('mensaje', (data) => {
+	socket.on('mensaje',(data)=>{
 		console.log(data)
 		// mensajes = data;
 
@@ -2390,5 +2391,5 @@ export default server;
 
 // git pull origin master
 //HOMA MUNDO CRUEL
-// pedrogit
+// pedrogit 
 // holla
