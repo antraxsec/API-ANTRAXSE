@@ -87,6 +87,41 @@ export async function nivelCatalogo(chatId, message, numero, tipo) {
   }
 }
 
+/**
+ * mandar Productos por SKU masiva mente por 
+ */
+  export async function MandarPorSKU(data) {
+    console.log("recibió productos data sku", data);
+    const { skus, cod } = data;
+    console.log(skus, cod);
+    const opciones = {
+      header: "Productos Multilaptops",
+      body: "Ofrecemos toda la gama de modelos homologados para Bolivia",
+    };
+    const secciones = [
+      {
+        title: "Producto",
+        product_items: skus.map((row) => ({ product_retailer_id: row })),
+      },
+    ];
+    await catalogoSeccionFacebook(cod, opciones, secciones);
+  }
+
+/**
+ * mandar imagenes por cantidad
+ */
+export async function MandarImg(data){
+  console.log(data)
+  data.urls.map(row => {
+    imgFacebook(data.cod, '', row);
+  })
+}
+
+
+
+/**
+ * Productos Samsung
+ */
 export async function reenviarCatalogoSamsung(numero) {
   const opciones = {
     header: "Catálogo Samsung",
@@ -123,20 +158,4 @@ export async function reenviarCatalogoSamsung(numero) {
     },
   ];
   await catalogoSeccionFacebook(numero, opciones, secciones);
-}
-export async function MandarPorSKU(data) {
-  console.log("recibió productos data sku", data);
-  const { skus, cod } = data;
-  console.log(skus, cod);
-  const opciones = {
-    header: "Productos Multilaptops",
-    body: "Ofrecemos toda la gama de modelos homologados para Bolivia",
-  };
-  const secciones = [
-    {
-      title: "Producto",
-      product_items: skus.map((row) => ({ product_retailer_id: row })),
-    },
-  ];
-  await catalogoSeccionFacebook(cod, opciones, secciones);
 }

@@ -25,23 +25,19 @@ const storage = FirebaseStorage(app);
 const gcStorage = new GCStorage({ keyFilename: './src/serviceAccountKey.json' });  // Asegúrate de usar la ruta correcta a tu archivo JSON de credenciales
 export const gcsBucket = gcStorage.bucket(firebaseConfig.storageBucket);
 
-export async function uploadFile(filePath, destFileName, generationMatchPrecondition = 0) {
-    try {
-        const options = {
-            destination: destFileName,
-            preconditionOpts: { ifGenerationMatch: generationMatchPrecondition },
-        };
+export async function uploadFile(filePath, destFileName) {
+  console.log("entroooooooo");
+  try {
+    // Si no necesitas precondiciones, simplemente omite esa opción
+    await gcsBucket.upload(filePath, { destination: destFileName });
 
-        await gcsBucket.upload(filePath, options); //await gcsBucket.upload(filePath, options);
+    const fileRef = ref(storage, destFileName);
 
-        const fileRef = ref(storage, destFileName);
+    const downloadURL = await getDownloadURL(fileRef);
+    console.log("Firebase Download URL:", downloadURL);
 
-        const downloadURL = await getDownloadURL(fileRef);
-        console.log("Firebase Download URL:", downloadURL);
-
-        return downloadURL;
-
-    } catch (error) {
-        console.error(error);
-    }
+    return downloadURL;
+  } catch (error) {
+    console.error(error);
+  }
 }

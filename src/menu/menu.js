@@ -1,3 +1,4 @@
+import { menuListaCatalogo } from "../catalogo/catalogo.js";
 import {
   mensajeFacebook,
   productoFacebook,
@@ -18,15 +19,15 @@ import {
 export async function menuLista(numero) {
   const lista = [
     {
-      title: "Opciones principales",
+      title: "Menu",
       rows: [
         {
           id: "btn_catalogo",
           title: "Cátalogo de productos",
         },
         {
-          id: "btn_comprar",
-          title: "Comprar un producto",
+          id: "btn_promociones",
+          title: "Promociones",
         },
         {
           id: "btn_promocion",
@@ -45,12 +46,12 @@ export async function menuLista(numero) {
   ];
   const opciones = {
     header: "Menu de opciones",
-    body: "Selecciona una opción y descubre nuestra tecnología. ¡Te sorprenderás!",
+    body: "Selecciona una opción y descubre nuestra tecnología. ¡Te sorprenderás! 🚀",
     lista: lista,
   };
   await menuListaFacebook(numero, opciones);
 }
-export async function nivelMenu(chatId, message, numero, tipo) {
+export async function nivelMenu(message, numero, tipo) {
   const response = message;
   if (
     response.type === "interactive" &&
@@ -61,37 +62,23 @@ export async function nivelMenu(chatId, message, numero, tipo) {
 
     switch (buttonId) {
       case "btn_catalogo":
-        // menuListaCatalogo(numero);
-        // chatStates.set(chatId, "menuCatalogo");
+        menuListaCatalogo(numero);
         break;
       case "btn_comprar":
         // reenviarUbicacion(numero, false);
-        // chatStates.set(chatId, "menu");
         break;
       case "btn_promocion":
         // promocionFlow(numero, false);
-        // chatStates.set(chatId, "menu");
         break;
       case "btn_formaEntrega":
         // menuFormaEntrega(numero);
-        // chatStates.set(chatId, "formaEntrega");
         break;
       case "btn_asesor":
         // await mensajeFacebook(numero, "*Activando asistente*");
-        // await mensajeFacebook(numero, "Realiza tu consulta");
-        // chatStates.set(chatId, "asistente");
         break;
       default:
         console.log("Botón no reconocido.");
     }
-  } else if (response.text && response.text.body === "1") {
-    // await mensajeFacebook(numero, "Saliendo del menu");
-    // chatStates.set(chatId, "initial");
-  } else {
-    // await mensajeFacebook(
-    //   numero,
-    //   `Para continuar, selecciona una opción. Recuerda que debes ingresar desde la aplicación de WhatsApp para dispositivos móviles.`
-    // );
-    //  await menuLista(numero);
   }
+  return "MENU";
 }
